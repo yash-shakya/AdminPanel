@@ -18,7 +18,7 @@ type Sponsor = {
 
 export async function createSponsor(
   sponsor: Sponsor
-): Promise<String | { err_desc: string }> {
+): Promise<string | { err_desc: string }> {
   try {
     const sponsorsCollection = collection(db, "sponsors");
     if (!sponsor.image) {
@@ -63,7 +63,7 @@ export async function getAllSponsor() {
 export async function updateSponsor(
   id: string,
   updatedData: Partial<Sponsor>
-): Promise<Boolean> {
+): Promise<boolean> {
   try {
     const sponsorDocRef = doc(db, "sponsors", id);
     if (updatedData.image) {

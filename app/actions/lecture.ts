@@ -23,7 +23,7 @@ type Lecture = {
 
 export async function createLecture(
   lecture: Lecture
-): Promise<String | { err_desc: string }> {
+): Promise<string | { err_desc: string }> {
   try {
     const lecturesCollection = collection(db, "lectures");
     if (!lecture.image) {
@@ -69,7 +69,7 @@ export async function getAllLecture() {
 export async function updateLecture(
   id: string,
   updatedData: Partial<Lecture>
-): Promise<Boolean> {
+): Promise<boolean> {
   try {
     const lectureDocRef = doc(db, "lectures", id);
     if (updatedData.image) {
