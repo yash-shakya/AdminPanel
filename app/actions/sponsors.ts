@@ -6,12 +6,14 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
+import getImgbbUrl, { IMGBB } from "../helpers/imgbb";
 
 type Sponsor = {
   alt: string;
-  imageUrl: string;
+  imageUrl?: IMGBB | null;
   name: string;
   targetUrl: string;
+  image?: File | null;
 };
 
 export async function createSponsor(
@@ -19,8 +21,16 @@ export async function createSponsor(
 ): Promise<String | { err_desc: string }> {
   try {
     const sponsorsCollection = collection(db, "sponsors");
+    if (!sponsor.image) {
+      return {
+        err_desc: "No image given",
+      };
+    }
+    const imgbb: IMGBB | null = (await getImgbbUrl(sponsor.image)).imageURL;
+    delete sponsor.image;
     const docRef = await addDoc(sponsorsCollection, {
       ...sponsor,
+      imageUrl: imgbb,
       createdAt: Date.now(),
     });
     console.log("Sponsor created with ID:", docRef.id);
@@ -56,6 +66,12 @@ export async function updateSponsor(
 ): Promise<Boolean> {
   try {
     const sponsorDocRef = doc(db, "sponsors", id);
+    if (updatedData.image) {
+      const imgbb: IMGBB | null = (await getImgbbUrl(updatedData.image))
+        .imageURL;
+      delete updatedData.image;
+      if (imgbb) updatedData.imageUrl = imgbb;
+    }
     await updateDoc(sponsorDocRef, {
       ...updatedData,
       updatedAt: Date.now(),
