@@ -6,17 +6,19 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
+import getImgbbUrl, { IMGBB } from "../helpers/imgbb";
 
 type Lecture = {
   date: string;
   desc: string;
   facebook: string;
-  imageUrl: string;
+  imageUrl?: IMGBB | null;
   insta: string;
   linkedin: string;
   link: string;
   name: string;
   time: string;
+  image?: File | null;
 };
 
 export async function createLecture(
@@ -24,8 +26,17 @@ export async function createLecture(
 ): Promise<String | { err_desc: string }> {
   try {
     const lecturesCollection = collection(db, "lectures");
+    if (!lecture.image) {
+      return {
+        err_desc: "No image given",
+      };
+    }
+
+    const imgbb: IMGBB | null = (await getImgbbUrl(lecture.image)).imageURL;
+    delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
+      imageUrl: imgbb?.url ? imgbb?.url : imgbb?.thumb,
       createdAt: Date.now(),
     });
     console.log("Lecture created with ID:", docRef.id);
