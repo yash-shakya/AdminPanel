@@ -10,61 +10,61 @@
 
 #### Admin
 
-js
+```js
 {
     username: string,
     password: hashedString
 }
-
+```
 
 #### Notification
 
-js
+```js
 {
     android_channel_id: string,
     body: string,
-    image: string,
+    image: IMGBB | null,
     link: string,
     title: string,
     time: 1708027724493, // example
 }
-
+```
 
 #### GuestLecture
 
-js
+```js
 {
     date: string, //28th Jan
     desc: string,
     facebook: string,
-    imageUrl: IMGBB | null;,
+    imageUrl: IMGBB | null,
     insta: string,
     linkedin: string,
     link: string,
     name: string,
     time: string    // 10:00 AM
 }
-
+```
 
 #### Sponsors
 
-js
+```js
 sponsorCategory_1: Sponsor[],   // hackathon partners, food, Coding, Digital,Fashion, Internship and learning
 sponsorCategory_2: Sponsor[]
+```
 
-
-js
+```js
 type Sponsor = {
     alt: string,
-    imageUrl: IMGBB | null;,
+    imageUrl: IMGBB | null,
     name: string,
-    targetUrl: string, // link to sponsor site, if not then image link
+    targetUrl: string | IMGBB | null, // link to sponsor site, if not then image link
 }
-
+```
 
 #### Techspardha teams
 
-js
+```js
 {
     societyName:{
         contacts: [],
@@ -73,15 +73,15 @@ js
 }
 
 type Contacts = {
-    imageUrl: IMGBB | null;,
+    imageUrl: IMGBB | null,
     name: string,
     post: string {Convenor/co-convenor}
 }
-
+```
 
 #### Events
 
-js
+```js
 {
     eventCategory: {
         eventName_1: Event,
@@ -98,7 +98,7 @@ type event = {
     eventCategory?: string,
     eventName: string, // we can remove this
     flagship: boolean,
-    poster: string, //link
+    poster: IMGBB | null, //link
     rules: string[],
     startTime: 1713141000000, // example,
     venue: string
@@ -108,3 +108,12 @@ type Coordinators = {
     coordinator_name: string,
     coordinator_number: string
 }
+
+### Dev Team
+
+js
+type DevTeamMember = {
+    name: string,
+    photo:IMGBB | null,
+}
+```
