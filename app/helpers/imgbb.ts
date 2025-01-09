@@ -19,13 +19,17 @@ const api_url = "https://api.imgbb.com/1/upload?key=";
 // Request types
 type Image = string;
 // Response types
-type Response = {
+type IMGBBResponse = {
     success: boolean;
+    imageURL: IMGBB | null;
+}
+
+export type IMGBB = {
     url: string | null;
     thumb: string | null;
 }
 
-export default async function getImgbbUrl(image : Image) : Promise<Response> {
+export default async function getImgbbUrl(image : Image) : Promise<IMGBBResponse> {
     // API Key
     const api_key = process.env.NEXT_PUBLIC_IMBB_API_KEY;
     
@@ -50,15 +54,16 @@ export default async function getImgbbUrl(image : Image) : Promise<Response> {
         
         return {
             success: true,
-            url: imgdata.image?.url || null,
+            imageURL: {
+                url: imgdata.image?.url || null,
             thumb: imgdata.thumb?.url || null
+            }
         };
     } catch (error) {
         console.error("Error uploading image to imgbb:", error);
         return {
             success: false,
-            url: null,
-            thumb: null,
+            imageURL: null
         };
     }
 

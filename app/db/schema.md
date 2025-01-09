@@ -37,7 +37,7 @@ js
     date: string, //28th Jan
     desc: string,
     facebook: string,
-    imageUrl: string,
+    imageUrl: IMGBB | null;,
     insta: string,
     linkedin: string,
     link: string,
@@ -56,7 +56,7 @@ sponsorCategory_2: Sponsor[]
 js
 type Sponsor = {
     alt: string,
-    imageUrl: string,
+    imageUrl: IMGBB | null;,
     name: string,
     targetUrl: string, // link to sponsor site, if not then image link
 }
@@ -73,7 +73,7 @@ js
 }
 
 type Contacts = {
-    imageUrl: string,
+    imageUrl: IMGBB | null;,
     name: string,
     post: string {Convenor/co-convenor}
 }
