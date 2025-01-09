@@ -36,7 +36,7 @@ export async function createLecture(
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
-      imageUrl: imgbb?.url ? imgbb?.url : imgbb?.thumb,
+      imageUrl: imgbb,
       createdAt: Date.now(),
     });
     console.log("Lecture created with ID:", docRef.id);
@@ -72,6 +72,12 @@ export async function updateLecture(
 ): Promise<Boolean> {
   try {
     const lectureDocRef = doc(db, "lectures", id);
+    if (updatedData.image) {
+      const imgbb: IMGBB | null = (await getImgbbUrl(updatedData.image))
+        .imageURL;
+      delete updatedData.image;
+      if (imgbb) updatedData.imageUrl = imgbb;
+    }
     await updateDoc(lectureDocRef, {
       ...updatedData,
       updatedAt: Date.now(),
