@@ -108,3 +108,11 @@ type Coordinators = {
     coordinator_name: string,
     coordinator_number: string
 }
+
+### Dev Team
+
+js
+type DevTeamMember = {
+    name: string,
+    photo:IMGBB | null,
+}
