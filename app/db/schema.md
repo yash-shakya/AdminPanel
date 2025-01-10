@@ -111,8 +111,11 @@ type Coordinators = {
 
 ### Dev Team
 
-js
 type DevTeamMember = {
-    name: string,
-    photo:IMGBB | null,
+    name: string;
+    imageUrl:IMGBB | null;
+    year: string;
+    linkedin: string;
+    github: string;
+    instagram: string;
 }
