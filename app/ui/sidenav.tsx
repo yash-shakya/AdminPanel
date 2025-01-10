@@ -1,8 +1,10 @@
+"use client";
 // Purpose: Define the sidenav for the application.
 
 // Imports
 import { Route } from "@/app/constants/routes";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 // Declaring the sidenav props
 interface SidenavProps {
@@ -10,15 +12,28 @@ interface SidenavProps {
 }
 
 export default function Sidenav({ routes }: SidenavProps) {
+	// Get the current pathname to highlight the active route
+	const pathname = usePathname();
+
 	return (
 		<>
 			<div className="bg-gray-900 w-1/5 h-screen">
 				<div className="text-white text-3xl p-4 font-mono">Navigation</div>
-				<div className="text-white text-lg p-4">
+				<div className="text-white text-lg">
 					<ul>
 						{routes.map((route, index) => (
-							<li key={index} className="p-2">
-								<Link href={route.link} className="text-blue-500 text-xl hover:text-blue-300">
+							<li
+								key={index}
+								className={`p-4 ${
+									pathname === route.link ? "bg-blue-800 text-white" : ""
+								} hover:bg-blue-700`}
+							>
+								<Link
+									href={route.link}
+									className={`block ${
+										pathname === route.link ? "text-white" : "text-blue-400"
+									} text-xl`}
+								>
 									{route.name}
 								</Link>
 							</li>
