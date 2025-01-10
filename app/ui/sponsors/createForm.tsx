@@ -4,14 +4,12 @@ import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createSponsor } from "@/app/actions/sponsors";
 import { createSponsorFormConfig } from "@/app/constants/sponsor";
-import { IMGBB } from "@/app/helpers/imgbb";
 
 interface FormState {
   alt: string;
-  imageUrl?: IMGBB | null;
   name: string;
   targetUrl: string;
-  image?: File | null;
+  image: File | null;
 }
 
 export default function CreateForm() {
