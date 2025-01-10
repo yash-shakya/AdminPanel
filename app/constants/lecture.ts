@@ -46,6 +46,7 @@ export const createGuestLecture = {
       name: "link",
       label: "Additional link",
       type: "text",
+      required: false,
     },
   ],
   submitText: "Click to save",
