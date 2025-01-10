@@ -62,10 +62,10 @@ export type TechspardhaTeam = {
 type Contacts = {
 	imageURL: IMGBB | null;
 	name: string;
-	post: Post;
+	post: Post | string;
 };
 
-enum Post {
+export enum Post {
 	Convenor = "Convenor",
 	CoConvenor = "Co-Convenor",
 }
