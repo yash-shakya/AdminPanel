@@ -1,6 +1,6 @@
 import CreateForm from '@/app/ui/dev_team/createForm';
 
-export default function Home() {
+export default function Dev() {
 	return (
 		<>
 			<div className="bg-gray-900 p-4 shadow-md rounded-md">
