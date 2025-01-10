@@ -5,7 +5,7 @@ export const createGuestLecture = {
     {
       name: "name",
       label: "Guest name",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "image",
@@ -15,37 +15,37 @@ export const createGuestLecture = {
     {
       name: "date",
       label: "Date",
-      type: "date",
+      type: "date" as const,
     },
     {
       name: "time",
       label: "Time",
-      type: "time",
+      type: "time" as const,
     },
     {
       name: "desc",
       label: "Description",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "facebook",
       label: "Facebook link",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "insta",
       label: "Instagram link",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "linkedin",
       label: "Linkedin link",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "link",
       label: "Additional link",
-      type: "text",
+      type: "text" as const,
       required: false,
     },
   ],
