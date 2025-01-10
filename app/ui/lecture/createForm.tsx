@@ -3,108 +3,149 @@
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createGuestLecture } from "@/app/constants/lecture";
-import { createLecture } from "@/app/actions/lecture";
-
-interface Contact {
-  contactName: string;
-  contactPost: string;
-  contactImage: File;
-}
+import {
+	createLecture,
+	getAllLecture,
+	updateLecture,
+} from "@/app/actions/lecture";
 
 interface FormState {
-  teamName?: string;
-  teamLogo?: File;
-  contacts?: Contact[];
+	date: string;
+	desc: string;
+	facebook?: string;
+	insta?: string;
+	linkedin?: string;
+	link?: string;
+	name: string;
+	time: string;
+	image?: File | null;
 }
 
 export default function CreateForm() {
-  const [forms, setForms] = useState<FormState[]>([{}]); // Array of forms
-  const [errorText, setErrorText] = useState<string>("");
+	const [forms, setForms] = useState<FormState[]>([
+		{
+			date: "",
+			desc: "",
+			name: "",
+			time: "",
+		},
+	]); // Array of forms
+	const [errorText, setErrorText] = useState<string>("");
 
-  const handleData = (index: number, data: FormState) => {
-    const updatedForms = [...forms];
-    updatedForms[index] = data;
-    setForms(updatedForms);
-  };
+	const handleData = (index: number, data: FormState) => {
+		const updatedForms = [...forms];
+		updatedForms[index] = data;
+		setForms(updatedForms);
+	};
 
-  const addNewForm = () => {
-    setForms([...forms, {}]); // Add a new empty form
-  };
+	const handleSubmit = async (e: React.FormEvent) => {
+		e.preventDefault();
+		let error_message = "";
 
-  const removeNewForm = () => {
-    if (forms.length === 1) {
-      setErrorText("At least one form is required.");
-      // After 2 seconds, remove the error message
-      setTimeout(() => setErrorText(""), 2000);
-      return;
-    }
-    setForms(forms.slice(0, forms.length - 1)); // Remove the last form
-  };
+		// Take button from the event
+		const target = e.target as HTMLButtonElement;
+		// Disable the button to prevent multiple clicks and show loading state
+		target.disabled = true;
+		target.innerText = "Submitting...";
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    let error_message = "";
+		// Now we have only 1 form in the array forms
+		const form = forms[0];
+		console.log("Form: ", form);
 
-    // Validate each form
-    for (const form of forms) {
-      if (Object.keys(form).length === 0) {
-        error_message = "Please fill all forms.";
-        break;
+		// Validate each form
+		if (Object.keys(form).length === 0) {
+			// Check if the form is empty
+			error_message = "Please fill all forms.";
+		}
+
+		if (error_message) {
+			setErrorText(error_message);
+			// Reset the button
+			target.disabled = false;
+			target.innerText = "Submit";
+			return;
+		}
+
+		try {
+			// Now getAll the forms from the DB to check if the form is already exists
+			// Get all the lectures
+			const lectures = await getAllLecture(); // Returns an array of lectures
+			let lectureExists = false;
+
+			// Loop through the lectures
+			if (Array.isArray(lectures))
+				for (const lecture of lectures) {
+					// check if name, date and time are same
+					if (
+						lecture.name === form.name &&
+						lecture.date === form.date &&
+						lecture.time === form.time
+					) {
+						// If the lecture already exists, update it
+						if (lecture.id) {
+							await updateLecture(lecture.id, form);
+						} else {
+							throw new Error("Lecture ID is undefined");
+						}
+						lectureExists = true;
+					}
+				}
+      if (!lectureExists) {
+        // If the lecture does not exist, create a new one
+        await createLecture(form);
       }
-    }
+			setForms([{
+				date: "",
+				desc: "",
+				name: "",
+				time: "",
+			}]); // Reset forms
+			setErrorText("");
+			target.innerText = "Submitted";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.innerText = "Submit";
+			}, 1000);
+			// Reload the page
+			window.location.reload(); // TODO: This is a hacky way to reload the page after submitting the form (not recommended)
+		} catch (error) {
+			console.error("Error creating lectures: ", error);
+			// Reset the button
+			target.innerText = "Error...";
+			target.style.backgroundColor = "red";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.style.backgroundColor = "green";
+				target.innerText = "Submit";
+			}, 1000);
+			setErrorText("An error occurred while creating the lectures");
+		}
+	};
 
-    if (error_message) {
-      setErrorText(error_message);
-      return;
-    }
-
-    try {
-      for (const form of forms) {
-        await createLecture(form as any); // Submit each form
-      }
-      setForms([{}]); // Reset forms
-      setErrorText("");
-      alert("Lectures Created Successfully");
-    } catch (error) {
-      console.error("Error creating lectures: ", error);
-      setErrorText("An error occurred while creating the lectures");
-    }
-  };
-
-  return (
-    <div className="create-form">
-      {forms.map((form, index) => (
-        <div key={index} className="mb-4">
-          <BaseForm
-            {...createGuestLecture}
-            submit={(data: FormState) => handleData(index, data)}
-          />
-        </div>
-      ))}
-      <div className="flex items-center mt-4 gap-5">
+	return (
+		<div className="create-form">
+			{forms.map((form, index) => (
+				<div key={index} className="mb-4">
+					<BaseForm
+						{...createGuestLecture}
+						submit={(data: FormState) => handleData(index, data)}
+					/>
+				</div>
+			))}
+			<div className="flex items-center mt-4 gap-5">
 				<button
-					onClick={addNewForm}
-					className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded-full"
+					type="button"
+					onClick={handleSubmit}
+					className="bg-green-500 ml-auto hover:bg-green-700 duration-500 text-white font-bold px-4 text-2xl rounded"
 				>
-					+
+					Submit
 				</button>
-				<button
-					onClick={removeNewForm}
-					className="bg-red-500 hover:bg-red-700 text-white font-bold px-3 text-3xl rounded-full"
-				>
-					-
-				</button>
-        <button
-          type="button"
-          onClick={handleSubmit}
-          className="bg-green-500 hover:bg-green-700 duration-500 text-white font-bold px-2 text-2xl rounded"
-        >
-          Submit
-        </button>
-      </div>
-      <div className="text-red-500 mt-2 font-mono">
-        {errorText && <p>{errorText}</p>}
-      </div>
-    </div>
-  );
+			</div>
+			<div className="text-red-500 mt-2 font-mono">
+				{errorText && <p>{errorText}</p>}
+			</div>
+		</div>
+	);
 }
