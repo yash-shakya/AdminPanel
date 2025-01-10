@@ -7,6 +7,8 @@ export default async function TechspardhaTeams() {
 				<h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200">Techspardha Teams</h1>
 				<h3 className="text-2xl py-2 font-bold font-mono"> Add Your Team </h3>
 				<CreateForm />
+
+				{/* TODO: Update */}
 			</div>		
 		</>
 	);
