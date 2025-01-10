@@ -50,7 +50,6 @@ export default function CreateForm() {
 
 		// Now we have only 1 form in the array forms
 		const form = forms[0];
-		console.log("Form: ", form);
 
 		// Validate each form
 		if (Object.keys(form).length === 0) {
