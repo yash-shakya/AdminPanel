@@ -6,7 +6,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
-import getImgbbUrl, { IMGBB } from "../helpers/imgbb";
+import { IMGBB } from "../helpers/imgbb";
+import createImgbbUrl from "../helpers/imgbb";
 
 type Sponsor = {
   alt: string;
@@ -26,7 +27,7 @@ export async function createSponsor(
         err_desc: "No image given",
       };
     }
-    const imgbb: IMGBB | null = (await getImgbbUrl(sponsor.image)).imageURL;
+    const imgbb: IMGBB | null = await createImgbbUrl(sponsor.image);
     delete sponsor.image;
     const docRef = await addDoc(sponsorsCollection, {
       ...sponsor,
@@ -67,8 +68,7 @@ export async function updateSponsor(
   try {
     const sponsorDocRef = doc(db, "sponsors", id);
     if (updatedData.image) {
-      const imgbb: IMGBB | null = (await getImgbbUrl(updatedData.image))
-        .imageURL;
+      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
       if (imgbb) updatedData.imageUrl = imgbb;
     }
