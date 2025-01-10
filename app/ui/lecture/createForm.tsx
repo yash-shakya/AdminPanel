@@ -31,6 +31,16 @@ export default function CreateForm() {
     setForms([...forms, {}]); // Add a new empty form
   };
 
+  const removeNewForm = () => {
+    if (forms.length === 1) {
+      setErrorText("At least one form is required.");
+      // After 2 seconds, remove the error message
+      setTimeout(() => setErrorText(""), 2000);
+      return;
+    }
+    setForms(forms.slice(0, forms.length - 1)); // Remove the last form
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let error_message = "";
@@ -71,14 +81,19 @@ export default function CreateForm() {
           />
         </div>
       ))}
-      <div className="flex items-center mt-4">
-        <button
-          type="button"
-          onClick={addNewForm}
-          className="bg-blue-500 hover:bg-blue-700 duration-500 text-white font-bold px-2 text-2xl rounded mr-4"
-        >
-          +
-        </button>
+      <div className="flex items-center mt-4 gap-5">
+				<button
+					onClick={addNewForm}
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded-full"
+				>
+					+
+				</button>
+				<button
+					onClick={removeNewForm}
+					className="bg-red-500 hover:bg-red-700 text-white font-bold px-3 text-3xl rounded-full"
+				>
+					-
+				</button>
         <button
           type="button"
           onClick={handleSubmit}
