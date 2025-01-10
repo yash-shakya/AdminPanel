@@ -5,20 +5,20 @@ import { BaseForm } from "../base_form";
 import { createGuestLecture } from "@/app/constants/lecture";
 import { createLecture } from "@/app/actions/lecture";
 
-interface Contact {
-  contactName: string;
-  contactPost: string;
-  contactImage: File;
-}
-
 interface FormState {
-  teamName?: string;
-  teamLogo?: File;
-  contacts?: Contact[];
+  date: string;
+  desc: string;
+  facebook: string;
+  insta: string;
+  linkedin: string;
+  link: string;
+  name: string;
+  time: string;
+  image: File | null;
 }
 
 export default function CreateForm() {
-  const [forms, setForms] = useState<FormState[]>([{}]); // Array of forms
+  const [forms, setForms] = useState<FormState[]>([{} as any]); // Array of forms
   const [errorText, setErrorText] = useState<string>("");
 
   const handleData = (index: number, data: FormState) => {
@@ -28,7 +28,7 @@ export default function CreateForm() {
   };
 
   const addNewForm = () => {
-    setForms([...forms, {}]); // Add a new empty form
+    setForms([...forms, {} as any]); // Add a new empty form
   };
 
   const removeNewForm = () => {
@@ -60,7 +60,7 @@ export default function CreateForm() {
 
     try {
       for (const form of forms) {
-        await createLecture(form as any); // Submit each form
+        await createLecture(form); // Submit each form
       }
       setForms([{}]); // Reset forms
       setErrorText("");
