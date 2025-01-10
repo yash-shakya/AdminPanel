@@ -23,9 +23,9 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={`${poppins.variable} antialiased`}>
-				<div className="flex min-h-screen w-screen">
+				<div className="flex min-h-screen max-w-screen">
 					<Sidenav routes={NavRoutes} />
-					<div className="w-full flex flex-col">
+					<div className="w-4/5 flex flex-col">
 						<h1 className="text-3xl py-2 align-middle font-black font-mono text-center border-b border-blue-700 relative">
 							Techspardha | Admin Panel
 							<span className="text-sm text-gray-500 absolute font-thin bottom-1 right-4">

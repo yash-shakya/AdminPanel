@@ -32,7 +32,6 @@ export const createTeamFormConfig = {
 		}
 	],
 	submitText: "Create Team",
-	error: "",
 };
 
 // Add more contact fields if needed 
@@ -59,7 +58,6 @@ export const addContactFormConfig = {
         },
     ],
     submitText: "Save Contact",
-    error: "",
 };
 
 // Edit Team Form Config
@@ -113,5 +111,4 @@ export const editTeamFormConfig = {
         },
     ],
     submitText: "Edit Team",
-    error: "",
 };
