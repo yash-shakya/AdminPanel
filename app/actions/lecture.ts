@@ -62,7 +62,7 @@ export async function getAllLecture() {
   } catch (error) {
     console.error("Error fetching lectures:", error);
     return {
-      err_description: "Unable to fetch lectures",
+      err_desc: "Unable to fetch lectures",
     };
   }
 }
