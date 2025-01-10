@@ -6,7 +6,8 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
-import getImgbbUrl, { IMGBB } from "../helpers/imgbb";
+import { IMGBB } from "../helpers/imgbb";
+import createImgbbUrl from "../helpers/imgbb";
 
 type Lecture = {
   date: string;
@@ -32,7 +33,7 @@ export async function createLecture(
       };
     }
 
-    const imgbb: IMGBB | null = (await getImgbbUrl(lecture.image)).imageURL;
+    const imgbb: IMGBB | null = await createImgbbUrl(lecture.image);
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
@@ -73,8 +74,7 @@ export async function updateLecture(
   try {
     const lectureDocRef = doc(db, "lectures", id);
     if (updatedData.image) {
-      const imgbb: IMGBB | null = (await getImgbbUrl(updatedData.image))
-        .imageURL;
+      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
       if (imgbb) updatedData.imageUrl = imgbb;
     }

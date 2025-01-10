@@ -13,11 +13,13 @@ export interface BaseFormProps {
 interface Field {
 	name: string;
 	label: string;
-	type: "select" | "file" | "text" | "textarea" | "password" | "email";
+	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time";
 	// options : in case of select
 	options?: string[];
 	// placeholder : in case of input
 	placeholder?: string;
+	// required field optional
+	required?: boolean;
 }
 
 export const BaseForm: React.FC<BaseFormProps> = ({
@@ -49,10 +51,21 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+
+		// Clear previous errors and success messages
+		setError("");
+		setSuccess("");
+
+		// Check if all fields are filled
+
 		console.log(form);
         // Set error for empty fields
         for (const field of fields) {
             if (!form[field.name]) {
+				// Check if the field is required | required is optional | if not present, it is considered required
+				if (field?.required === false) {
+					continue;
+				}
                 setError(`${field.label} cannot be empty!`);
                 return;
             }
