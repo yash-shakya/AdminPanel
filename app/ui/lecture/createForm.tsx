@@ -3,22 +3,33 @@
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createGuestLecture } from "@/app/constants/lecture";
-import { createLecture } from "@/app/actions/lecture";
-
-interface Contact {
-	contactName: string;
-	contactPost: string;
-	contactImage: File;
-}
+import {
+	createLecture,
+	getAllLecture,
+	updateLecture,
+} from "@/app/actions/lecture";
 
 interface FormState {
-	teamName?: string;
-	teamLogo?: File;
-	contacts?: Contact[];
+	date: string;
+	desc: string;
+	facebook?: string;
+	insta?: string;
+	linkedin?: string;
+	link?: string;
+	name: string;
+	time: string;
+	image?: File | null;
 }
 
 export default function CreateForm() {
-	const [forms, setForms] = useState<FormState[]>([{}]); // Array of forms
+	const [forms, setForms] = useState<FormState[]>([
+		{
+			date: "",
+			desc: "",
+			name: "",
+			time: "",
+		},
+	]); // Array of forms
 	const [errorText, setErrorText] = useState<string>("");
 
 	const handleData = (index: number, data: FormState) => {
@@ -31,52 +42,84 @@ export default function CreateForm() {
 		e.preventDefault();
 		let error_message = "";
 
-    // Take button from the event
-    const target = e.target as HTMLButtonElement;
-    // Disable the button to prevent multiple clicks and show loading state
-    target.disabled = true;
-    target.innerText = "Submitting...";
+		// Take button from the event
+		const target = e.target as HTMLButtonElement;
+		// Disable the button to prevent multiple clicks and show loading state
+		target.disabled = true;
+		target.innerText = "Submitting...";
+
+		// Now we have only 1 form in the array forms
+		const form = forms[0];
+		console.log("Form: ", form);
 
 		// Validate each form
-		for (const form of forms) {
-			if (Object.keys(form).length === 0) {
-				error_message = "Please fill all forms.";
-				break;
-			}
+		if (Object.keys(form).length === 0) {
+			// Check if the form is empty
+			error_message = "Please fill all forms.";
 		}
 
 		if (error_message) {
 			setErrorText(error_message);
-      // Reset the button
-      target.disabled = false;
-      target.innerText = "Submit";
+			// Reset the button
+			target.disabled = false;
+			target.innerText = "Submit";
 			return;
 		}
 
 		try {
-			for (const form of forms) {
-				await createLecture(form as any); // Submit each form
-			}
-			setForms([{}]); // Reset forms
+			// Now getAll the forms from the DB to check if the form is already exists
+			// Get all the lectures
+			const lectures = await getAllLecture(); // Returns an array of lectures
+			let lectureExists = false;
+
+			// Loop through the lectures
+			if (Array.isArray(lectures))
+				for (const lecture of lectures) {
+					// check if name, date and time are same
+					if (
+						lecture.name === form.name &&
+						lecture.date === form.date &&
+						lecture.time === form.time
+					) {
+						// If the lecture already exists, update it
+						if (lecture.id) {
+							await updateLecture(lecture.id, form);
+						} else {
+							throw new Error("Lecture ID is undefined");
+						}
+						lectureExists = true;
+					}
+				}
+      if (!lectureExists) {
+        // If the lecture does not exist, create a new one
+        await createLecture(form);
+      }
+			setForms([{
+				date: "",
+				desc: "",
+				name: "",
+				time: "",
+			}]); // Reset forms
 			setErrorText("");
-      target.innerText = "Submitted";
-      // Enable the button after 2 seconds
-      setTimeout(() => {
-        target.disabled = false;
-        target.innerText = "Submit";
-      }, 1000);
-      // Reload the page
-      window.location.reload(); // TODO: This is a hacky way to reload the page after submitting the form (not recommended)
+			target.innerText = "Submitted";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.innerText = "Submit";
+			}, 1000);
+			// Reload the page
+			window.location.reload(); // TODO: This is a hacky way to reload the page after submitting the form (not recommended)
 		} catch (error) {
 			console.error("Error creating lectures: ", error);
-      // Reset the button
-      target.innerText = "Error...";
-      target.style.backgroundColor = "red";
-      // Enable the button after 2 seconds
-      setTimeout(() => {
-        target.disabled = false;
-        target.innerText = "Submit";
-      }, 1000);
+			// Reset the button
+			target.innerText = "Error...";
+			target.style.backgroundColor = "red";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.style.backgroundColor = "green";
+				target.innerText = "Submit";
+			}, 1000);
 			setErrorText("An error occurred while creating the lectures");
 		}
 	};
