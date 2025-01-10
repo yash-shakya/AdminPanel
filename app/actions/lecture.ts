@@ -39,7 +39,6 @@ export async function createLecture(
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
       imageUrl: imgbb,
-      createdAt: Date.now(),
     });
     console.log("Lecture created with ID:", docRef.id);
     return docRef.id;
