@@ -8,7 +8,6 @@ export interface BaseFormProps {
 	fields: Field[];
 	submit: any; // function to call when form is submitted (optional)
 	submitText: string;
-	error: string;
 }
 
 interface Field {
@@ -26,11 +25,13 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 	fields, // array of objects with name, label, type
 	submit, // function to call when form is submitted
 	submitText, // text to display on submit button
-	error, // error message to display
 }) => {
 	const [form, setForm] = useState<{
 		[key: string]: any;
 	}>({});
+
+	const [success, setSuccess] = useState<string>("");
+    const [error, setError] = useState<string>("");
 
 	const handleChange = (
 		e: React.ChangeEvent<
@@ -49,22 +50,34 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log(form);
-
+        // Set error for empty fields
+        for (const field of fields) {
+            if (!form[field.name]) {
+                setError(`${field.label} cannot be empty!`);
+                return;
+            }
+        }
 		submit(form);
+		setSuccess("success!");
 	};
 
 	return (
-		<div className="base-form">
-			<h1>{title}</h1>
-			<form onSubmit={handleSubmit}>
+		<div className="base-form shadow-md p-4 rounded-md bg-gray-900 text-white">
+			<h1 className="text-xl font-black font-mono border-b pb-2 border-blue-200">
+				{title}
+			</h1>
+			<form onSubmit={handleSubmit} className="flex flex-col gap-4">
 				{fields.map((field: Field) => (
-					<div key={field.name}>
-						<label>{field.label}</label>
+					<div key={field.name} className="flex gap-2 items-center p-1">
+						<label className="text-lg" htmlFor={field.name}>
+							{field.label}
+						</label>
 						{field.type === "select" ? (
 							<select
 								name={field.name}
 								value={form[field.name] || ""}
 								onChange={handleChange}
+								className="p-2 text-black flex-grow rounded-md"
 							>
 								{/* First option */}
 								<option value="">Select...</option>
@@ -80,6 +93,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 								value={form[field.name] || ""}
 								onChange={handleChange}
 								placeholder={field.placeholder}
+								className="p-2 text-black flex-grow rounded-md"
 							/>
 						) : field.type === "file" ? (
 							<input type="file" name={field.name} onChange={handleChange} />
@@ -91,13 +105,20 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 								value={form[field.name] || ""}
 								onChange={handleChange}
 								placeholder={field.placeholder}
+								className="p-2 text-black flex-grow rounded-md"
 							/>
 						)}
 					</div>
 				))}
-				<button type="submit">{submitText}</button>
+				<button
+					type="submit"
+					className="w-fit bg-green-600 hover:bg-green-800 text-white font-bold px-2 text-xl rounded"
+				>
+					{submitText}
+				</button>
 			</form>
-			{error && <p>{error}</p>}
+			{error && <p className="text-red-500">{error}</p>}
+			{success && <p className="text-green-500">{success}</p>}
 		</div>
 	);
 };

@@ -42,6 +42,7 @@
 import {
 	collection,
 	addDoc,
+    setDoc,
 	getDocs,
 	getDoc,
 	doc,
@@ -182,18 +183,20 @@ export async function getTechspardhaTeamById(id: string) : Promise<TechspardhaTe
  *   });
  * ```
  */
-export async function createTechspardhaTeam(team: string, data: TechspardhaTeam) : Promise<void> {
+export async function createTechspardhaTeam(team: string, data: TechspardhaTeam): Promise<void> {
     try {
         // Get a reference to the "techspardha_teams" collection in Firestore
         const collectionRef = collection(db, "techspardha_teams");
-        
-        // Add a new document to the collection with the provided data and team name as the id
-        await addDoc(collectionRef, { ...data, id: team });
-        
+
+        // Create a document reference with the provided team name as the ID
+        const docRef = doc(collectionRef, team);
+
+        // Set the document data with the provided data
+        await setDoc(docRef, data);
+
         // Log a message indicating the team was successfully created
         console.log("Techspardha team created: ", team);
-    }
-    catch (error) {
+    } catch (error) {
         // Log an error message if there was an issue creating the team and throw an error
         console.error("Error creating techspardha team: ", error);
         throw new Error("Failed to create techspardha team");
