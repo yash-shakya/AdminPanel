@@ -1,101 +1,90 @@
-import {
-    collection,
-    addDoc,
-    getDocs,
-    getDoc,
-    doc,
-    updateDoc,
-    deleteDoc,
-  } from "firebase/firestore";
-  import { db } from "@/app/db";
-  import { IMGBB } from "@/app/helpers/imgbb";
-  
-  type Notification = {
-    android_channel_id: string;
-    body: string;
-    image: IMGBB | null;
-    link: string;
-    title: string;
-    time: number; // Timestamp
-  };
+import { collection, addDoc, getDocs, getDoc, doc, deleteDoc } from "firebase/firestore";
+import { db } from "@/app/db";
+import { IMGBB } from "@/app/helpers/imgbb";
 
-  
-  // CREATE: Add a new notification
-  export async function createNotification(notification: Notification): Promise<string> {
-    try {
-      const notificationsCollection = collection(db, "notifications");
-      const docRef = await addDoc(notificationsCollection, {
-        ...notification,
-        createdAt: Date.now(),
-      });
-      console.log("Notification created with ID:", docRef.id);
-      return docRef.id;
-    } catch (error) {
-      console.error("Error creating notification:", error);
-      throw error;
-    }
+export type Notification = {
+  android_channel_id: string;
+  body: string;
+  image: IMGBB | null;
+  link: string;
+  title: string;
+  time: number; // Epoch time in milliseconds
+};
+
+export type NotificationsDTO = {
+  [key: string]: Notification;
+};
+
+export async function getAllNotifications(): Promise<NotificationsDTO> {
+  try {
+    const querySnapshot = await getDocs(collection(db, "notifications"));
+    const notifications: NotificationsDTO = {};
+    querySnapshot.forEach((doc) => {
+      notifications[doc.id] = doc.data() as Notification;
+    });
+    return notifications;
+  } catch (error) {
+    console.error("Error fetching notifications: ", error);
+    throw new Error("Failed to fetch notifications");
   }
-  
-  // READ: Get all notifications
-  export async function getAllNotifications(): Promise<Notification[]> {
-    try {
-      const notificationsCollection = collection(db, "notifications");
-      const snapshot = await getDocs(notificationsCollection);
-      const notifications = snapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-      return notifications;
-    } catch (error) {
-      console.error("Error fetching notifications:", error);
-      throw error;
+}
+export async function getNotificationById(id: string): Promise<Notification> {
+  try {
+    const docRef = doc(db, "notifications", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+      return docSnap.data() as Notification;
+    } else {
+      throw new Error("Notification not found");
     }
+  } catch (error) {
+    console.error("Error fetching notification: ", error);
+    throw new Error("Failed to fetch notification");
   }
-  
-  // READ: Get a notification by ID
-  export async function getNotificationById(notificationId: string): Promise<Notification | null> {
-    try {
-      const notificationDocRef = doc(db, "notifications", notificationId);
-      const notificationDocSnap = await getDoc(notificationDocRef);
-      if (notificationDocSnap.exists()) {
-        return { id: notificationDocSnap.id, ...notificationDocSnap.data() } as Notification;
-      } else {
-        console.log("No such notification!");
-        return null;
-      }
-    } catch (error) {
-      console.error("Error fetching notification by ID:", error);
-      throw error;
-    }
+}
+export async function createNotification(notification: Notification): Promise<void> {
+  try {
+    const collectionRef = collection(db, "notifications");
+    await addDoc(collectionRef, notification);
+    console.log("Notification created successfully");
+  } catch (error) {
+    console.error("Error creating notification: ", error);
+    throw new Error("Failed to create notification");
   }
-  
-  // UPDATE: Update an existing notification
-  export async function updateNotification(
-    notificationId: string,
-    updatedData: Partial<Notification>
-  ): Promise<void> {
-    try {
-      const notificationDocRef = doc(db, "notifications", notificationId);
-      await updateDoc(notificationDocRef, {
-        ...updatedData,
-        updatedAt: Date.now(),
-      });
-      console.log("Notification updated successfully!");
-    } catch (error) {
-      console.error("Error updating notification:", error);
-      throw error;
-    }
+}
+export async function deleteNotification(id: string): Promise<void> {
+  try {
+    const docRef = doc(db, "notifications", id);
+    await deleteDoc(docRef);
+    console.log("Notification deleted successfully");
+  } catch (error) {
+    console.error("Error deleting notification: ", error);
+    throw new Error("Failed to delete notification");
   }
-  
-  // DELETE: Delete a notification
-  export async function deleteNotification(notificationId: string): Promise<void> {
-    try {
-      const notificationDocRef = doc(db, "notifications", notificationId);
-      await deleteDoc(notificationDocRef);
-      console.log("Notification deleted successfully!");
-    } catch (error) {
-      console.error("Error deleting notification:", error);
-      throw error;
-    }
-  }
-  
+}
+
+/**
+ * const newNotification: Notification = {
+  android_channel_id: "general",
+  body: "Don't miss our latest update!",
+  image: null,
+  link: "https://example.com/update",
+  title: "Latest Update",
+  time: Date.now(),
+};
+
+createNotification(newNotification)
+  .then(() => console.log("Notification created"))
+  .catch(console.error);
+
+  getAllNotifications()
+  .then((notifications) => console.log("Notifications: ", notifications))
+  .catch(console.error);
+getNotificationById("notification_id")
+  .then((notification) => console.log("Notification: ", notification))
+  .catch(console.error);
+deleteNotification("notification_id")
+  .then(() => console.log("Notification deleted"))
+  .catch(console.error);
+
+ */
