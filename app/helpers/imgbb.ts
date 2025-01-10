@@ -29,7 +29,7 @@ export type IMGBB = {
   thumb: string | null;
 };
 
-export default async function getImgbbUrl(
+export async function getImgbbUrl(
   image: Image
 ): Promise<IMGBBResponse> {
   // API Key
@@ -66,4 +66,10 @@ export default async function getImgbbUrl(
       imageURL: null,
     };
   }
+}
+
+
+export default async function createImgbbUrl(image: Image): Promise<IMGBB | null> {
+  const response = await getImgbbUrl(image);
+  return response.imageURL;
 }
