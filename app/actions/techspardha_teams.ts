@@ -2,12 +2,12 @@
 // {
 //     societyName:{
 //         contacts: [],
-//         logo: IMGBB | null
+//         logo: string | null,
 //     }
 // }
 
 // type Contacts = {
-//     imageUrl: IMGBB | NULL,
+//     imageUrl: string,
 //     name: string,
 //     post: string {Convenor/co-convenor}
 // }
@@ -15,7 +15,7 @@
 
 // EXAMPLE
 // {
-//    "techspardha_teams": {
+//    "contacts": {
 //        "team1": {
 //            "contacts": [
 //                {
@@ -56,11 +56,11 @@ import { IMGBB } from "@/app/helpers/imgbb";
 
 export type TechspardhaTeam = {
 	contacts: Contacts[];
-	logo: IMGBB | null;
+	logo: string | null;
 };
 
 type Contacts = {
-	imageURL: IMGBB | null;
+	imageURL: string;
 	name: string;
 	post: Post | string;
 };
@@ -99,8 +99,8 @@ export type TechspardhaTeamsDTO = {
  */
 export async function getAllTechspardhaTeams() : Promise<TechspardhaTeamsDTO> {
     try {
-        // Get a reference to the "techspardha_teams" collection in Firestore
-        const querySnapshot = await getDocs(collection(db, "techspardha_teams"));
+        // Get a reference to the "contacts" collection in Firestore
+        const querySnapshot = await getDocs(collection(db, "contacts"));
         // Create an object to store the team data
         const data: TechspardhaTeamsDTO = {};
         // Iterate over each document in the collection and add it to the data object
@@ -137,8 +137,8 @@ export async function getAllTechspardhaTeams() : Promise<TechspardhaTeamsDTO> {
  */
 export async function getTechspardhaTeamById(id: string) : Promise<TechspardhaTeam> {
     try {
-        // Get a reference to the document in the "techspardha_teams" collection with the specified id
-        const docRef = doc(db, "techspardha_teams", id);
+        // Get a reference to the document in the "contacts" collection with the specified id
+        const docRef = doc(db, "contacts", id);
         
         // Fetch the document snapshot from Firestore
         const docSnap = await getDoc(docRef);
@@ -184,8 +184,8 @@ export async function getTechspardhaTeamById(id: string) : Promise<TechspardhaTe
  */
 export async function createTechspardhaTeam(team: string, data: TechspardhaTeam): Promise<void> {
     try {
-        // Get a reference to the "techspardha_teams" collection in Firestore
-        const collectionRef = collection(db, "techspardha_teams");
+        // Get a reference to the "contacts" collection in Firestore
+        const collectionRef = collection(db, "contacts");
 
         // Create a document reference with the provided team name as the ID
         const docRef = doc(collectionRef, team);
@@ -228,8 +228,8 @@ export async function createTechspardhaTeam(team: string, data: TechspardhaTeam)
  */
 export async function updateTechspardhaTeam(team: string, data: TechspardhaTeam) : Promise<void> {
     try {
-        // Get a reference to the document in the "techspardha_teams" collection with the specified id
-        const docRef = doc(db, "techspardha_teams", team);
+        // Get a reference to the document in the "contacts" collection with the specified id
+        const docRef = doc(db, "contacts", team);
         
         // Update the document with the new data
         await updateDoc(docRef, data);
@@ -265,8 +265,8 @@ export async function updateTechspardhaTeam(team: string, data: TechspardhaTeam)
  */
 export async function deleteTechspardhaTeam(team: string) : Promise<void> {
     try {
-        // Get a reference to the document in the "techspardha_teams" collection with the specified id
-        const docRef = doc(db, "techspardha_teams", team);
+        // Get a reference to the document in the "contacts" collection with the specified id
+        const docRef = doc(db, "contacts", team);
         
         // Delete the document from Firestore
         await deleteDoc(docRef);
