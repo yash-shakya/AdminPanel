@@ -12,6 +12,8 @@ import { db } from "@/app/db";
 import { IMGBB } from "@/app/helpers/imgbb";
 import crypto from "crypto";
 
+
+
 function generateEventId(name: string, date: string, time: string): string {
     return crypto
         .createHash("sha256")
@@ -35,15 +37,19 @@ export type Event = {
     rules: string[];
     startTime: string;
     venue: string;
+	icon : IMGBB | null;
+	imgUrl : IMGBB | null;
 };
 
-export type EventCategory = {
-	[eventName: string]: Event; // A category has a dynamic set of events with names as keys
-  }
+
 export type Coordinator = {
 	coordinator_name: string;
 	coordinator_number: string;
 };
+
+type CategoryMetaDataInput = {
+	[category: string]: { icon: string; imgUrl: string };
+  };
 
 
 
@@ -83,36 +89,91 @@ export async function createEvent(event: Event): Promise<string> {
 // 	}
 // }
 
-export async function getAllEvents(): Promise<{ [category: string]: { [eventName: string]: Event } }> {
+
+  
+export async function getAllEvents(): Promise<{
+	[category: string]: {
+	  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
+	  icon: string | null;
+	  imgUrl: string | null;
+	  index: number;
+	};
+  }> {
 	try {
 	  const eventsCollection = collection(db, "events");
 	  const snapshot = await getDocs(eventsCollection);
   
-	  // Create a structure to hold events categorized by eventCategory
-	  const eventsByCategory: { [category: string]: { [eventName: string]: Event } } = {};
+	  const categorizedEvents: {
+		[category: string]: {
+		  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
+		  icon: string | null;
+		  imgUrl: string | null;
+		  index: number;
+		};
+	  } = {};
   
-	  snapshot.docs.forEach(doc => {
-		const eventData = doc.data() as Event;
-		const eventCategory = eventData.eventCategory;
+	  let currentIndex = 1; // Start indexing from 1
   
-		// If the eventCategory doesn't exist yet, initialize it
-		if (!eventsByCategory[eventCategory]) {
-		  eventsByCategory[eventCategory] = {};
+	  snapshot.docs.forEach((doc) => {
+		const event = doc.data() as Event;
+		const category = event.eventCategory || "Uncategorized";
+  
+		// Initialize category in the result object if not already done
+		if (!categorizedEvents[category]) {
+		  categorizedEvents[category] = {
+			events: {},
+			icon: event.icon?.url || null, // Use `icon` from the event
+			imgUrl: event.imgUrl?.url || null, // Use `imgUrl` from the event
+			index: currentIndex++, // Assign and increment the index
+		  };
 		}
   
-		// Add the event to the appropriate category, keyed by eventName
-		eventsByCategory[eventCategory][eventData.eventName] = {
-		  id: doc.id,
-		  ...eventData, // Spread other event data
+		// Add event data under its category
+		categorizedEvents[category].events[event.eventName] = {
+		  eventName: event.eventName,
+		  startTime: event.startTime,
+		  endTime: event.endTime,
 		};
 	  });
   
-	  return eventsByCategory;
+	  return categorizedEvents;
 	} catch (error) {
 	  console.error("Error fetching events:", error);
 	  throw error;
 	}
   }
+  
+  
+// export async function getAllEvents(): Promise<{ [category: string]: { [eventName: string]: Event } }> {
+// 	try {
+// 	  const eventsCollection = collection(db, "events");
+// 	  const snapshot = await getDocs(eventsCollection);
+  
+// 	  // Create a structure to hold events categorized by eventCategory
+// 	  const eventsByCategory: { [category: string]: { [eventName: string]: Event } } = {};
+  
+// 	  snapshot.docs.forEach(doc => {
+// 		const eventData = doc.data() as Event;
+// 		const eventCategory = eventData.eventCategory;
+  
+// 		// If the eventCategory doesn't exist yet, initialize it
+// 		if (!eventsByCategory[eventCategory]) {
+// 		  eventsByCategory[eventCategory] = {};
+// 		}
+  
+// 		// Add the event to the appropriate category, keyed by eventName
+// 		eventsByCategory[eventCategory][eventData.eventName] = {
+// 		  id: doc.id,
+// 		  ...eventData, // Spread other event data
+// 		};
+// 	  });
+  
+// 	  return eventsByCategory;
+// 	} catch (error) {
+// 	  console.error("Error fetching events:", error);
+// 	  throw error;
+// 	}
+//   }
 
   export async function getAllEventsDescription(): Promise<
   Record<string, Record<string, Event>>

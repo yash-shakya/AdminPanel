@@ -49,12 +49,22 @@ export const createEventFormConfig = {
         type: "file" as const, 
       },
       {
+        name: "eventIcon",
+        label: "Icon corresponding to Event Category",
+        type: "file" as const, 
+      },
+      {
+        name: "eventImgUrl",
+        label: "Icon",
+        type: "file" as const, 
+      },
+      {
         name: "eventVenue",
         label: "Venue",
         type: "text" as const, 
       },
      
     ],
-     submitText: "Create Event",
+     submitText: "Save Event",
   };
   

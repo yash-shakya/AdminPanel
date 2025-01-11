@@ -17,6 +17,8 @@ interface EventFormState {
     eventFlagship?: boolean;
     eventRules?: string[];
     eventBanner: File | null;
+    eventIcon : File | null;
+    eventImgUrl: File | null;
 }
 
 export default function CreateEventForm() {
@@ -39,7 +41,9 @@ export default function CreateEventForm() {
         eventFlagship: false,
         eventRules: [],
         eventBanner: null,
-    });
+        eventIcon: null,
+        eventImgUrl: null,
+      });
     const [rules, setRules] = useState<string[]>([]); 
     const [coordinators, setCoordinators] = useState<Coordinator[]>([]); 
     const [newCoordinator, setNewCoordinator] = useState<Coordinator>({
@@ -122,6 +126,8 @@ export default function CreateEventForm() {
                 document: form.eventDocument || "",
                 flagship: form.eventFlagship || false,
                 poster: form.eventBanner ? await createImgbbUrl(form.eventBanner) : null,
+                icon: form.eventIcon? await createImgbbUrl(form.eventIcon): null,
+                imgUrl: form.eventImgUrl? await createImgbbUrl(form.eventImgUrl): null,
                 rules: rules, 
             };
 
@@ -136,8 +142,10 @@ export default function CreateEventForm() {
                 eventDocument: "",
                 eventFlagship: false,
                 eventRules: [],
-                eventBanner: null,
-            });
+        eventBanner: null,
+        eventIcon: null,
+        eventImgUrl: null,
+      });
             setStartTime(null);
             setEndTime(null);
             setRules([]);
