@@ -37,24 +37,15 @@ export type Event = {
     venue: string;
 };
 
-
+export type EventCategory = {
+	[eventName: string]: Event; // A category has a dynamic set of events with names as keys
+  }
 export type Coordinator = {
 	coordinator_name: string;
 	coordinator_number: string;
 };
 
-// export async function createEvent(event: Event): Promise<string> {
-// 	try {
-// 		const eventDocRef = doc(db, "events", event.eventName);
-// await setDoc(eventDocRef, { ...event, createdAt: Date.now() });
 
-// 		console.log("Event created with ID:", eventDocRef.id);
-// 		return eventDocRef.id;
-// 	} catch (error) {
-// 		console.error("Error creating event:", error);
-// 		throw error;
-// 	}
-// }
 
 export async function createEvent(event: Event): Promise<string> {
     try {
@@ -77,21 +68,83 @@ export async function createEvent(event: Event): Promise<string> {
 
 
 
-export async function getAllEvents(): Promise<Event[]> {
-	try {
-		const eventsCollection = collection(db, "events");
-		const snapshot = await getDocs(eventsCollection);
-		const events: Event[] = snapshot.docs.map((doc) => ({
-			id: doc.id, 
-			...(doc.data() as Event), 
-		}));
-		return events;
-	} catch (error) {
-		console.error("Error fetching events:", error);
-		throw error;
-	}
-}
+// export async function getAllEvents(): Promise<Event[]> {
+// 	try {
+// 		const eventsCollection = collection(db, "events");
+// 		const snapshot = await getDocs(eventsCollection);
+// 		const events: Event[] = snapshot.docs.map((doc) => ({
+// 			id: doc.id, 
+// 			...(doc.data() as Event), 
+// 		}));
+// 		return events;
+// 	} catch (error) {
+// 		console.error("Error fetching events:", error);
+// 		throw error;
+// 	}
+// }
 
+export async function getAllEvents(): Promise<{ [category: string]: { [eventName: string]: Event } }> {
+	try {
+	  const eventsCollection = collection(db, "events");
+	  const snapshot = await getDocs(eventsCollection);
+  
+	  // Create a structure to hold events categorized by eventCategory
+	  const eventsByCategory: { [category: string]: { [eventName: string]: Event } } = {};
+  
+	  snapshot.docs.forEach(doc => {
+		const eventData = doc.data() as Event;
+		const eventCategory = eventData.eventCategory;
+  
+		// If the eventCategory doesn't exist yet, initialize it
+		if (!eventsByCategory[eventCategory]) {
+		  eventsByCategory[eventCategory] = {};
+		}
+  
+		// Add the event to the appropriate category, keyed by eventName
+		eventsByCategory[eventCategory][eventData.eventName] = {
+		  id: doc.id,
+		  ...eventData, // Spread other event data
+		};
+	  });
+  
+	  return eventsByCategory;
+	} catch (error) {
+	  console.error("Error fetching events:", error);
+	  throw error;
+	}
+  }
+
+  export async function getAllEventsDescription(): Promise<
+  Record<string, Record<string, Event>>
+> {
+  try {
+    const eventsCollection = collection(db, "events");
+    const snapshot = await getDocs(eventsCollection);
+
+    // Categorized format: grouped by eventCategory and eventName
+    const categorizedFormat: Record<string, Record<string, Event>> = {};
+
+    snapshot.docs.forEach((doc) => {
+      const event = doc.data() as Event;
+      const category = event.eventCategory || "Uncategorized";
+      const eventName = event.eventName;
+
+      if (!categorizedFormat[category]) {
+        categorizedFormat[category] = {};
+      }
+
+      categorizedFormat[category][eventName] = {
+        id: doc.id,
+        ...event,
+      };
+    });
+
+    return categorizedFormat;
+  } catch (error) {
+    console.error("Error fetching events descriptions:", error);
+    throw error;
+  }
+}
 
 export async function getEventById(eventId: string): Promise<Event | null> {
 	try {
@@ -109,6 +162,8 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 		throw error;
 	}
 }
+
+
 
 export async function updateEvent(
 	eventId: string,
