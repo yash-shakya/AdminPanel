@@ -6,16 +6,19 @@ import {
   updateDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
-import getImgbbUrl, { IMGBB } from "../helpers/imgbb";
+import { IMGBB } from "../helpers/imgbb";
+import createImgbbUrl from "../helpers/imgbb";
+
 
 type Lecture = {
+  id?: string; // Optional because it is not present when creating a new lecture
   date: string;
   desc: string;
-  facebook: string;
+  facebook?: string;
   imageUrl?: IMGBB | null;
-  insta: string;
-  linkedin: string;
-  link: string;
+  insta?: string;
+  linkedin?: string;
+  link?: string;
   name: string;
   time: string;
   image?: File | null;
@@ -32,12 +35,11 @@ export async function createLecture(
       };
     }
 
-    const imgbb: IMGBB | null = (await getImgbbUrl(lecture.image)).imageURL;
+    const imgbb: IMGBB | null = await createImgbbUrl(lecture.image);
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
       imageUrl: imgbb,
-      createdAt: Date.now(),
     });
     console.log("Lecture created with ID:", docRef.id);
     return docRef.id;
@@ -49,20 +51,29 @@ export async function createLecture(
   }
 }
 
-export async function getAllLecture() {
+export async function getAllLecture(): Promise<Lecture[]> {
   try {
     const lecturesCollection = collection(db, "lectures");
     const snapshot = await getDocs(lecturesCollection);
-    const lectures = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
+    const lectures = snapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        date: data.date,
+        desc: data.desc,
+        facebook: data.facebook,
+        imageUrl: data.imageUrl,
+        insta: data.insta,
+        linkedin: data.linkedin,
+        link: data.link,
+        name: data.name,
+        time: data.time,
+      } as Lecture;
+    });
     return lectures;
   } catch (error) {
     console.error("Error fetching lectures:", error);
-    return {
-      err_description: "Unable to fetch lectures",
-    };
+    throw new Error("Error fetching lectures");
   }
 }
 
@@ -73,8 +84,7 @@ export async function updateLecture(
   try {
     const lectureDocRef = doc(db, "lectures", id);
     if (updatedData.image) {
-      const imgbb: IMGBB | null = (await getImgbbUrl(updatedData.image))
-        .imageURL;
+      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
       if (imgbb) updatedData.imageUrl = imgbb;
     }

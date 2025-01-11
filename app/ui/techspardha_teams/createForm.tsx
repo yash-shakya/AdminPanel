@@ -30,6 +30,16 @@ export default function CreateForm() {
 	const addContact = () => {
 		setContacts([...contacts, contacts.length]);
 	};
+	const removeContact = () => {
+		// If there is 2 contacts and the user tries to remove one, show an error
+		if (contacts.length === 2) {
+			setErrorText("At least two contacts are required.");
+			// After 2 seconds, remove the error message
+			setTimeout(() => setErrorText(""), 2000);
+			return;
+		}
+		setContacts(contacts.slice(0, contacts.length - 1)); // Remove the last contact
+	};
 
 	const handleCreateTeam = (data: { teamName: string; teamLogo: File }) => {
 		setForm((prev) => ({
@@ -61,7 +71,11 @@ export default function CreateForm() {
 		e.preventDefault();
 		let error_message = "";
 
-		console.log(form);
+		// Take button from the event
+		const target = e.target as HTMLButtonElement;
+		// Disable the button to prevent multiple clicks and show loading state
+		target.disabled = true;
+		target.innerText = "Submitting...";
 
 		if (Object.keys(form).length === 0) {
 			error_message = "Please fill the form";
@@ -84,6 +98,9 @@ export default function CreateForm() {
 
 		if (error_message) {
 			setErrorText(error_message);
+			// Reset the button
+			target.disabled = false;
+			target.innerText = "Submit";
 			return;
 		}
 
@@ -111,9 +128,24 @@ export default function CreateForm() {
 			setForm({});
 			setContacts([0, 1]);
 			setErrorText(""); // Reset error message
-			alert("Team Created Successfully");
+			target.innerText = "Submitted";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.innerText = "Submit";
+			}, 1000);
+			// Reload the page
+			window.location.reload(); // TODO: This is a hacky way to reload the page after submitting the form (not recommended)
 		} catch (error) {
 			console.error("Error creating team: ", error);
+			// Reset the button
+			target.innerText = "Error...";
+			target.style.backgroundColor = "red";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+			  target.disabled = false;
+			  target.innerText = "Submit";
+			}, 1000);
 			setErrorText("An error occurred while creating the team");
 		}
 	};
@@ -128,12 +160,18 @@ export default function CreateForm() {
 					submit={handleAddContact}
 				/>
 			))}
-			<div className="flex items-center">
+			<div className="flex items-center gap-5">
 				<button
 					onClick={addContact}
-					className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded"
+					className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded-full"
 				>
 					+
+				</button>
+				<button
+					onClick={removeContact}
+					className="bg-red-500 hover:bg-red-700 text-white font-bold px-3 text-3xl rounded-full"
+				>
+					-
 				</button>
 				<button
 					type="button"

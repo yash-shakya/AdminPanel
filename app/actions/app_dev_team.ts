@@ -7,18 +7,9 @@ import {
 	updateDoc,
 	deleteDoc,
 } from "firebase/firestore";
-import { db } from "../db";
-import createImgbbUrl, { IMGBB } from "../helpers/imgbb";
-
-export type DevTeamMember = {
-	name: string;
-	imageUrl?: IMGBB | null;
-	year: YEAR;
-	linkedin?: string;
-	github?: string;
-	instagram?: string;
-	image?: File | null;
-};
+import { db } from "@/app/db";
+import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
+import { DevTeamMember } from "./dev_team"; // -> will use the same types for app-dev-team
 
 type YEAR =
 	| "Freshman"
@@ -44,7 +35,7 @@ export async function addDevTeamMember(
 				err_desc: "No image given",
 			};
 		}
-		const devCollection = collection(db, "devTeam");
+		const devCollection = collection(db, "appDevTeam");
 		const devRef = await addDoc(devCollection, {
 			...member,
 		});
@@ -70,7 +61,7 @@ export async function getDevTeamMembers(): Promise<
 	Array<{ id: string; [key: string]: any }> | { err_desc: string }
 > {
 	try {
-		const devTeamRef = collection(db, "devTeam");
+		const devTeamRef = collection(db, "appDevTeam");
 		const snapshot = await getDocs(devTeamRef);
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 	} catch (error) {
@@ -93,7 +84,7 @@ export async function getDevTeamMemberById(
 	id: string
 ): Promise<{ id: string; [key: string]: any } | { err_desc: string }> {
 	try {
-		const devTeamRef = doc(db, "devTeam", id);
+		const devTeamRef = doc(db, "appDevTeam", id);
 		const snapshot = await getDoc(devTeamRef);
 		return { id: snapshot.id, ...snapshot.data() };
 	} catch (error) {
@@ -120,7 +111,7 @@ export async function updateDevTeamMember(
 	updatedData: Partial<DevTeamMember>
 ): Promise<boolean> {
 	try {
-		const devTeamRef = doc(db, "devTeam", id);
+		const devTeamRef = doc(db, "appDevTeam", id);
 		if (updatedData.image) {
 			const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
 			delete updatedData.image;
@@ -144,7 +135,7 @@ export async function updateDevTeamMember(
  */
 export async function deleteDevTeamMember(id: string): Promise<boolean> {
 	try {
-		const devTeamRef = doc(db, "devTeam", id);
+		const devTeamRef = doc(db, "appDevTeam", id);
 		await deleteDoc(devTeamRef);
 		return true;
 	} catch (error) {

@@ -10,6 +10,17 @@ import {
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "@/app/helpers/imgbb";
+import crypto from "crypto";
+
+function generateEventId(name: string, date: string, time: string): string {
+    return crypto
+        .createHash("sha256")
+        .update(name + date + time)
+        .digest("hex")
+        .slice(0, 20); 
+}
+
+
 
 export type Event = {
     id?: string; // Add this
@@ -32,19 +43,38 @@ export type Coordinator = {
 	coordinator_number: string;
 };
 
+// export async function createEvent(event: Event): Promise<string> {
+// 	try {
+// 		const eventDocRef = doc(db, "events", event.eventName);
+// await setDoc(eventDocRef, { ...event, createdAt: Date.now() });
+
+// 		console.log("Event created with ID:", eventDocRef.id);
+// 		return eventDocRef.id;
+// 	} catch (error) {
+// 		console.error("Error creating event:", error);
+// 		throw error;
+// 	}
+// }
 
 export async function createEvent(event: Event): Promise<string> {
-	try {
-		const eventDocRef = doc(db, "events", event.eventName);
-await setDoc(eventDocRef, { ...event, createdAt: Date.now() });
+    try {
+        // Generate a unique ID for the event
+        const eventId = generateEventId(event.eventName, event.startTime, event.endTime);
 
-		console.log("Event created with ID:", eventDocRef.id);
-		return eventDocRef.id;
-	} catch (error) {
-		console.error("Error creating event:", error);
-		throw error;
-	}
+        // Reference Firestore document using the generated ID
+        const eventDocRef = doc(db, "events", eventId);
+
+        // Set the document in Firestore
+        await setDoc(eventDocRef, { ...event, id: eventId, createdAt: Date.now() });
+
+        console.log("Event created with ID:", eventId);
+        return eventId;
+    } catch (error) {
+        console.error("Error creating event:", error);
+        throw error;
+    }
 }
+
 
 
 export async function getAllEvents(): Promise<Event[]> {
@@ -80,8 +110,10 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 	}
 }
 
-
-export async function updateEvent(eventId: string, updatedData: Partial<Event>): Promise<void> {
+export async function updateEvent(
+	eventId: string,
+	updatedData: Partial<Event>
+): Promise<void> {
 	try {
 		const eventDocRef = doc(db, "events", eventId);
 		await updateDoc(eventDocRef, {
@@ -94,7 +126,6 @@ export async function updateEvent(eventId: string, updatedData: Partial<Event>):
 		throw error;
 	}
 }
-
 
 export async function deleteEvent(eventId: string): Promise<void> {
 	try {

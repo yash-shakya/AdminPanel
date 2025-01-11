@@ -43,6 +43,6 @@ export const createEventFormConfig = {
       },
      
     ],
-    submitText: "Create Event",
+     submitText: "Create Event",
   };
   
