@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createEventFormConfig } from "@/app/constants/events"; 
-import { Coordinator, Event, createEvent } from "@/app/actions/events"; 
+import { Coordinator, Event, createEvent, getAllEvents, getEventById } from "@/app/actions/events"; 
 import createImgbbUrl from "@/app/helpers/imgbb"; 
 import DatePicker from "react-datepicker"; 
 import "react-datepicker/dist/react-datepicker.css"; 
@@ -20,6 +20,13 @@ interface EventFormState {
 }
 
 export default function CreateEventForm() {
+    // Testing getAll //-> convert function to async while testing
+    // const allEvents = await getAllEvents();
+    // console.log(allEvents);
+
+    // const eventbyId = await getEventById("3739a7800f4e2982f09a");
+    // console.log(eventbyId);
+
     const [form, setForm] = useState<EventFormState>({
         eventName: "",
         eventDescription: "",
@@ -120,24 +127,24 @@ export default function CreateEventForm() {
 
             <div className="date-picker-section">
                 <div>
-                    <label className="block text-gray-700 font-bold mb-2">Start Time</label>
+                    <label className="block text-gray-100 font-bold mb-2">Start Time</label>
                     <DatePicker
                         selected={startTime}
-                        onChange={(date) => setStartTime(date)}
+                        onChange={(date: Date | null) => setStartTime(date)}
                         showTimeSelect
                         dateFormat="Pp"
-                        className="border rounded py-2 px-4"
+                        className="border rounded py-2 px-4 text-black"
                         placeholderText="Select Start Time"
                     />
                 </div>
                 <div className="mt-4">
-                    <label className="block text-gray-700 font-bold mb-2">End Time</label>
+                    <label className="block text-gray-100 font-bold mb-2">End Time</label>
                     <DatePicker
                         selected={endTime}
                         onChange={(date) => setEndTime(date)}
                         showTimeSelect
                         dateFormat="Pp"
-                        className="border rounded py-2 px-4"
+                        className="border rounded py-2 px-4 text-black"
                         placeholderText="Select End Time"
                     />
                 </div>
@@ -145,13 +152,13 @@ export default function CreateEventForm() {
 
            
             <div className="rules-section mt-6">
-                <label className="block text-gray-700 font-bold mb-2">Rules</label>
+                <label className="block text-gray-100 font-bold mb-2">Rules</label>
                 <div className="flex items-center">
                     <input
                         type="text"
                         value={newRule}
                         onChange={(e) => setNewRule(e.target.value)}
-                        className="border rounded py-2 px-4 w-full"
+                        className="border rounded py-2 px-4 w-full text-black"
                         placeholder="Enter a rule"
                     />
                     <button
