@@ -11,13 +11,6 @@ import { db } from "@/app/db";
 import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 import { DevTeamMember } from "./dev_team"; // -> will use the same types for app-dev-team
 
-type YEAR =
-	| "Freshman"
-	| "Sophomore"
-	| "Pre-Final Year"
-	| "Final Year"
-	| "Super Senior";
-
 /**
  * Adds a new member to the development team.
  *
@@ -38,6 +31,7 @@ export async function addDevTeamMember(
 		const devCollection = collection(db, "appDevTeam");
 		const devRef = await addDoc(devCollection, {
 			...member,
+			createdAt: Date.now(),
 		});
 		return devRef.id;
 	} catch (error) {

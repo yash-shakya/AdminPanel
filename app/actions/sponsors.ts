@@ -32,6 +32,7 @@ export async function createSponsor(
 		const docRef = await addDoc(sponsorsCollection, {
 			...sponsor,
 			imageUrl: imgbb,
+			createdAt: Date.now(),
 		});
 		console.log("Sponsor created with ID:", docRef.id);
 		return docRef.id;
