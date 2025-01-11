@@ -3,12 +3,12 @@
 import { createDevTeamFormConfig } from "@/app/constants/dev_team";
 import { BaseForm } from "../base_form";
 import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
-import { DevTeamMember, addDevTeamMember } from "@/app/actions/dev_team";
+import { DevTeamMember } from "@/app/actions/dev_team";
+import { addDevTeamMember } from "@/app/actions/app_dev_team";
 
 export default function CreateDevForm() {
     const handleSubmit = async (data: DevTeamMember) => {
         try {
-            // Validate image existence
             if (!data.image) {
                 throw new Error("No image provided");
             }

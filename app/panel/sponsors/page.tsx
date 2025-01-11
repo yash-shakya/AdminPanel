@@ -1,9 +1,15 @@
-export default function Home() {
-	return (
-		<>
-			<div className="text-5xl w-full min-h-full flex justify-center items-center">
-        Hi! <span className="text-blue-500 font-mono font-black m-10">SPONSORS</span>
+import CreateForm from "@/app/ui/sponsors/createForm";
+
+export default async function TechspardhaTeams() {
+  return (
+    <>
+      <div className="bg-gray-900 p-4 shadow-md rounded-md">
+        <h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200">
+          Techspardha Teams
+        </h1>
+        <h3 className="text-2xl py-2 font-bold font-mono"> Add Your Team </h3>
+        <CreateForm />
       </div>
-		</>
-	);
+    </>
+  );
 }
