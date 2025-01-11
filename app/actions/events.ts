@@ -43,7 +43,7 @@ export async function createEvent(event: Event): Promise<string> {
 	}
 }
 
-export async function getAllEvents(): Promise<Event[]> {
+export async function getAllEvents() {
 	try {
 		const eventsCollection = collection(db, "events");
 		const snapshot = await getDocs(eventsCollection);
@@ -64,7 +64,7 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 		const eventDocRef = doc(db, "events", eventId);
 		const eventDocSnap = await getDoc(eventDocRef);
 		if (eventDocSnap.exists()) {
-			return { id: eventDocSnap.id, ...eventDocSnap.data() } as Event;
+			return { id: eventDocSnap.id, ...eventDocSnap.data() } as unknown as Event;
 		} else {
 			console.log("No such event!");
 			return null;

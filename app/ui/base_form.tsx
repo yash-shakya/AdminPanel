@@ -52,7 +52,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 	const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// get the button that was clicked
-		let element = e.target as HTMLFormElement;
+		const element = e.target as HTMLFormElement;
 		const target = element.querySelector("button[type=submit]") as HTMLButtonElement;
 		// Disable the button to prevent multiple submissions
 		target.disabled = true;
