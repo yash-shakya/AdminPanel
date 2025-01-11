@@ -4,17 +4,17 @@ export const createSponsorFormConfig = {
     {
       name: "name",
       label: "Sponsor name",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "alt",
       label: "Alternate name",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "targetUrl",
       label: "Link to their site/image",
-      type: "text",
+      type: "text" as const,
     },
     {
       name: "image",

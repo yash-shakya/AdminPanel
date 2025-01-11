@@ -1,5 +1,5 @@
 // create Guest lecture config
-export const createGuestLecture = {
+export const createGuestLectureConfig = {
   title: "Add guest lecture",
   fields: [
     {

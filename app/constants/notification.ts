@@ -20,7 +20,7 @@ export const createNotificationConfig = {
     {
       name: "time",
       label: "Time",
-      type: "datetime" as const,
+      type: "datetime-local" as const,
     },
     {
       name: "android_channel_id",

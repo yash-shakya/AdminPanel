@@ -47,6 +47,7 @@ export async function addDevTeamMember(
 		const devCollection = collection(db, "devTeam");
 		const devRef = await addDoc(devCollection, {
 			...member,
+			createdAt: Date.now(),
 		});
 		return devRef.id;
 	} catch (error) {
