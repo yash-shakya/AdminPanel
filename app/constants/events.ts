@@ -1,4 +1,20 @@
+export const EVENT_CATEGORIES: string[] = [
+	"Programming",
+	"Astronomy",
+	"Design",
+	"Informals",
+	"Managerial",
+    "Online-events",
+    "Robotics",
+    "Quizzes",
+    "Papyrus-vitae"
+
+	
+];
+
 export const createEventFormConfig = {
+
+  
     title: "Create Event",
     fields: [
       {
@@ -20,17 +36,13 @@ export const createEventFormConfig = {
         placeholder: "WhatsApp link",
       },
       {
-        name: "eventStartDate",
-        label: "Start Date",
-        type: "text" as const, 
+        name: "eventCategory",
+        label: "Event Category",
+        type: "select" as const, 
+        options: EVENT_CATEGORIES,
         placeholder: "Enter start date",
       },
-      {
-        name: "eventEndDate",
-        label: "End Date",
-        type: "text" as const, 
-        placeholder: "Enter end date",
-      },
+      
       {
         name: "eventBanner",
         label: "Event Banner",
