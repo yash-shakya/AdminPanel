@@ -1,5 +1,5 @@
 // create Guest lecture config
-export const createGuestLecture = {
+export const createGuestLectureConfig = {
   title: "Add guest lecture",
   fields: [
     {
@@ -11,6 +11,7 @@ export const createGuestLecture = {
       name: "image",
       label: "Guest image",
       type: "file" as const,
+      required: false,
     },
     {
       name: "date",
@@ -31,16 +32,19 @@ export const createGuestLecture = {
       name: "facebook",
       label: "Facebook link",
       type: "text" as const,
+      required: false,
     },
     {
       name: "insta",
       label: "Instagram link",
       type: "text" as const,
+      required: false,
     },
     {
       name: "linkedin",
       label: "Linkedin link",
       type: "text" as const,
+      required: false,
     },
     {
       name: "link",

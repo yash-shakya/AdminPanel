@@ -71,7 +71,11 @@ export default function CreateForm() {
 		e.preventDefault();
 		let error_message = "";
 
-		console.log(form);
+		// Take button from the event
+		const target = e.target as HTMLButtonElement;
+		// Disable the button to prevent multiple clicks and show loading state
+		target.disabled = true;
+		target.innerText = "Submitting...";
 
 		if (Object.keys(form).length === 0) {
 			error_message = "Please fill the form";
@@ -94,6 +98,9 @@ export default function CreateForm() {
 
 		if (error_message) {
 			setErrorText(error_message);
+			// Reset the button
+			target.disabled = false;
+			target.innerText = "Submit";
 			return;
 		}
 
@@ -121,9 +128,24 @@ export default function CreateForm() {
 			setForm({});
 			setContacts([0, 1]);
 			setErrorText(""); // Reset error message
-			alert("Team Created Successfully");
+			target.innerText = "Submitted";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+				target.disabled = false;
+				target.innerText = "Submit";
+			}, 1000);
+			// Reload the page
+			window.location.reload(); // TODO: This is a hacky way to reload the page after submitting the form (not recommended)
 		} catch (error) {
 			console.error("Error creating team: ", error);
+			// Reset the button
+			target.innerText = "Error...";
+			target.style.backgroundColor = "red";
+			// Enable the button after 2 seconds
+			setTimeout(() => {
+			  target.disabled = false;
+			  target.innerText = "Submit";
+			}, 1000);
 			setErrorText("An error occurred while creating the team");
 		}
 	};

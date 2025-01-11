@@ -13,14 +13,14 @@ import { IMGBB } from "@/app/helpers/imgbb";
 type Event = {
 	coordinators: Coordinator[];
 	description: string;
-	document: string; 
-	endTime: string; 
-	eventCategory: string;  
+	document: string;
+	endTime: string;
+	eventCategory: string;
 	eventName: string;
 	flagship: boolean;
-	poster: IMGBB | null; 
+	poster: IMGBB | null;
 	rules: string[];
-	startTime: string; 
+	startTime: string;
 	venue: string;
 };
 
@@ -29,14 +29,11 @@ type Coordinator = {
 	coordinator_number: string;
 };
 
-
 export async function createEvent(event: Event): Promise<string> {
 	try {
 		const eventsCollection = collection(db, "events");
 		const docRef = await addDoc(eventsCollection, {
-		
 			...event,
-			createdAt: Date.now(),
 		});
 		console.log("Event created with ID:", docRef.id);
 		return docRef.id;
@@ -46,8 +43,7 @@ export async function createEvent(event: Event): Promise<string> {
 	}
 }
 
-
-export async function getAllEvents(): Promise<Event[]> {
+export async function getAllEvents() {
 	try {
 		const eventsCollection = collection(db, "events");
 		const snapshot = await getDocs(eventsCollection);
@@ -68,7 +64,7 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 		const eventDocRef = doc(db, "events", eventId);
 		const eventDocSnap = await getDoc(eventDocRef);
 		if (eventDocSnap.exists()) {
-			return { id: eventDocSnap.id, ...eventDocSnap.data() } as Event;
+			return { id: eventDocSnap.id, ...eventDocSnap.data() } as unknown as Event;
 		} else {
 			console.log("No such event!");
 			return null;
@@ -79,8 +75,10 @@ export async function getEventById(eventId: string): Promise<Event | null> {
 	}
 }
 
-
-export async function updateEvent(eventId: string, updatedData: Partial<Event>): Promise<void> {
+export async function updateEvent(
+	eventId: string,
+	updatedData: Partial<Event>
+): Promise<void> {
 	try {
 		const eventDocRef = doc(db, "events", eventId);
 		await updateDoc(eventDocRef, {
@@ -93,7 +91,6 @@ export async function updateEvent(eventId: string, updatedData: Partial<Event>):
 		throw error;
 	}
 }
-
 
 export async function deleteEvent(eventId: string): Promise<void> {
 	try {

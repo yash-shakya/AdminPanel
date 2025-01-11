@@ -23,7 +23,7 @@ type Sponsor = {
 };
 
 export async function createSponsor(
-  sponsor: Sponsor
+	sponsor: Sponsor
 ): Promise<string | { err_desc: string }> {
   try {
     if (!sponsor.image) {
@@ -71,25 +71,25 @@ export async function createSponsor(
 }
 
 export async function getAllSponsor() {
-  try {
-    const sponsorsCollection = collection(db, "sponsors");
-    const snapshot = await getDocs(sponsorsCollection);
-    const sponsors = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }));
-    return sponsors;
-  } catch (error) {
-    console.error("Error fetching sponsors:", error);
-    return {
-      err_description: "Unable to fetch sponsors",
-    };
-  }
+	try {
+		const sponsorsCollection = collection(db, "sponsors");
+		const snapshot = await getDocs(sponsorsCollection);
+		const sponsors = snapshot.docs.map((doc) => ({
+			id: doc.id,
+			...doc.data(),
+		}));
+		return sponsors;
+	} catch (error) {
+		console.error("Error fetching sponsors:", error);
+		return {
+			err_description: "Unable to fetch sponsors",
+		};
+	}
 }
 
 export async function updateSponsor(
-  id: string,
-  updatedData: Partial<Sponsor>
+	id: string,
+	updatedData: Partial<Sponsor>
 ): Promise<boolean> {
   try {
     const sponsorDocRef = doc(db, "sponsors", id);
