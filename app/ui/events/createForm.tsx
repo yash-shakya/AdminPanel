@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createEventFormConfig } from "@/app/constants/events"; 
-import { Coordinator, Event, createEvent, getAllEvents, getEventById } from "@/app/actions/events"; 
+import { Coordinator, Event, createEvent, getAllEvents, getEventById, getAllEventsDescription } from "@/app/actions/events"; 
 import createImgbbUrl from "@/app/helpers/imgbb"; 
 import DatePicker from "react-datepicker"; 
 import "react-datepicker/dist/react-datepicker.css"; 
@@ -22,6 +22,8 @@ interface EventFormState {
 export default function CreateEventForm() {
     // Testing getAll //-> convert function to async while testing
     // const allEvents = await getAllEvents();
+    // console.log(allEvents);
+    // const allEvents = await getAllEventsDescription();
     // console.log(allEvents);
 
     // const eventbyId = await getEventById("3739a7800f4e2982f09a");
