@@ -39,6 +39,12 @@ export default function CreateEventForm() {
         eventBanner: null,
     });
     const [rules, setRules] = useState<string[]>([]); 
+    const [coordinators, setCoordinators] = useState<Coordinator[]>([]); 
+    const [newCoordinator, setNewCoordinator] = useState<Coordinator>({
+        coordinator_name: "",
+        coordinator_number: "",
+      }); // State for the new coordinator being added
+    
     const [newRule, setNewRule] = useState<string>(""); 
     const [errorText, setErrorText] = useState<string>("");
     const [startTime, setStartTime] = useState<Date | null>(null); 
@@ -51,6 +57,28 @@ export default function CreateEventForm() {
         }));
     };
 
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setNewCoordinator((prev) => ({ ...prev, [name]: value }));
+      };
+    
+      const handleAddCoordinator = () => {
+        const { coordinator_name, coordinator_number } = newCoordinator;
+    
+        // Validation
+        if (!coordinator_name || !coordinator_number ) {
+          alert("Please fill all coordinator fields before adding.");
+          return;
+        }
+    
+        setCoordinators((prev) => [...prev, newCoordinator]);
+        setNewCoordinator({ coordinator_name: "", coordinator_number: "" }); // Clear the input fields
+      };
+    
+      const handleRemoveCoordinator = (index: number) => {
+        setCoordinators((prev) => prev.filter((_, i) => i !== index));
+      };
+    
     const handleAddRule = () => {
         if (newRule.trim()) {
             setRules((prev) => [...prev, newRule.trim()]);
@@ -149,6 +177,51 @@ export default function CreateEventForm() {
                     />
                 </div>
             </div>
+            {/* Coordinators Section */}
+<div className="coordinators-section mt-6">
+    <label className="block text-gray-700 font-bold mb-2">Coordinators</label>
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        <input
+            type="text"
+            name="coordinator_name"
+            value={newCoordinator.coordinator_name}
+            onChange={handleInputChange}
+            className="border text-black rounded py-2 px-4"
+            placeholder="Coordinator Name"
+        />
+        <input
+            type="tel"
+            name="coordinator_number"
+            value={newCoordinator.coordinator_number}
+            onChange={handleInputChange}
+            className="border text-black rounded py-2 px-4"
+            placeholder="Coordinator Phone Number"
+        />
+        <button
+            type="button"
+            onClick={handleAddCoordinator}
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded md:col-span-3"
+        >
+            Add Coordinator
+        </button>
+    </div>
+    <ul className="list-disc mt-4 ml-5">
+        {coordinators.map((coordinator, index) => (
+            <li key={index} className="flex items-center mb-2">
+                <span>
+                    <strong>{coordinator.coordinator_name}</strong> - {coordinator.coordinator_number}
+                </span>
+                <button
+                    type="button"
+                    onClick={() => handleRemoveCoordinator(index)}
+                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-1 px-2 rounded ml-4"
+                >
+                    Remove
+                </button>
+            </li>
+        ))}
+    </ul>
+</div>
 
            
             <div className="rules-section mt-6">
