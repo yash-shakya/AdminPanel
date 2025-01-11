@@ -37,8 +37,8 @@ export type Event = {
     rules: string[];
     startTime: string;
     venue: string;
-	icon : IMGBB | null;
-	imgUrl : IMGBB | null;
+	category_img : IMGBB | null;
+	
 };
 
 
@@ -94,8 +94,7 @@ export async function createEvent(event: Event): Promise<string> {
 export async function getAllEvents(): Promise<{
 	[category: string]: {
 	  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
-	  icon: string | null;
-	  imgUrl: string | null;
+	  category_img: IMGBB | null;
 	  index: number;
 	};
   }> {
@@ -106,29 +105,27 @@ export async function getAllEvents(): Promise<{
 	  const categorizedEvents: {
 		[category: string]: {
 		  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
-		  icon: string | null;
-		  imgUrl: string | null;
+		category_img : IMGBB | null;
 		  index: number;
 		};
 	  } = {};
   
-	  let currentIndex = 1; // Start indexing from 1
+	  let currentIndex = 1; 
   
 	  snapshot.docs.forEach((doc) => {
 		const event = doc.data() as Event;
 		const category = event.eventCategory || "Uncategorized";
   
-		// Initialize category in the result object if not already done
+		
 		if (!categorizedEvents[category]) {
 		  categorizedEvents[category] = {
 			events: {},
-			icon: event.icon?.url || null, // Use `icon` from the event
-			imgUrl: event.imgUrl?.url || null, // Use `imgUrl` from the event
-			index: currentIndex++, // Assign and increment the index
+			category_img: event.category_img || null, 
+			index: currentIndex++, 
 		  };
 		}
   
-		// Add event data under its category
+	
 		categorizedEvents[category].events[event.eventName] = {
 		  eventName: event.eventName,
 		  startTime: event.startTime,
