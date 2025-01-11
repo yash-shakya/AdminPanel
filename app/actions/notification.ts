@@ -1,11 +1,20 @@
-import { collection, addDoc, getDocs, getDoc, doc, deleteDoc } from "firebase/firestore";
+import {
+  collection,
+  addDoc,
+  getDocs,
+  getDoc,
+  doc,
+  deleteDoc,
+  updateDoc,
+} from "firebase/firestore";
 import { db } from "@/app/db";
-import { IMGBB } from "@/app/helpers/imgbb";
+import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 
 export type Notification = {
   android_channel_id: string;
   body: string;
-  image: IMGBB | null;
+  image?: File | null;
+  imageUrl?: IMGBB | null;
   link: string;
   title: string;
   time: number; // Epoch time in milliseconds
@@ -42,16 +51,52 @@ export async function getNotificationById(id: string): Promise<Notification> {
     throw new Error("Failed to fetch notification");
   }
 }
-export async function createNotification(notification: Notification): Promise<void> {
+export async function createNotification(
+  notification: Notification
+): Promise<string> {
   try {
+    if (!notification.image) {
+      throw new Error("Failed to create notification");
+    }
     const collectionRef = collection(db, "notifications");
-    await addDoc(collectionRef, notification);
+    const imgbb: IMGBB | null = await createImgbbUrl(notification.image);
+    delete notification.image;
+    const docref = await addDoc(collectionRef, {
+      ...notification,
+      imageUrl: imgbb,
+      createdAt: Date.now(),
+    });
     console.log("Notification created successfully");
+    return docref.id;
   } catch (error) {
     console.error("Error creating notification: ", error);
     throw new Error("Failed to create notification");
   }
 }
+
+export async function updateNotification(
+  id: string,
+  updatedData: Partial<Notification>
+): Promise<boolean> {
+  try {
+    const sponsorDocRef = doc(db, "sponsors", id);
+    if (updatedData.image) {
+      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
+      delete updatedData.image;
+      if (imgbb) updatedData.imageUrl = imgbb;
+    }
+    await updateDoc(sponsorDocRef, {
+      ...updatedData,
+      updatedAt: Date.now(),
+    });
+    console.log("Sponsor updated successfully!");
+    return true;
+  } catch (error) {
+    console.error("Error updating Sponsor:", error);
+    return false;
+  }
+}
+
 export async function deleteNotification(id: string): Promise<void> {
   try {
     const docRef = doc(db, "notifications", id);
