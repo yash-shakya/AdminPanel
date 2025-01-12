@@ -49,10 +49,11 @@ export const createEventFormConfig = {
         type: "file" as const, 
       },
       {
-        name: "eventCategoryImg",
-        label: "Category Image",
+        name: "eventIcon",
+        label: "Icon",
         type: "file" as const, 
       },
+      
      
      
     ],

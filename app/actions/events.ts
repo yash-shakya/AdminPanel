@@ -37,8 +37,8 @@ export type Event = {
     rules: string[];
     startTime: string;
     venue: string;
-	category_img : IMGBB | null;
-	
+	icon : IMGBB | null;
+	imgUrl : IMGBB | null;
 };
 
 
@@ -94,7 +94,8 @@ export async function createEvent(event: Event): Promise<string> {
 export async function getAllEvents(): Promise<{
 	[category: string]: {
 	  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
-	  category_img: IMGBB | null;
+	  icon: string | null;
+	  imgUrl: string | null;
 	  index: number;
 	};
   }> {
@@ -105,7 +106,8 @@ export async function getAllEvents(): Promise<{
 	  const categorizedEvents: {
 		[category: string]: {
 		  events: { [eventName: string]: Pick<Event, "eventName" | "startTime" | "endTime"> };
-		category_img : IMGBB | null;
+		  icon: string | null;
+		  imgUrl: string | null;
 		  index: number;
 		};
 	  } = {};
@@ -116,16 +118,17 @@ export async function getAllEvents(): Promise<{
 		const event = doc.data() as Event;
 		const category = event.eventCategory || "Uncategorized";
   
-		
+		// Initialize category in the result object if not already done
 		if (!categorizedEvents[category]) {
 		  categorizedEvents[category] = {
 			events: {},
-			category_img: event.category_img || null, 
-			index: currentIndex++, 
+			icon: event.icon?.url || null, // Use `icon` from the event
+			imgUrl: event.imgUrl?.url || null, // Use `imgUrl` from the event
+			index: currentIndex++, // Assign and increment the index
 		  };
 		}
   
-	
+		// Add event data under its category
 		categorizedEvents[category].events[event.eventName] = {
 		  eventName: event.eventName,
 		  startTime: event.startTime,

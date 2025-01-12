@@ -17,8 +17,8 @@ interface EventFormState {
     eventFlagship?: boolean;
     eventRules?: string[];
     eventBanner: File | null;
-    eventCategoryImg: File | null;
-    
+    eventIcon : File | null;
+    eventImgUrl: File | null
 }
 
 export default function CreateEventForm() {
@@ -41,7 +41,8 @@ export default function CreateEventForm() {
         eventFlagship: false,
         eventRules: [],
         eventBanner: null,
-       eventCategoryImg:null,
+        eventIcon: null,
+        eventImgUrl: null,
       });
     const [rules, setRules] = useState<string[]>([]); 
     const [coordinators, setCoordinators] = useState<Coordinator[]>([]); 
@@ -125,8 +126,9 @@ export default function CreateEventForm() {
                 document: form.eventDocument || "",
                 flagship: form.eventFlagship || false,
                 poster: form.eventBanner ? await createImgbbUrl(form.eventBanner) : null,
-                category_img: form.eventCategoryImg? await createImgbbUrl(form.eventCategoryImg): null,
                 rules: rules, 
+                icon: form.eventIcon ? await createImgbbUrl(form.eventIcon) : null,
+                imgUrl: form.eventIcon ? await createImgbbUrl(form.eventIcon) : null,
             };
 
            
@@ -140,9 +142,10 @@ export default function CreateEventForm() {
                 eventDocument: "",
                 eventFlagship: false,
                 eventRules: [],
-        eventBanner: null,
-       eventCategoryImg : null,
-      });
+                eventBanner: null,
+                eventIcon:null,
+                eventImgUrl:null,
+            });
             setStartTime(null);
             setEndTime(null);
             setRules([]);
