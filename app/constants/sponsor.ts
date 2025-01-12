@@ -2,6 +2,11 @@ export const createSponsorFormConfig = {
   title: "Create Techspardha Team",
   fields: [
     {
+      name: "category",
+      label: "Sponsor category",
+      type: "text" as const,
+    },
+    {
       name: "name",
       label: "Sponsor name",
       type: "text" as const,
