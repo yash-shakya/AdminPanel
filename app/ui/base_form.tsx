@@ -13,7 +13,7 @@ export interface BaseFormProps {
 interface Field {
 	name: string;
 	label: string;
-	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local";
+	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox";
 	// options : in case of select
 	options?: string[];
 	// placeholder : in case of input

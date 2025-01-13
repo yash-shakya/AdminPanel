@@ -1,0 +1,385 @@
+{
+	"Astronomy": {
+		"events": {
+			"Astrohunt": {
+				"endTime": 1713141000000,
+				"eventName": "Astrohunt",
+				"startTime": 1713132000000
+			},
+			"Astronomy Quiz": {
+				"endTime": 1708234200000,
+				"eventName": "Astronomy Quiz",
+				"startTime": 1708138800000
+			},
+			"Astrostorm": {
+				"endTime": 1650184200000,
+				"eventName": "Astrostorm",
+				"startTime": 1650164400000
+			},
+			"Impressum": {
+				"endTime": 1650094200000,
+				"eventName": "Impressum",
+				"startTime": 1650083400000
+			},
+			"Water Rocket ": {
+				"endTime": 1650105000000,
+				"eventName": "Water Rocket ",
+				"startTime": 1650081600000
+			},
+			"Zathura": {
+				"endTime": 1650011400000,
+				"eventName": "Zathura",
+				"startTime": 1649995200000
+			}
+		},
+		"icon": "https://i.ibb.co/CmhvbQj/astronomy-min.jpg",
+		"imgUrl": "https://i.ibb.co/CmhvbQj/astronomy-min.jpg",
+		"index": 2
+	},
+	"Design": {
+		"events": {
+			"3D Integration": {
+				"endTime": 1650079800000,
+				"eventName": "3D Integration",
+				"startTime": 1649766600000
+			},
+			"Art Icon": {
+				"endTime": 1650099600000,
+				"eventName": "Art Icon",
+				"startTime": 1649853000000
+			},
+			"Build'emall": {
+				"endTime": 1674889200000,
+				"eventName": "Build'emall",
+				"startTime": 1674880200000
+			},
+			"Cad Pro": {
+				"endTime": 1674905400000,
+				"eventName": "Cad Pro",
+				"startTime": 1674898200000
+			},
+			"Contraption": {
+				"endTime": 1650108600000,
+				"eventName": "Contraption",
+				"startTime": 1649502000000
+			},
+			"High Sky": {
+				"endTime": 1650092400000,
+				"eventName": "High Sky",
+				"startTime": 1650078000000
+			},
+			"Hover race": {
+				"endTime": 1650178800000,
+				"eventName": "Hover race",
+				"startTime": 1650164400000
+			},
+			"Junkyard Wars": {
+				"endTime": 1650180600000,
+				"eventName": "Junkyard Wars",
+				"startTime": 1650174071000
+			},
+			"LAY YOUR PLAN": {
+				"endTime": 1650000600000,
+				"eventName": "LAY YOUR PLAN",
+				"startTime": 1649764800000
+			},
+			"Machinability": {
+				"endTime": 1650011400000,
+				"eventName": "Machinability",
+				"startTime": 1649763000000
+			},
+			"Mixcrete": {
+				"endTime": 1674811800000,
+				"eventName": "Mixcrete",
+				"startTime": 1674801000000
+			},
+			"Planning and Designing": {
+				"endTime": 1674817200000,
+				"eventName": "Planning and Designing",
+				"startTime": 1674811800000
+			},
+			"Roll A Coaster": {
+				"endTime": 1650022200000,
+				"eventName": "Roll A Coaster",
+				"startTime": 1649505600000
+			},
+			"VIDHWAAN": {
+				"endTime": 1650177000000,
+				"eventName": "VIDHWAAN",
+				"startTime": 1648866600000
+			}
+		},
+		"icon": "https://i.ibb.co/M89xNYq/design.jpg",
+		"imgUrl": "https://i.ibb.co/M89xNYq/design.jpg",
+		"index": 3
+	},
+	"Informals": {
+		"events": {
+			"GameAThon": {
+				"endTime": 1674995400000,
+				"eventName": "GameAThon",
+				"startTime": 1674790200000
+			},
+			"Gamestation": {
+				"endTime": 1710642600000,
+				"eventName": "Gamestation",
+				"startTime": 1710387000000
+			},
+			"Treasure Hunt": {
+				"endTime": 1650180600000,
+				"eventName": "Treasure Hunt",
+				"startTime": 1650083400000
+			},
+			"Tug of words ": {
+				"endTime": 1649933460000,
+				"eventName": "Tug of words ",
+				"startTime": 1649928600000
+			},
+			"Wild Flower": {
+				"endTime": 1674916200000,
+				"eventName": "Wild Flower",
+				"startTime": 1674901800000
+			}
+		},
+		"icon": "https://i.ibb.co/XVcbhDB/informals.webp",
+		"imgUrl": "https://i.ibb.co/XVcbhDB/informals.webp",
+		"index": 4
+	},
+	"Managerial": {
+		"events": {
+			"Ad-diction": {
+				"endTime": 1650087180000,
+				"eventName": "Ad-diction",
+				"startTime": 1650083580000
+			},
+			"Bidbizz": {
+				"endTime": 1674817200000,
+				"eventName": "Bidbizz",
+				"startTime": 1674802800000
+			},
+			"Business Plan": {
+				"endTime": 1650097800000,
+				"eventName": "Business Plan",
+				"startTime": 1650079800000
+			},
+			"Campus masterplan": {
+				"endTime": 1650002400000,
+				"eventName": "Campus masterplan",
+				"startTime": 1649995200000
+			},
+			"Case On Point": {
+				"endTime": 1674810000000,
+				"eventName": "Case On Point",
+				"startTime": 1674279000000
+			},
+			"Case Study": {
+				"endTime": 1674885600000,
+				"eventName": "Case Study",
+				"startTime": 1674880200000
+			},
+			"Corporate Roadies ": {
+				"endTime": 1650090600000,
+				"eventName": "Corporate Roadies ",
+				"startTime": 1649997060000
+			},
+			"Erudite": {
+				"endTime": 1650083400000,
+				"eventName": "Erudite",
+				"startTime": 1649593800000
+			},
+			"Exquizite": {
+				"endTime": 1650060000000,
+				"eventName": "Exquizite",
+				"startTime": 1649968200000
+			},
+			"Fintellect ": {
+				"endTime": 1674891000000,
+				"eventName": "Fintellect ",
+				"startTime": 1674883800000
+			},
+			"Market It ": {
+				"endTime": 1674819000000,
+				"eventName": "Market It ",
+				"startTime": 1674808200000
+			},
+			"Young Leaders": {
+				"endTime": 1650015000000,
+				"eventName": "Young Leaders",
+				"startTime": 1649386800000
+			}
+		},
+		"icon": "https://i.ibb.co/z4yHbJZ/managerial.jpg",
+		"imgUrl": "https://i.ibb.co/z4yHbJZ/managerial.jpg",
+		"index": 5
+	},
+	"Online-Events": {
+		"events": {
+			" WEBHUNT": {
+				"endTime": 1674905400000,
+				"eventName": " WEBHUNT",
+				"startTime": 1674811800000
+			},
+			"Aristotle": {
+				"endTime": 1674819000000,
+				"eventName": "Aristotle",
+				"startTime": 1674795600000
+			},
+			"ELECTRICA": {
+				"endTime": 1650043800000,
+				"eventName": "ELECTRICA",
+				"startTime": 1649817000000
+			},
+			"Tradehunt": {
+				"endTime": 1650087000000,
+				"eventName": "Tradehunt",
+				"startTime": 1649568600000
+			},
+			"Web-Set-Hunt": {
+				"endTime": 1674849600000,
+				"eventName": "Web-Set-Hunt",
+				"startTime": 1674835200000
+			},
+			"Workshop": {
+				"endTime": 1648481400000,
+				"eventName": "Workshop",
+				"startTime": 1648215000000
+			}
+		},
+		"icon": "https://i.ibb.co/0jzXwLj/terihyvnarnt4hxg9yfy.jpg",
+		"imgUrl": "https://i.ibb.co/0jzXwLj/terihyvnarnt4hxg9yfy.jpg",
+		"index": 6
+	},
+	"Papyrus-Vitae": {
+		"events": {
+			"Keynote": {
+				"endTime": 1649995200000,
+				"eventName": "Keynote",
+				"startTime": 1649590200000
+			}
+		},
+		"icon": "https://i.ibb.co/s5tn2LF/yrpbr6bexwh5r3eva3mb.png",
+		"imgUrl": "https://i.ibb.co/s5tn2LF/yrpbr6bexwh5r3eva3mb.png",
+		"index": 9
+	},
+	"Programming": {
+		"events": {
+			"Black Box": {
+				"endTime": 3211200000,
+				"eventName": "Black Box",
+				"startTime": 1389600000
+			},
+			"Debugmania": {
+				"endTime": 1703647980000,
+				"eventName": "Debugmania",
+				"startTime": 1648693920000
+			},
+			"Encoder": {
+				"endTime": 1710394200000,
+				"eventName": "Encoder",
+				"startTime": 1710387000000
+			},
+			"Excalibur": {
+				"endTime": 1710617400000,
+				"eventName": "Excalibur",
+				"startTime": 1709181000000
+			},
+			"Hackshetra": {
+				"endTime": 1710048600000,
+				"eventName": "Hackshetra",
+				"startTime": 1709962200000
+			},
+			"Productathon": {
+				"endTime": 1649928600000,
+				"eventName": "Productathon",
+				"startTime": 1649917800000
+			},
+			"Tame the Brute": {
+				"endTime": 1650087000000,
+				"eventName": "Tame the Brute ",
+				"startTime": 1650000900000
+			}
+		},
+		"icon": "https://i.ibb.co/7NPW3mR/programming-and-coding-vector-19602452.jpg",
+		"imgUrl": "https://i.ibb.co/7NPW3mR/programming-and-coding-vector-19602452.jpg",
+		"index": 1
+	},
+	"Quizzes": {
+		"events": {
+			"Aero Quiz": {
+				"endTime": 1646024400000,
+				"eventName": "Aero Quiz",
+				"startTime": 1646019000000
+			},
+			"B-Quiz": {
+				"endTime": 1650105000000,
+				"eventName": "B-Quiz",
+				"startTime": 1649646000000
+			},
+			"Brainstorm": {
+				"endTime": 1674907200000,
+				"eventName": "Brainstorm",
+				"startTime": 1674894600000
+			},
+			"CV Quiz": {
+				"endTime": 1650056400000,
+				"eventName": "CV Quiz",
+				"startTime": 1650092400000
+			},
+			"CV Quizz": {
+				"endTime": 1674894600000,
+				"eventName": "CV Quizz",
+				"startTime": 1674793800000
+			},
+			"E-modelling": {
+				"endTime": 1674975600000,
+				"eventName": "E-modelling",
+				"startTime": 1674963000000
+			},
+			"GEEK QUIZ": {
+				"endTime": 1650090600000,
+				"eventName": "GEEK QUIZ",
+				"startTime": 1649853000000
+			}
+		},
+		"icon": "https://i.ibb.co/PQ68z59/quiz.webp",
+		"imgUrl": "https://i.ibb.co/PQ68z59/quiz.webp",
+		"index": 8
+	},
+	"Robotics": {
+		"events": {
+			"Bit coding": {
+				"endTime": 1649772000000,
+				"eventName": "Bit coding",
+				"startTime": 1667559600000
+			},
+			"Maze Up": {
+				"endTime": 1650007800000,
+				"eventName": "Maze Up",
+				"startTime": 1649993400000
+			},
+			"Micro Explorer": {
+				"endTime": 1674903600000,
+				"eventName": "Micro Explorer",
+				"startTime": 1674878400000
+			},
+			"Pixar": {
+				"endTime": 1650022200000,
+				"eventName": "Pixar",
+				"startTime": 1649761200000
+			},
+			"RoboSoccer": {
+				"endTime": 1650180600000,
+				"eventName": "RoboSoccer",
+				"startTime": 1650166200000
+			},
+			"Simulator": {
+				"endTime": 1650108600000,
+				"eventName": "Simulator",
+				"startTime": 1649674800000
+			}
+		},
+		"icon": "https://i.ibb.co/PZZbjkM/robot.jpg",
+		"imgUrl": "https://i.ibb.co/PZZbjkM/robot.jpg",
+		"index": 7
+	}
+}

@@ -9,6 +9,7 @@ import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
 import createImgbbUrl from "../helpers/imgbb";
 
+
 type Lecture = {
   id?: string; // Optional because it is not present when creating a new lecture
   date: string;
