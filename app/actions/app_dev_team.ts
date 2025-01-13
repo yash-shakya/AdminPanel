@@ -1,9 +1,9 @@
 import {
 	collection,
-	addDoc,
 	getDocs,
 	getDoc,
 	doc,
+	setDoc,
 	updateDoc,
 	deleteDoc,
 } from "firebase/firestore";
@@ -11,12 +11,7 @@ import { db } from "@/app/db";
 import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 import { DevTeamMember } from "./dev_team"; // -> will use the same types for app-dev-team
 
-type YEAR =
-	| "Freshman"
-	| "Sophomore"
-	| "Pre-Final Year"
-	| "Final Year"
-	| "Super Senior";
+// TODO: change the below fxns except creation fxn as devs -> aboutAppDevs -> arrayof members
 
 /**
  * Adds a new member to the development team.
@@ -28,25 +23,42 @@ type YEAR =
  */
 export async function addDevTeamMember(
 	member: DevTeamMember
-): Promise<string | { err_desc: string }> {
+  ): Promise<string | { err_desc: string }> {
 	try {
-		if (!member.imageUrl) {
-			return {
-				err_desc: "No image given",
-			};
+	  if (!member.imageUrl) {
+		return { err_desc: "No image given" };
+	  }
+  
+	  const devDocRef = doc(db, "devs", "aboutAppDevs");
+  
+	  // Fetch the existing document
+	  const devDoc = await getDoc(devDocRef);
+	  let members: DevTeamMember[] = [];
+  
+	  if (devDoc.exists()) {
+		const data = devDoc.data();
+		if (data?.members && Array.isArray(data.members)) {
+		  members = data.members; // Use the existing array if valid
+		} else {
+		  console.warn("Document data does not contain a valid members array.");
 		}
-		const devCollection = collection(db, "appDevTeam");
-		const devRef = await addDoc(devCollection, {
-			...member,
-		});
-		return devRef.id;
+	  }
+  
+	  // Add the new member to the array
+	  members.push(member);
+  
+	  // Update the document with the wrapped array
+	  await setDoc(devDocRef, { members });
+  
+	  console.log("Dev team member added successfully");
+	  return "Member added successfully";
 	} catch (error) {
-		console.error("Error adding dev team member:", error);
-		return {
-			err_desc: "Unable to add dev team member",
-		};
+	  console.error("Error adding dev team member:", error);
+	  return { err_desc: "Unable to add dev team member" };
 	}
-}
+  }
+  
+  
 
 /**
  * Fetches the list of development team members from the "devTeam" collection in the database.
@@ -61,7 +73,7 @@ export async function getDevTeamMembers(): Promise<
 	Array<{ id: string; [key: string]: any }> | { err_desc: string }
 > {
 	try {
-		const devTeamRef = collection(db, "appDevTeam");
+		const devTeamRef = collection(db, "devs");
 		const snapshot = await getDocs(devTeamRef);
 		return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 	} catch (error) {
@@ -84,7 +96,7 @@ export async function getDevTeamMemberById(
 	id: string
 ): Promise<{ id: string; [key: string]: any } | { err_desc: string }> {
 	try {
-		const devTeamRef = doc(db, "appDevTeam", id);
+		const devTeamRef = doc(db, "devs", id);
 		const snapshot = await getDoc(devTeamRef);
 		return { id: snapshot.id, ...snapshot.data() };
 	} catch (error) {
@@ -111,13 +123,13 @@ export async function updateDevTeamMember(
 	updatedData: Partial<DevTeamMember>
 ): Promise<boolean> {
 	try {
-		const devTeamRef = doc(db, "appDevTeam", id);
+		const devTeamRef = doc(db, "devs", id);
 		if (updatedData.image) {
 			const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
 			delete updatedData.image;
-			if (imgbb) updatedData.imageUrl = imgbb;
+			if (imgbb) updatedData.imageUrl = imgbb.url as string;
 		}
-		await updateDoc(devTeamRef, { ...updatedData, updatedAt: Date.now() });
+		await updateDoc(devTeamRef, updatedData);
 		return true;
 	} catch (error) {
 		console.error("Error updating dev team member:", error);
@@ -135,7 +147,7 @@ export async function updateDevTeamMember(
  */
 export async function deleteDevTeamMember(id: string): Promise<boolean> {
 	try {
-		const devTeamRef = doc(db, "appDevTeam", id);
+		const devTeamRef = doc(db, "devs", id);
 		await deleteDoc(devTeamRef);
 		return true;
 	} catch (error) {

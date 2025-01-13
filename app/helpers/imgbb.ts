@@ -29,9 +29,7 @@ export type IMGBB = {
   thumb: string | null;
 };
 
-export async function getImgbbUrl(
-  image: Image
-): Promise<IMGBBResponse> {
+export async function getImgbbUrl(image: Image): Promise<IMGBBResponse> {
   // API Key
   const api_key = process.env.NEXT_PUBLIC_IMBB_API_KEY;
   // Request Body - Form Data
@@ -61,15 +59,13 @@ export async function getImgbbUrl(
     };
   } catch (error) {
     console.error("Error uploading image to imgbb:", error);
-    return {
-      success: false,
-      imageURL: null,
-    };
+    throw new Error("Error uploading image");
   }
 }
 
-
-export default async function createImgbbUrl(image: Image): Promise<IMGBB | null> {
+export default async function createImgbbUrl(
+  image: Image
+): Promise<IMGBB | null> {
   const response = await getImgbbUrl(image);
   return response.imageURL;
 }
