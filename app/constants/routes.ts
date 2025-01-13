@@ -42,6 +42,10 @@ const ROUTES: Route[] = [
         link: '/panel/app-dev-team',
     },
     {
+        name: "Event Categories",
+        link: "/panel/eventCategory"
+    },
+    {
         name: 'Events',
         link: '/panel/events',
     }
