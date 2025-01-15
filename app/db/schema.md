@@ -4,13 +4,36 @@
 3. GuestLecture
 4. Sponsors
 5. Techspardha teams
-6. Dev Team (new) - banao
-7. App Dev Team - banao
+6. Dev Team (new)
+7. App Dev Team
 8. Events
 
 #### Admin
 
 ```js
+type users = {
+    user_email: User
+}
+type User = {
+    admin: boolean,
+    email: string,
+    name: string,
+    onBoard: boolean,
+    picture: string,
+    phone: string,
+    role: "user" | "manager" | "admin"
+    year: "Fresher" | "Sophomore" | "Pre-final Year" | "Final Year",
+    registeredEvents19: {
+        eventCategory_1: {
+            eventName_1: string,
+            eventName_2: string,
+        },
+        eventCategory_2: {
+            eventName_1: string,
+            eventName_2: string,
+        }
+    }
+}
 {
     username: string,
     password: hashedString
@@ -20,7 +43,13 @@
 #### Notification
 
 ```js
-{
+type notification = {
+    "some_number": {
+        "notification": NotificationInfo,
+        time: "1650011400000"
+    }
+}
+type NotificationInfo = {
     android_channel_id: string,
     body: string,
     image: IMGBB | null,
@@ -30,14 +59,14 @@
 }
 ```
 
-#### GuestLecture
+#### lectures
 
 ```js
-{
+type lectures = {
     date: string, //28th Jan
     desc: string,
     facebook: string,
-    imageUrl: IMGBB | null,
+    imageUrl: string,
     insta: string,
     linkedin: string,
     link: string,
@@ -49,11 +78,17 @@
 #### Sponsors
 
 ```js
-sponsorCategory_1: Sponsor[],   // hackathon partners, food, Coding, Digital,Fashion, Internship and learning
-sponsorCategory_2: Sponsor[]
-```
+type sponsors = {
+    sponsorName_1: {
+        id_1: Sponsor;
+        id_2: Sponsor;
+    },
+    sponsorName_2: {
+        id_1: Sponsor;
+        id_2: Sponsor;
+    }
+}
 
-```js
 type Sponsor = {
     alt: string,
     imageUrl: IMGBB | null,
@@ -62,18 +97,18 @@ type Sponsor = {
 }
 ```
 
-#### Techspardha teams
+#### contacts
 
 ```js
-{
+type contacts = {
     societyName:{
-        contacts: [],
+        contacts: Contacts[],
         logo: string
     }
 }
 
 type Contacts = {
-    imageUrl: IMGBB | null,
+    imageUrl: string,
     name: string,
     post: string {Convenor/co-convenor}
 }
@@ -82,15 +117,42 @@ type Contacts = {
 #### Events
 
 ```js
-{
+type events = {
     eventCategory: {
-        eventName_1: Event,
-        eventName_2: Event,
-        eventName_3: Event
+        events: {
+            eventName_1: Event,
+            eventName_2: Event,
+            eventName_3: Event
+        },
+        icon: string;
+        imgUrl: string;
+        index: number;
     }
 }
 
-type event = {
+type EventInfo = {
+    endTime: 1650011400000;
+    eventName: string;
+    startTime: 1650011400000;
+}
+```
+
+#### EventDescription
+
+```js
+type eventDescription = {
+    eventCategory_1: {
+        eventName_1: EventInfo,
+        eventName_2: EventInfo,
+    },
+    eventCategory_2: {
+        eventName_1: EventInfo,
+        eventName_2: EventInfo,
+    }
+}
+
+
+type EventInfo = {
     coordinators: Coordinators[],
     description: string,
     document: string, // used for whatsapp group invite links
@@ -108,11 +170,20 @@ type Coordinators = {
     coordinator_name: string,
     coordinator_number: string
 }
+```
 
-### Dev Team
+#### dev & app-Dev Team
 
-type DevTeamMember = {
-    name: string,
-    photo:IMGBB | null,
+```js
+type aboutDevs = Dev[]
+
+type aboutAppDevs = Dev[]
+type Dev = {
+    github: string;
+    imageUrl: string;
+    insta: string;
+    linkedin: string;
+    name: string;
+    year: string;
 }
 ```
