@@ -9,8 +9,8 @@ import { IMGBB } from "@/app/helpers/imgbb";
 interface FormState {
   android_channel_id: string;
   body: string;
-  image?: File | null;
-  imageUrl?: IMGBB | null; // not needed in form
+  image?: string;
+  imageFile: File | null; // not needed in form
   link: string;
   title: string;
   time: number; // Epoch time in milliseconds
