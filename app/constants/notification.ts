@@ -13,7 +13,7 @@ export const createNotificationConfig = {
       type: "text" as const,
     },
     {
-      name: "image",
+      name: "imageFile",
       label: "Notification image",
       type: "file" as const,
     },
