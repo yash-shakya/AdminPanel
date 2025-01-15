@@ -15,39 +15,39 @@ const ROUTES: Route[] = [
     },
     {
         name: "Admins",
-        link: "/panel/admins",
+        link: "/panel/view/admins",
     },
     {
         name: "Notification",
-        link: "/panel/notification",
+        link: "/panel/view/notification",
     },
     {
         name: 'Guest Lectures',
-        link: '/panel/guest-lectures',
+        link: '/panel/view/guest-lectures',
     },
     {
         name: 'Sponsors',
-        link: '/panel/sponsors',
+        link: '/panel/view/sponsors',
     },
     {
         name: 'Techspardha Teams',
-        link: '/panel/techspardha-teams',
+        link: '/panel/view/techspardha-teams',
     },
     {
         name: 'Dev Team',
-        link: '/panel/dev-team',
+        link: '/panel/view/dev-team',
     },
     {
         name: 'App Dev Team',
-        link: '/panel/app-dev-team',
+        link: '/panel/view/app-dev-team',
     },
     {
         name: "Event Categories",
-        link: "/panel/eventCategory"
+        link: "/panel/view/eventCategory"
     },
     {
         name: 'Events',
-        link: '/panel/events',
+        link: '/panel/view/events',
     }
 ];
 
