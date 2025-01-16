@@ -4,11 +4,11 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
 import createImgbbUrl from "../helpers/imgbb";
-
 
 type Lecture = {
   id?: string; // Optional because it is not present when creating a new lecture
@@ -39,7 +39,7 @@ export async function createLecture(
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
-      imageUrl: imgbb?.url
+      imageUrl: imgbb?.url,
     });
     console.log("Lecture created with ID:", docRef.id);
     return docRef.id;
@@ -90,12 +90,24 @@ export async function updateLecture(
       if (imgbb) updatedData.imageUrl = imgbb.url as string;
     }
     await updateDoc(lectureDocRef, {
-      ...updatedData
+      ...updatedData,
     });
     console.log("Lecture updated successfully!");
     return true;
   } catch (error) {
     console.error("Error updating lecture:", error);
     return false;
+  }
+}
+
+export async function deleteLecture(id: string) {
+  try {
+    const docRef = doc(db, "lectures", id);
+
+    await deleteDoc(docRef);
+    console.log("GL deleted: ", id);
+  } catch (error) {
+    console.error("Error deleting lecture: ", id);
+    throw new Error("Failed to delete GL");
   }
 }
