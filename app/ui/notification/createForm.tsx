@@ -1,24 +1,23 @@
-"use client";
-
+"use client"
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createNotification } from "@/app/actions/notification";
 import { createNotificationConfig } from "@/app/constants/notification";
-import { IMGBB } from "@/app/helpers/imgbb";
+import createImgbbUrl from "@/app/helpers/imgbb";
 
 interface FormState {
   android_channel_id: string;
   body: string;
-  image?: string;
-  imageFile: File | null; // not needed in form
+  imageFile?: File;  // Changed from image to imageFile
   link: string;
   title: string;
-  time: number; // Epoch time in milliseconds
+  time: string | number; // Updated to handle string time format
 }
 
 export default function CreateForm() {
-  const [forms, setForms] = useState<FormState[]>([{} as any]); // Array of forms
+  const [forms, setForms] = useState<FormState[]>([{} as FormState]);
   const [errorText, setErrorText] = useState<string>("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleData = (index: number, data: FormState) => {
     const updatedForms = [...forms];
@@ -27,46 +26,74 @@ export default function CreateForm() {
   };
 
   const addNewForm = () => {
-    setForms([...forms, {} as any]); // Add a new empty form
+    setForms([...forms, {} as FormState]);
   };
 
   const removeNewForm = () => {
     if (forms.length === 1) {
       setErrorText("At least one form is required.");
-      // After 2 seconds, remove the error message
       setTimeout(() => setErrorText(""), 2000);
       return;
     }
-    setForms(forms.slice(0, forms.length - 1)); // Remove the last form
+    setForms(forms.slice(0, -1));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    let error_message = "";
+    if (isSubmitting) return;
 
-    // Validate each form
-    for (const form of forms) {
-      if (Object.keys(form).length === 0) {
-        error_message = "Please fill all forms.";
-        break;
-      }
-    }
-
-    if (error_message) {
-      setErrorText(error_message);
-      return;
-    }
+    setIsSubmitting(true);
+    setErrorText("");
 
     try {
-      for (const form of forms) {
-        await createNotification(form); // Submit each form
+      // Updated validation to check for imageFile instead of image
+      const invalidForm = forms.find(form => 
+        !form.android_channel_id?.trim() || 
+        !form.body?.trim() || 
+        !form.imageFile || // Changed from image to imageFile
+        !form.link?.trim() || 
+        !form.title?.trim() || 
+        !form.time
+      );
+
+      if (invalidForm) {
+        throw new Error("Please fill all required fields in all forms.");
       }
-      setForms([{} as any]); // Reset forms
-      setErrorText("");
-      alert("notifications Created Successfully");
+
+      // Process each form sequentially
+      for (const form of forms) {
+        try {
+          // Pass the File object to createImgbbUrl
+          const imageResult = await createImgbbUrl(form.imageFile!);
+          
+          if (!imageResult?.url) {
+            throw new Error("Image upload failed");
+          }
+
+          const timestamp = typeof form.time === 'string' 
+            ? new Date(form.time).getTime() 
+            : form.time;
+
+          await createNotification({
+            android_channel_id: form.android_channel_id,
+            body: form.body,
+            image: imageResult.url,
+            link: form.link,
+            title: form.title.trim(),
+            time: timestamp,
+          });
+        } catch (error) {
+          throw new Error(`Failed to process form: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        }
+      }
+
+      setForms([{} as FormState]);
+      alert("Notifications Created Successfully");
     } catch (error) {
-      console.error("Error creating notification: ", error);
-      setErrorText("An error occurred while creating the notification");
+      console.error("Error creating notification:", error);
+      setErrorText(error instanceof Error ? error.message : "An unexpected error occurred");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -83,27 +110,32 @@ export default function CreateForm() {
       <div className="flex items-center mt-4 gap-5">
         <button
           onClick={addNewForm}
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded-full"
+          disabled={isSubmitting}
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold px-2 text-3xl rounded-full disabled:opacity-50"
         >
           +
         </button>
         <button
           onClick={removeNewForm}
-          className="bg-red-500 hover:bg-red-700 text-white font-bold px-3 text-3xl rounded-full"
+          disabled={isSubmitting}
+          className="bg-red-500 hover:bg-red-700 text-white font-bold px-3 text-3xl rounded-full disabled:opacity-50"
         >
           -
         </button>
         <button
           type="button"
           onClick={handleSubmit}
-          className="bg-green-500 hover:bg-green-700 duration-500 text-white font-bold px-2 text-2xl rounded"
+          disabled={isSubmitting}
+          className="bg-green-500 hover:bg-green-700 duration-500 text-white font-bold px-2 text-2xl rounded disabled:opacity-50"
         >
-          Submit
+          {isSubmitting ? "Submitting..." : "Submit"}
         </button>
       </div>
-      <div className="text-red-500 mt-2 font-mono">
-        {errorText && <p>{errorText}</p>}
-      </div>
+      {errorText && (
+        <div className="text-red-500 mt-2 font-mono bg-red-50 p-3 rounded border border-red-200">
+          {errorText}
+        </div>
+      )}
     </div>
   );
 }
