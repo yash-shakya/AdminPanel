@@ -40,5 +40,5 @@ export const createAdminFormConfig = {
             required: false,
         }
     ],
-    submitText: "Create Admin",
+    submitText: "Save",
 };
