@@ -9,12 +9,13 @@ import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
 import createImgbbUrl from "../helpers/imgbb";
 
+
 type Lecture = {
   id?: string; // Optional because it is not present when creating a new lecture
   date: string;
   desc: string;
   facebook?: string;
-  imageUrl?: IMGBB | null;
+  imageUrl?: string;
   insta?: string;
   linkedin?: string;
   link?: string;
@@ -38,8 +39,7 @@ export async function createLecture(
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
-      imageUrl: imgbb,
-      createdAt: Date.now(),
+      imageUrl: imgbb?.url
     });
     console.log("Lecture created with ID:", docRef.id);
     return docRef.id;
@@ -86,11 +86,11 @@ export async function updateLecture(
     if (updatedData.image) {
       const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
-      if (imgbb) updatedData.imageUrl = imgbb;
+      if (imgbb) updatedData.imageUrl = imgbb.url as string;
+      if (imgbb) updatedData.imageUrl = imgbb.url as string;
     }
     await updateDoc(lectureDocRef, {
-      ...updatedData,
-      updatedAt: Date.now(),
+      ...updatedData
     });
     console.log("Lecture updated successfully!");
     return true;

@@ -103,23 +103,21 @@ export default function CreateForm() {
 			target.innerText = "Submit";
 			return;
 		}
-
+		try{
 		// Proceed with the async operations to upload images and create the team
-		const CreateTechspardhaTeamArgs = {
-			team: form.teamName,
-			data: {
-				logo: form.teamLogo ? await createImgbbUrl(form.teamLogo) : null,
-				contacts: await Promise.all(
-					(form.contacts ?? []).map(async (contact: Contact) => ({
-						name: contact.contactName,
-						post: contact.contactPost,
-						imageURL: await createImgbbUrl(contact.contactImage),
-					}))
-				),
-			},
-		};
-
-		try {
+			const CreateTechspardhaTeamArgs = {
+				team: form.teamName,
+				data: {
+					logo: form.teamLogo ? (await createImgbbUrl(form.teamLogo))?.url as string : null,
+					contacts: await Promise.all(
+						(form.contacts ?? []).map(async (contact: Contact) => ({
+							name: contact.contactName,
+							post: contact.contactPost,
+							imageURL: (await createImgbbUrl(contact.contactImage))?.url as string,
+						}))
+					),
+				},
+			};
 			// Call the action to create the team
 			await createTechspardhaTeam(
 				CreateTechspardhaTeamArgs.team || "",

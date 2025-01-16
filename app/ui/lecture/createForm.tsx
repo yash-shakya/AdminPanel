@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { BaseForm } from "../base_form";
-import { createGuestLecture } from "@/app/constants/lecture";
+import { createGuestLectureConfig } from "@/app/constants/lecture";
 import {
 	createLecture,
 	getAllLecture,
@@ -128,7 +128,7 @@ export default function CreateForm() {
 			{forms.map((form, index) => (
 				<div key={index} className="mb-4">
 					<BaseForm
-						{...createGuestLecture}
+						{...createGuestLectureConfig}
 						submit={(data: FormState) => handleData(index, data)}
 					/>
 				</div>

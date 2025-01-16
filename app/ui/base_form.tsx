@@ -1,7 +1,7 @@
 // Purpose: Contains the base form component that all forms will inherit from.
 // All other forms will just pass props to this component. to be rendered.
 
-import React, { useState } from "react";
+import { useState } from "react";
 
 export interface BaseFormProps {
 	title: string;
@@ -13,7 +13,7 @@ export interface BaseFormProps {
 interface Field {
 	name: string;
 	label: string;
-	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time";
+	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox";
 	// options : in case of select
 	options?: string[];
 	// placeholder : in case of input
@@ -49,8 +49,17 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 		}
 	};
 
-	const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+	const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
+		// get the button that was clicked
+		const element = e.target as HTMLFormElement;
+		const target = element.querySelector("button[type=submit]") as HTMLButtonElement;
+		// Disable the button to prevent multiple submissions
+		target.disabled = true;
+		target.classList.add("bg-gray-500");
+		target.classList.remove("bg-green-600");
+		const buttonText = target.innerText;
+		target.innerText = "Submitting...";
 
 		// Clear previous errors and success messages
 		setError("");
@@ -67,10 +76,20 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 					continue;
 				}
                 setError(`${field.label} cannot be empty!`);
+				target.disabled = false;
+				target.classList.remove("bg-gray-500");
+				target.classList.add("bg-red-600");
+				target.innerText = buttonText;
                 return;
             }
         }
-		submit(form);
+		await submit(form);
+		target.disabled = false;
+		target.classList.remove("bg-gray-500");
+		target.classList.add("bg-green-600");
+		target.innerText = buttonText;
+
+		// Clear the form fields
 		setSuccess("success!");
 	};
 
