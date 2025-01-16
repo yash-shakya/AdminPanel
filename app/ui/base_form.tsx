@@ -20,6 +20,8 @@ interface Field {
 	placeholder?: string;
 	// required field optional
 	required?: boolean;
+	// default value optional (used in case of update)
+	value?: string;
 }
 
 export const BaseForm: React.FC<BaseFormProps> = ({
@@ -107,7 +109,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 						{field.type === "select" ? (
 							<select
 								name={field.name}
-								value={form[field.name] || ""}
+								value={form[field.name] || field.value || ""}
 								onChange={handleChange}
 								className="p-2 text-black flex-grow rounded-md"
 							>
@@ -122,7 +124,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 						) : field.type === "textarea" ? (
 							<textarea
 								name={field.name}
-								value={form[field.name] || ""}
+								value={form[field.name] || field.value || ""}
 								onChange={handleChange}
 								placeholder={field.placeholder}
 								className="p-2 text-black flex-grow rounded-md"
@@ -134,7 +136,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 							<input
 								type={field.type}
 								name={field.name}
-								value={form[field.name] || ""}
+								value={form[field.name] || field.value || ""}
 								onChange={handleChange}
 								placeholder={field.placeholder}
 								className="p-2 text-black flex-grow rounded-md"
