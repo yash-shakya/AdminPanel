@@ -1,7 +1,7 @@
 // Purpose: Helper function to get the imgbb url for a given image url || base64 encoded image.
 
 // Imports
-import axios from 'axios';
+import axios from "axios";
 
 // API Details
 // URL : https://api.imgbb.com/1/upload
@@ -17,54 +17,59 @@ const api_url = "https://api.imgbb.com/1/upload?key=";
 
 // Types
 // Request types
-type Image = string;
+type Image = string | File;
 // Response types
 type IMGBBResponse = {
-    success: boolean;
-    imageURL: IMGBB | null;
-}
+  success: boolean;
+  imageURL: IMGBB | null;
+};
 
 export type IMGBB = {
-    url: string | null;
-    thumb: string | null;
+  url: string | null;
+  thumb: string | null;
+};
+
+export async function getImgbbUrl(
+  image: Image
+): Promise<IMGBBResponse> {
+  // API Key
+  const api_key = process.env.NEXT_PUBLIC_IMBB_API_KEY;
+  // Request Body - Form Data
+  const formData = new FormData();
+  formData.append("image", image);
+
+  try {
+    // Fetch Request
+    const res = await axios.post(api_url + `${api_key}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+      },
+    });
+    const data = res.data;
+    if (!data.success) {
+      console.error("Error uploading image to imgbb:", data.error.message);
+      throw new Error("Image upload failed");
+    }
+    const imgdata = data.data;
+
+    return {
+      success: true,
+      imageURL: {
+        url: imgdata.image?.url || null,
+        thumb: imgdata.thumb?.url || null,
+      },
+    };
+  } catch (error) {
+    console.error("Error uploading image to imgbb:", error);
+    return {
+      success: false,
+      imageURL: null,
+    };
+  }
 }
 
-export default async function getImgbbUrl(image : Image) : Promise<IMGBBResponse> {
-    // API Key
-    const api_key = process.env.NEXT_PUBLIC_IMBB_API_KEY;
-    
-    // Request Body - Form Data
-    const formData = new FormData();
-    formData.append('image', image);
 
-
-    try {
-        // Fetch Request
-        const res = await axios.post(api_url+`${api_key}`, formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
-            }
-        });
-        const data = res.data;
-        if(!data.success){
-            console.error("Error uploading image to imgbb:", data.error.message);
-            throw new Error("Image upload failed");
-        }
-        const imgdata = data.data;
-        
-        return {
-            success: true,
-            imageURL: {
-                url: imgdata.image?.url || null,
-            thumb: imgdata.thumb?.url || null
-            }
-        };
-    } catch (error) {
-        console.error("Error uploading image to imgbb:", error);
-        return {
-            success: false,
-            imageURL: null
-        };
-    }
-
+export default async function createImgbbUrl(image: Image): Promise<IMGBB | null> {
+  const response = await getImgbbUrl(image);
+  return response.imageURL;
 }
