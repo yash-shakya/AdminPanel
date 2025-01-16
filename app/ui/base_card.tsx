@@ -39,9 +39,9 @@ export default function BaseCard({
 
 	return (
 		<div className="bg-gray-900 p-4 shadow-md rounded-md overflow-clip">
-			<div className="flex items-center justify-between">
-				<div className="flex items-center">
-					<div className="w-12 h-12">
+			<div className="flex flex-col items-center justify-between gap-2">
+				<div className="flex flex-col items-center">
+					<div className="w-[200px] h-[200px] rounded-full overflow-hidden">
 						<Image
 							src={image || "https://placehold.co/600x400"}
 							alt={title}
