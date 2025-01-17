@@ -15,7 +15,7 @@ export type Notification = {
   android_channel_id: string;
   body: string;
   image?: string;
-  imageFile: File | null;
+  imageFile?: File | null;
   link: string;
   title: string;
   time: number; // Epoch time in milliseconds
