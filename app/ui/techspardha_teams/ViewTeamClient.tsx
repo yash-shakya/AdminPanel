@@ -26,7 +26,7 @@ export default function ViewTeamsClient({ teamList }: { teamList: any[] }) {
 									"Not Available",
 							},
 						]}
-						toEdit={`update/techspardha_teams/${team.id}`}
+						toEdit={`techspardha-teams/${team.id}`}
 						onDelete={() => handleDelete(team.id)}
 					/>
 				</div>
