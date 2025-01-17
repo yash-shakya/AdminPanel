@@ -51,5 +51,17 @@ const ROUTES: Route[] = [
     }
 ];
 
+export const TabNames = [
+    "admins",
+    "notification",
+    "guest-lectures",
+    "sponsors",
+    "techspardha-teams",
+    "dev-team",
+    "app-dev-team",
+    "eventCategory",
+    "events"
+]
+
 // Export the routes.
 export default ROUTES;
