@@ -4,6 +4,7 @@ import {
   getDocs,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
@@ -96,6 +97,18 @@ export async function updateLecture(
     return true;
   } catch (error) {
     console.error("Error updating lecture:", error);
+    return false;
+  }
+}
+
+export async function deleteLecture(id: string): Promise<boolean> {
+  try {
+    const lectureDocRef = doc(db, "lectures", id);
+    await deleteDoc(lectureDocRef);
+    console.log("Lecture deleted successfully!");
+    return true;
+  } catch (error) {
+    console.error("Error deleting lecture:", error);
     return false;
   }
 }
