@@ -38,10 +38,10 @@ export default function BaseCard({
 	};
 
 	return (
-		<div className="bg-gray-900 p-4 shadow-md rounded-md overflow-clip">
+		<div className="bg-gray-900 p-2 shadow-md rounded-md overflow-clip border border-gray-800">
 			<div className="flex flex-col items-center justify-between gap-2">
 				<div className="flex flex-col items-center">
-					<div className="w-[200px] h-[200px] rounded-full overflow-hidden">
+					<div className="w-[150px] h-[150px] rounded-full overflow-hidden shadow-md shadow-gray-400">
 						<Image
 							src={image || "https://placehold.co/600x400"}
 							alt={title}
@@ -50,11 +50,11 @@ export default function BaseCard({
 							height={48}
 						/>
 					</div>
-					<h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200 ml-3">
+					<h1 className="border-b text-2xl font-black font-mono border-blue-200">
 						{title}
 					</h1>
 				</div>
-				<div className="flex space-x-2">
+				<div className="flex items-center justify-between w-full">
 					<Link
 						href={toEdit}
 						className="bg-blue-500 text-white px-4 py-1 rounded-md"
@@ -71,9 +71,9 @@ export default function BaseCard({
 			</div>
 			<div className="py-2">
 				{data.map((item, index) => (
-					<div key={index} className="flex items-center justify-between py-1">
+					<div key={index} className="flex items-center gap-5 justify-between py-1">
 						<span className="text-xl font-bold font-mono">{item.label}</span>
-						<span className="text-lg font-mono">
+						<span className="text-lg font-mono font-extralight">
 							{item.isURL ? (
 								<Link
 									href={item.value}

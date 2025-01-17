@@ -17,7 +17,7 @@ export default function PanelNavBar({ navItems }: PanelNavBarProps) {
 
 	return (
 		<>
-			<nav className="bg-gray-800 text-white px-4 py-1 rounded-lg">
+			<nav className="bg-gray-800 text-white px-4 py-1 rounded-md mb-4">
 				<ul className="flex items-center gap-5">
 					{navItems.map((item, index) => (
 						<li 
