@@ -1,6 +1,12 @@
 import UpdateTeams from "@/app/ui/techspardha_teams/updateForm";
 
-export default async function TechspardhaTeams() {
+export default async function TechspardhaTeams({
+	params,
+}: {
+	params: Promise<{ id: string }>;
+}) {
+	const slug = (await params).id;
+	const id = slug.replace('-', ' '); // slug = "Startup-Cell" -> id = "Startup Cell"
 	return (
 		<>
 			<div className="bg-gray-900 p-4 shadow-md rounded-md overflow-clip">
@@ -11,7 +17,7 @@ export default async function TechspardhaTeams() {
 					{" "}
 					Update Your Team{" "}
 				</h3>
-				<UpdateTeams id="Technobyte" />
+				<UpdateTeams id={id} />
 			</div>
 		</>
 	);

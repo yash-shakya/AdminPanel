@@ -1,4 +1,4 @@
-import CreateForm from "@/app/ui/sponsors/createForm";
+import ViewSponsor from "@/app/ui/sponsors/ViewSponsor";
 
 export default async function Sponsors() {
   return (
@@ -7,8 +7,8 @@ export default async function Sponsors() {
         <h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200">
           Sponsors
         </h1>
-        <h3 className="text-2xl py-2 font-bold font-mono"> Add sponsors </h3>
-        <CreateForm />
+        <h3 className="text-2xl py-2 font-bold font-mono"> View sponsors </h3>
+        <ViewSponsor />
       </div>
     </>
   );
