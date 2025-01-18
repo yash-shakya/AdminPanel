@@ -5,6 +5,7 @@ import {
 	getTechspardhaTeamById,
 	updateTechspardhaTeam,
 } from "@/app/actions/techspardha_teams";
+import { getImgbbUrl } from "@/app/helpers/imgbb";
 import { TechspardhaTeam, Post } from "@/app/actions/techspardha_teams";
 import UpdateTeamLogo from "./UpdateTeamLogo"; // Logo update component
 import { BaseForm } from "../base_form";
@@ -74,7 +75,7 @@ export default function UpdateTeams({ id }: UpdateTeamsProps) {
 	// Handler for updating the logo in state
 	const handleLogoUpdate = (newLogo: string) => {
 		if (!teamData) return;
-
+		console.log("New logo:", newLogo);
 		setTeamData({ ...teamData, logo: newLogo });
 	};
 
@@ -168,6 +169,7 @@ export default function UpdateTeams({ id }: UpdateTeamsProps) {
 				initialLogo={teamData.logo || ""}
 				onLogoUpdate={handleLogoUpdate}
 			/>
+			<h1 className="text-4xl"> {id} </h1>
 
 			<div className="text-xl w-full flex flex-col mt-10">
 				<h1 className="text-2xl font-black">Update Contacts</h1>
@@ -201,15 +203,13 @@ export default function UpdateTeams({ id }: UpdateTeamsProps) {
 									onChange={(e) => {
 										const file = e.target.files?.[0];
 										if (file) {
-											const reader = new FileReader();
-											reader.onload = () => {
-												if (reader.result) {
+											getImgbbUrl(file).then((url) => {
+												if (url) {
 													handleContactUpdate(index, {
-														imageURL: reader.result.toString(),
+														imageURL: url.imageURL?.url || "",
 													});
 												}
-											};
-											reader.readAsDataURL(file);
+											});
 										}
 									}}
 								/>
