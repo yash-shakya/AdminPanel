@@ -7,7 +7,7 @@ const YEARS = [
 ]
 
 export const createDevTeamFormConfig = {
-    title: "Create Techspardha Team",
+    title: "Add a member",
     fields: [
       {
         name: "name",

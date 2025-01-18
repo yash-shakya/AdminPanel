@@ -15,13 +15,13 @@ export default function CreateDevForm() {
 
             // Generate image URL using imgbb
             const imgbb: IMGBB | null = await createImgbbUrl(data.image);
-
+            const imageUrl: string | null = imgbb? imgbb.url: null;
             // Remove the local image from the data
             delete data.image;
             // Add the new dev team member
             await addDevTeamMember({
                 ...data,
-                imageUrl: imgbb || null,
+                imageUrl: imageUrl,
             });
             window.location.reload(); // TODO: Not a good practice
         } catch (error) {

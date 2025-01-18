@@ -13,7 +13,7 @@ export interface BaseFormProps {
 interface Field {
 	name: string;
 	label: string;
-	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time";
+	type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox";
 	// options : in case of select
 	options?: string[];
 	// placeholder : in case of input
@@ -52,7 +52,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 	const handleSubmit = async(e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		// get the button that was clicked
-		let element = e.target as HTMLFormElement;
+		const element = e.target as HTMLFormElement;
 		const target = element.querySelector("button[type=submit]") as HTMLButtonElement;
 		// Disable the button to prevent multiple submissions
 		target.disabled = true;
