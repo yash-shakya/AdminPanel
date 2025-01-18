@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BaseForm } from "../base_form";
 import { createEventFormConfig } from "@/app/constants/events"; 
 import { Coordinator, Event, createEvent, getAllEvents, getEventById, getAllEventsDescription } from "@/app/actions/events"; 
@@ -22,15 +22,20 @@ interface EventFormState {
 }
 
 export default function CreateEventForm() {
-    // Testing getAll //-> convert function to async while testing
-    // const allEvents = await getAllEvents();
-    // console.log(allEvents);
-    // const allEvents = await getAllEventsDescription();
-    // console.log(allEvents);
 
-    // const eventbyId = await getEventById("3739a7800f4e2982f09a");
-    // console.log(eventbyId);
+    //Uncomment this for testing
+    // const allEvents = async () => {
+    //     const events = await getAllEvents(); // Call the API function
+    //     console.log("Fetched Events:", events); // Log the result
+    //   };
+    // const allEvents = async() => { const e = await getAllEventsDescription();
+    // console.log("Hi", e);}
 
+    //  const eventbyId = async() => { const e = await getEventById("78c84ef9b2e511358340");
+    //  console.log(e);}
+    // useEffect(() => {
+    //     allEvents(); 
+    // }, []);
     const [form, setForm] = useState<EventFormState>({
         eventName: "",
         eventDescription: "",
@@ -45,12 +50,11 @@ export default function CreateEventForm() {
         eventImgUrl: null,
       });
     const [rules, setRules] = useState<string[]>([]); 
-    const [coordinators, setCoordinators] = useState<Coordinator[]>([]); 
+    const [coordinators, setCoordinators] = useState<Coordinator[]>([]); // Manage coordinators separately
     const [newCoordinator, setNewCoordinator] = useState<Coordinator>({
         coordinator_name: "",
         coordinator_number: "",
-      }); // State for the new coordinator being added
-    
+    });
     const [newRule, setNewRule] = useState<string>(""); 
     const [errorText, setErrorText] = useState<string>("");
     const [startTime, setStartTime] = useState<Date | null>(null); 
@@ -63,27 +67,38 @@ export default function CreateEventForm() {
         }));
     };
 
+   
+    
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setNewCoordinator((prev) => ({ ...prev, [name]: value }));
-      };
+    };
     
-      const handleAddCoordinator = () => {
+    const handleAddCoordinator = () => {
         const { coordinator_name, coordinator_number } = newCoordinator;
     
         // Validation
-        if (!coordinator_name || !coordinator_number ) {
-          alert("Please fill all coordinator fields before adding.");
-          return;
+        if (!coordinator_name || !coordinator_number) {
+            alert("Please fill all coordinator fields before adding.");
+            return;
         }
     
+        // Add new coordinator and update form state
         setCoordinators((prev) => [...prev, newCoordinator]);
-        setNewCoordinator({ coordinator_name: "", coordinator_number: "" }); // Clear the input fields
-      };
+        setForm((prev) => ({
+            ...prev,
+            eventCoordinators: [...(prev.eventCoordinators || []), newCoordinator],
+        }));
+        setNewCoordinator({ coordinator_name: "", coordinator_number: "" }); // Clear input fields
+    };
     
-      const handleRemoveCoordinator = (index: number) => {
+    const handleRemoveCoordinator = (index: number) => {
         setCoordinators((prev) => prev.filter((_, i) => i !== index));
-      };
+        setForm((prev) => ({
+            ...prev,
+            eventCoordinators: prev.eventCoordinators?.filter((_, i) => i !== index),
+        }));
+    };
     
     const handleAddRule = () => {
         if (newRule.trim()) {
@@ -130,7 +145,7 @@ export default function CreateEventForm() {
                 icon: form.eventIcon ? await createImgbbUrl(form.eventIcon) : null,
                 imgUrl: form.eventIcon ? await createImgbbUrl(form.eventIcon) : null,
             };
-
+           
            
             await createEvent(eventPayload);
             setForm({
@@ -187,8 +202,7 @@ export default function CreateEventForm() {
                     />
                 </div>
             </div>
-            {/* Coordinators Section */}
-<div className="coordinators-section mt-6">
+            <div className="coordinators-section mt-6">
     <label className="block text-gray-700 font-bold mb-2">Coordinators</label>
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
         <input
@@ -204,13 +218,13 @@ export default function CreateEventForm() {
             name="coordinator_number"
             value={newCoordinator.coordinator_number}
             onChange={handleInputChange}
-            className="border text-black rounded py-2 px-4"
+            className="border rounded py-2 px-4"
             placeholder="Coordinator Phone Number"
         />
         <button
             type="button"
             onClick={handleAddCoordinator}
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded md:col-span-3"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
         >
             Add Coordinator
         </button>
@@ -232,6 +246,7 @@ export default function CreateEventForm() {
         ))}
     </ul>
 </div>
+
 
            
             <div className="rules-section mt-6">
