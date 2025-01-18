@@ -6,6 +6,7 @@ import {
   doc,
   deleteDoc,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
@@ -13,8 +14,8 @@ import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 export type Notification = {
   android_channel_id: string;
   body: string;
-  image?: File | null;
-  imageUrl?: IMGBB | null;
+  image?: string;
+  imageFile?: File | null;
   link: string;
   title: string;
   time: number; // Epoch time in milliseconds
@@ -55,19 +56,22 @@ export async function createNotification(
   notification: Notification
 ): Promise<string> {
   try {
-    if (!notification.image) {
+    if (!notification.imageFile) {
       throw new Error("Failed to create notification");
     }
-    const collectionRef = collection(db, "notifications");
-    const imgbb: IMGBB | null = await createImgbbUrl(notification.image);
+    console.log("HI", notification);
+    const randomId = Math.floor(Math.random() * 1_000_000_000);
+    const imgbb: IMGBB | null = await createImgbbUrl(notification.imageFile);
+    const time = notification.time;
     delete notification.image;
-    const docref = await addDoc(collectionRef, {
-      ...notification,
-      imageUrl: imgbb,
-      createdAt: Date.now(),
-    });
+    const notificationDocRef = doc(db, "notifications", randomId.toString());
+    const notificationData = {
+      notification: { ...notification, image: imgbb?.url },
+      time: time.toString(),
+    };
+    await setDoc(notificationDocRef, notificationData);
     console.log("Notification created successfully");
-    return docref.id;
+    return randomId.toString();
   } catch (error) {
     console.error("Error creating notification: ", error);
     throw new Error("Failed to create notification");
@@ -83,7 +87,7 @@ export async function updateNotification(
     if (updatedData.image) {
       const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
-      if (imgbb) updatedData.imageUrl = imgbb;
+      if (imgbb) updatedData.image = imgbb.url as string;
     }
     await updateDoc(sponsorDocRef, {
       ...updatedData,
