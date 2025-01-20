@@ -1,11 +1,12 @@
 import { useEffect, useState } from "react";
 import { getAllUsers, type User, deleteUser } from "@/app/actions/users";
 import BaseTable from "../base_table";
-
+import { useRouter } from "next/navigation";
 export default function UserTable() {
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string>("");
+    const router = useRouter();
 
     useEffect(() => {
         const fetchUsers = async () => {
@@ -28,7 +29,7 @@ export default function UserTable() {
     }, []);
 
     const handleEdit = (email: string) => {
-        console.log("Edit user:", email);
+        router.push(`/panel/view/admins/${email}`);
     };
 
     const handleDelete = async (email: string) => {
@@ -76,10 +77,11 @@ export default function UserTable() {
         }
     ];
 
+    const filteredUsers = users.filter((user)=>user.role === "admin")
     return (
         <BaseTable
             columns={columns}
-            data={users}
+            data={filteredUsers}
             loading={loading}
             error={error}
             onEdit={handleEdit}
