@@ -49,7 +49,7 @@ const BaseTable: React.FC<BaseTableProps> = ({
 
   const handleDeleteConfirm = async () => {
     if (itemToDelete && onDelete) {
-      await onDelete(itemToDelete);
+      onDelete(itemToDelete);
       setIsDeleteModalOpen(false);
       setItemToDelete(null);
     }
