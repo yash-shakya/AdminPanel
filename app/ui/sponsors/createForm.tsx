@@ -6,6 +6,7 @@ import { createSponsor } from "@/app/actions/sponsors";
 import { createSponsorFormConfig } from "@/app/constants/sponsor";
 
 interface FormState {
+  category: string;
   alt: string;
   name: string;
   targetUrl: string;
