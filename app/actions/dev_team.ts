@@ -19,7 +19,6 @@ export type DevTeamMember = {
 	github?: string;
 	instagram?: string;
 	image?: File | null;
-	id?:string;
 };
 
 type YEAR =
