@@ -1,8 +1,8 @@
 "use client"
-import UpdateEventForm from "@/app/ui/events/UpdateEventForm";
+
 import ViewEvents from "@/app/ui/events/ViewEvents";
 export default function Home() {
-	const a = "Informals", b="Excalibur"
+	
 	return (
 			<>
 				<div className="bg-gray-900 p-4 shadow-md rounded-md overflow-clip">
@@ -10,7 +10,7 @@ export default function Home() {
 						Events
 					</h1>
 					
-					<UpdateEventForm eventCategory={a} eventName={b} />
+					<ViewEvents />
 				</div>
 			</>
 		);
