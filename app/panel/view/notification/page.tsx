@@ -1,6 +1,4 @@
 "use client";
-
-import UserTable from "@/app/ui/admin_users/UserTable"
 import NotificationTable from "@/app/ui/notification/NotificationTable";
 
 export default function Home() {
