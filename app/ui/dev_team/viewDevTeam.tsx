@@ -25,7 +25,6 @@ export default function ViewDevTeam() {
 			if ("err_desc" in teamMembers) {
 				console.error(teamMembers.err_desc);
 			} else {
-				console.log(teamMembers);
 				const devMembers = teamMembers.filter(
 					(team) => team.id === "aboutDevs"
 				);
@@ -46,8 +45,7 @@ export default function ViewDevTeam() {
 
 	return (
 		<div className="dev-team">
-			<h1>Dev Team</h1>
-			<div className="dev-team-list flex flex-wrap gap-7">
+			<div className="dev-team-list flex flex-wrap gap-7 p-4">
 				{teamList.map((member, index) => (
 					<BaseCard
 						key={index}
