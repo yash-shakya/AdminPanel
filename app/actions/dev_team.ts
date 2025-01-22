@@ -28,7 +28,7 @@ type YEAR =
 	| "Final Year"
 	| "Super Senior";
 
-// TODO: change the below fxns except creation fxn as devs -> aboutDevs -> arrayof members
+// TODO: update function may have to be chnaged. Currently not in use
 
 /**
  * Adds a new member to the development team.
@@ -102,18 +102,20 @@ export async function getDevTeamMembers(): Promise<
 /**
  * Retrieves a development team member's data by their ID.
  *
- * @param {string} id - The ID of the development team member.
- * @returns {Promise<{ id: string, [key: string]: any } | { err_desc: string }>}
+ * @param {number} index - The ID of the development team member.
+ * @returns {Promise<{ [key: string]: any } | { err_desc: string }>}
  * A promise that resolves to an object containing the team member's data, or an error description if the retrieval fails.
  * @throws Will log an error message to the console if the retrieval fails.
  */
 export async function getDevTeamMemberById(
-	id: string
-): Promise<{ id: string; [key: string]: any } | { err_desc: string }> {
+	index: number
+): Promise<{ [key: string]: any } | { err_desc: string }> {
 	try {
-		const devTeamRef = doc(db, "devs", id);
+		const devTeamRef = doc(db, "devs", "aboutDevs");
 		const snapshot = await getDoc(devTeamRef);
-		return { id: snapshot.id, ...snapshot.data() };
+		// snapshot will be an object with the ID and members array
+		// index is the index of the member in the array
+		return snapshot.data()?.members[index];
 	} catch (error) {
 		console.error("Error getting dev team member by ID:", error);
 		return {
@@ -155,15 +157,22 @@ export async function updateDevTeamMember(
 /**
  * Deletes a member from the dev team based on the provided ID.
  *
- * @param {string} id - The ID of the dev team member to delete.
+ * @param {number} index - The ID of the dev team member to delete.
  * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion was successful, or `false` if an error occurred.
  *
  * @throws Will log an error message to the console if the deletion fails.
  */
-export async function deleteDevTeamMember(id: string): Promise<boolean> {
+export async function deleteDevTeamMember(index: number): Promise<boolean> {
 	try {
-		const devTeamRef = doc(db, "devs", id);
-		await deleteDoc(devTeamRef);
+		const devTeamRef = doc(db, "devs", "aboutDevs");
+		const snapshot = await getDoc(devTeamRef);
+		const members = snapshot.data()?.members;
+		if (!Array.isArray(members)) {
+			console.error("No members found in the document");
+			return false;
+		}
+		members.splice(index, 1);
+		await setDoc(devTeamRef, { members });
 		return true;
 	} catch (error) {
 		console.error("Error deleting dev team member:", error);
