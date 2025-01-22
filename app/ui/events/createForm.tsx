@@ -1,7 +1,13 @@
-import { useState } from "react";
-import { createEvent } from "@/app/actions/events";
+"use client";
+
+import { useEffect, useState } from "react";
 import { BaseForm } from "../base_form";
-import { createEventFormConfig, addCoordinatorFormConfig } from "@/app/constants/events";
+import { createEvent } from "@/app/actions/events";
+import { getAllEventCategory } from "@/app/actions/eventCategory";
+import {
+  createEventFormConfig as baseEventFormConfig,
+  addCoordinatorFormConfig,
+} from "@/app/constants/events";
 
 type Coordinator = {
   coordinator_name: string;
@@ -22,10 +28,34 @@ interface FormState {
   image: File;
 }
 
+interface EventCategory {
+  id: string;
+  eventCategory: string;
+  image: string; 
+}
+
 export default function CreateForm() {
-  const [coordinators, setCoordinators] = useState([0, 1]); // Initial two coordinators
+  const [coordinators, setCoordinators] = useState([0, 1]);
   const [form, setForm] = useState<FormState>({} as FormState);
   const [errorText, setErrorText] = useState<string>("");
+  const [categories, setCategories] = useState<EventCategory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllEventCategory(); // Fetch event categories from Firebase
+        setCategories(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setErrorText("Failed to load categories.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const addCoordinators = () => {
     setCoordinators([...coordinators, coordinators.length]);
@@ -33,14 +63,14 @@ export default function CreateForm() {
 
   const removeCoordinators = () => {
     if (coordinators.length === 2) {
-      setErrorText("At least two coordinators are required");
+      setErrorText("At least two coordinators are required.");
       setTimeout(() => setErrorText(""), 2000);
       return;
     }
     setCoordinators(coordinators.slice(0, coordinators.length - 1));
   };
 
-  const handleFormCreate = (data: FormState) => {
+  const handleFormCreate = (data: Partial<FormState>) => {
     setForm((prev) => ({
       ...prev,
       ...data,
@@ -49,10 +79,13 @@ export default function CreateForm() {
 
   const handleAddCoordinators = (data: Coordinator) => {
     setForm((prev) => {
-      const updatedCoordinators = [...(prev.coordinators || []), data];
+      const coordinatorMap = new Map(
+        (prev.coordinators || []).map((c) => [c.coordinator_number, c])
+      );
+      coordinatorMap.set(data.coordinator_number, data);
       return {
         ...prev,
-        coordinators: updatedCoordinators, // Correctly update coordinators
+        coordinators: Array.from(coordinatorMap.values()),
       };
     });
   };
@@ -65,18 +98,14 @@ export default function CreateForm() {
     target.disabled = true;
     target.innerText = "Submitting...";
 
-    // Access coordinators directly from the form state
-    const { coordinators, eventName, startTime, endTime } = form;
-
-    // Validation checks for empty fields and required coordinators
-    if (!eventName || !startTime || !endTime) {
-      error_message = "Please fill in all the event details";
-    } else if (coordinators.length < 2) {
-      error_message = "At least two coordinators are required";
+    if (!form.eventName || !form.startTime || !form.endTime) {
+      error_message = "Please fill in all the event details.";
+    } else if (!form.coordinators || form.coordinators.length < 2) {
+      error_message = "At least two coordinators are required.";
     } else {
-      for (const coordinator of coordinators) {
+      for (const coordinator of form.coordinators) {
         if (!coordinator.coordinator_name || !coordinator.coordinator_number) {
-          error_message = "Please fill in all coordinator details properly";
+          error_message = "Please fill in all coordinator details properly.";
           break;
         }
       }
@@ -90,21 +119,23 @@ export default function CreateForm() {
     }
 
     try {
-      // Ensure coordinators are unique and handle submission
-      const uniqueCoordinators = Array.from(
-        new Map(coordinators.map((c) => [c.coordinator_number, c])).values()
-      );
-
-      await createEvent({ ...form, coordinators: uniqueCoordinators });
+      await createEvent({
+        ...form,
+        coordinators: Array.from(
+          new Map(
+            form.coordinators.map((c) => [c.coordinator_number, c])
+          ).values()
+        ),
+      });
       setForm({} as FormState);
-      setCoordinators([0, 1]); // Reset coordinators to initial state
+      setCoordinators([0, 1]);
       setErrorText("");
       target.innerText = "Submitted";
       setTimeout(() => {
         target.disabled = false;
         target.innerText = "Submit";
       }, 1000);
-      window.location.reload(); // Or redirect as needed
+      window.location.reload();
     } catch (error) {
       console.error("Error creating event: ", error);
       target.innerText = "Error...";
@@ -113,15 +144,37 @@ export default function CreateForm() {
         target.disabled = false;
         target.innerText = "Submit";
       }, 1000);
-      setErrorText("An error occurred while creating the event");
+      setErrorText("An error occurred while creating the event.");
     }
   };
 
+  const dynamicEventFormConfig = {
+    ...baseEventFormConfig,
+    fields: baseEventFormConfig.fields.map((field) =>
+      field.name === "eventCategory"
+        ? {
+            ...field,
+            options: loading
+              ? ["Loading..."]
+              : categories.map((category) => category.eventCategory),
+            placeholder: loading
+              ? "Loading categories..."
+              : "Select the category",
+          }
+        : field
+    ),
+  };
+  
+
   return (
     <div className="create-form">
-      <BaseForm {...createEventFormConfig} submit={handleFormCreate} />
+      <BaseForm {...dynamicEventFormConfig} submit={handleFormCreate} />
       {coordinators.map((_, index) => (
-        <BaseForm key={index} {...addCoordinatorFormConfig} submit={handleAddCoordinators} />
+        <BaseForm
+          key={index}
+          {...addCoordinatorFormConfig}
+          submit={handleAddCoordinators}
+        />
       ))}
       <div className="flex items-center gap-5">
         <button

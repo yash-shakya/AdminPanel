@@ -7,11 +7,6 @@ export const createEventCategoryConfig = {
       type: "text" as const,
     },
     {
-      name: "index",
-      label: "Index",
-      type: "number" as const,
-    },
-    {
       name: "image",
       label: "Image",
       type: "file" as const,
