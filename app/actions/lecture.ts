@@ -5,6 +5,7 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";

@@ -89,11 +89,11 @@ export async function getAllUsers(): Promise<UsersDTO> {
  */
 export async function getUserByEmail(email: string): Promise<User> {
     try {
-        const docRef = doc(db, "users", email);
-        const docSnap = await getDoc(docRef);
+        const docRef = doc(db, "users", email);  
+        const docSnap = await getDoc(docRef);   
         
         if (docSnap.exists()) {
-            return docSnap.data() as User;
+            return docSnap.data() as User;       
         } else {
             throw new Error("User not found");
         }
@@ -102,6 +102,7 @@ export async function getUserByEmail(email: string): Promise<User> {
         throw new Error("Failed to fetch user");
     }
 }
+
 
 // Create user
 /**
@@ -174,7 +175,9 @@ export async function createUser(email: string, data: User): Promise<void> {
  */
 export async function updateUser(email: string, data: Partial<User>): Promise<void> {
     try {
-        const docRef = doc(db, "users", email);
+
+        const decodedEmail = decodeURIComponent(email);
+        const docRef = doc(db, "users", decodedEmail); 
         
         await updateDoc(docRef, data);
         console.log("User updated:", email);

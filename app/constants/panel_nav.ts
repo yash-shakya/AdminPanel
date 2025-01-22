@@ -7,8 +7,8 @@ export const PanelNav = [
         name: "Add",
         href: "/panel/add",
     },
-    {
-        name: "Update",
-        href: "/panel/update",
-    },
+    // {
+    //     name: "Update",
+    //     href: "/panel/update",
+    // },
 ];
