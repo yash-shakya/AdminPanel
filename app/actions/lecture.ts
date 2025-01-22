@@ -5,13 +5,13 @@ import {
   doc,
   updateDoc,
   deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
 import createImgbbUrl from "../helpers/imgbb";
 
-
-type Lecture = {
+export type Lecture = {
   id?: string; // Optional because it is not present when creating a new lecture
   date: string;
   desc: string;
@@ -40,7 +40,7 @@ export async function createLecture(
     delete lecture.image;
     const docRef = await addDoc(lecturesCollection, {
       ...lecture,
-      imageUrl: imgbb?.url
+      imageUrl: imgbb?.url,
     });
     console.log("Lecture created with ID:", docRef.id);
     return docRef.id;
@@ -91,7 +91,7 @@ export async function updateLecture(
       if (imgbb) updatedData.imageUrl = imgbb.url as string;
     }
     await updateDoc(lectureDocRef, {
-      ...updatedData
+      ...updatedData,
     });
     console.log("Lecture updated successfully!");
     return true;
@@ -101,14 +101,31 @@ export async function updateLecture(
   }
 }
 
-export async function deleteLecture(id: string): Promise<boolean> {
+export async function deleteLecture(id: string) {
   try {
-    const lectureDocRef = doc(db, "lectures", id);
-    await deleteDoc(lectureDocRef);
-    console.log("Lecture deleted successfully!");
-    return true;
+    const docRef = doc(db, "lectures", id);
+
+    await deleteDoc(docRef);
+    console.log("GL deleted: ", id);
   } catch (error) {
-    console.error("Error deleting lecture:", error);
-    return false;
+    console.error("Error deleting lecture: ", id);
+    throw new Error("Failed to delete GL");
+  }
+}
+
+export async function getLectureById(id: string) {
+  try {
+    const docRef = doc(db, "lectures", id);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data() as Lecture;
+    } else {
+      throw new Error("Guest lecture not found");
+    }
+  } catch (error) {
+    console.error("Error fetching lecture: ", error);
+    throw new Error("Failed to fetch guest lecture");
   }
 }
