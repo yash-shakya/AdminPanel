@@ -5,6 +5,7 @@ export interface BaseFormProps {
   fields: Field[];
   submit: any;
   submitText: string;
+  defaultValues?: Record<string, any>; // Add defaultValues prop
 }
 
 interface Field {
@@ -22,19 +23,20 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   fields,
   submit,
   submitText,
+  defaultValues = {}, // Default to an empty object if not provided
 }) => {
-
   const [_, setInitialValues] = useState<Record<string, any>>({});
   const [form, setForm] = useState<Record<string, any>>({});
+
   useEffect(() => {
     const values = fields.reduce((acc, field) => {
-      acc[field.name] = field.value || "";
+      acc[field.name] = defaultValues[field.name] || field.value || ""; // Use defaultValues if available
       return acc;
     }, {} as Record<string, any>);
-    
+
     setInitialValues(values);
     setForm(values);
-  }, [fields]);
+  }, [fields]); // Add defaultValues as a dependency
 
   const [success, setSuccess] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -82,7 +84,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
         return;
       }
     }
-    
+
     await submit(form);
     target.disabled = false;
     target.classList.remove("bg-gray-500");
