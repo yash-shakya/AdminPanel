@@ -5,13 +5,13 @@ import {
   doc,
   updateDoc,
   deleteDoc,
-  deleteDoc,
+  getDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
 import createImgbbUrl from "../helpers/imgbb";
 
-type Lecture = {
+export type Lecture = {
   id?: string; // Optional because it is not present when creating a new lecture
   date: string;
   desc: string;
@@ -110,5 +110,22 @@ export async function deleteLecture(id: string) {
   } catch (error) {
     console.error("Error deleting lecture: ", id);
     throw new Error("Failed to delete GL");
+  }
+}
+
+export async function getLectureById(id: string) {
+  try {
+    const docRef = doc(db, "lectures", id);
+
+    const docSnap = await getDoc(docRef);
+
+    if (docSnap.exists()) {
+      return docSnap.data() as Lecture;
+    } else {
+      throw new Error("Guest lecture not found");
+    }
+  } catch (error) {
+    console.error("Error fetching lecture: ", error);
+    throw new Error("Failed to fetch guest lecture");
   }
 }
