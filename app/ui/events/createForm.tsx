@@ -1,10 +1,11 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { BaseForm } from "../base_form";
 import { createEvent } from "@/app/actions/events";
+import { getAllEventCategory } from "@/app/actions/eventCategory";
 import {
-  createEventFormConfig,
+  createEventFormConfig as baseEventFormConfig,
   addCoordinatorFormConfig,
 } from "@/app/constants/events";
 
@@ -27,10 +28,34 @@ interface FormState {
   image: File;
 }
 
+interface EventCategory {
+  id: string;
+  eventCategory: string;
+  image: string; 
+}
+
 export default function CreateForm() {
-  const [coordinators, setCoordinators] = useState([0, 1]); // Indexes of contacts
+  const [coordinators, setCoordinators] = useState([0, 1]);
   const [form, setForm] = useState<FormState>({} as FormState);
   const [errorText, setErrorText] = useState<string>("");
+  const [categories, setCategories] = useState<EventCategory[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      try {
+        const categories = await getAllEventCategory(); // Fetch event categories from Firebase
+        setCategories(categories);
+      } catch (error) {
+        console.error("Error fetching categories:", error);
+        setErrorText("Failed to load categories.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const addCoordinators = () => {
     setCoordinators([...coordinators, coordinators.length]);
@@ -38,14 +63,14 @@ export default function CreateForm() {
 
   const removeCoordinators = () => {
     if (coordinators.length === 2) {
-      setErrorText("At least two coordinators are required");
+      setErrorText("At least two coordinators are required.");
       setTimeout(() => setErrorText(""), 2000);
       return;
     }
     setCoordinators(coordinators.slice(0, coordinators.length - 1));
   };
 
-  const handleFormCreate = (data: Event) => {
+  const handleFormCreate = (data: Partial<FormState>) => {
     setForm((prev) => ({
       ...prev,
       ...data,
@@ -57,10 +82,10 @@ export default function CreateForm() {
       const coordinatorMap = new Map(
         (prev.coordinators || []).map((c) => [c.coordinator_number, c])
       );
-      coordinatorMap.set(data.coordinator_number, data); // Add or update coordinator
+      coordinatorMap.set(data.coordinator_number, data);
       return {
         ...prev,
-        coordinators: Array.from(coordinatorMap.values()), // Convert Map back to array
+        coordinators: Array.from(coordinatorMap.values()),
       };
     });
   };
@@ -74,13 +99,13 @@ export default function CreateForm() {
     target.innerText = "Submitting...";
 
     if (!form.eventName || !form.startTime || !form.endTime) {
-      error_message = "Please fill in all the event details";
+      error_message = "Please fill in all the event details.";
     } else if (!form.coordinators || form.coordinators.length < 2) {
-      error_message = "At least two coordinators are required";
+      error_message = "At least two coordinators are required.";
     } else {
       for (const coordinator of form.coordinators) {
         if (!coordinator.coordinator_name || !coordinator.coordinator_number) {
-          error_message = "Please fill in all coordinator details properly";
+          error_message = "Please fill in all coordinator details properly.";
           break;
         }
       }
@@ -94,12 +119,14 @@ export default function CreateForm() {
     }
 
     try {
-      const coordinatorArray = Array.from(
-        new Map(
-          form.coordinators.map((c) => [c.coordinator_number, c])
-        ).values()
-      ); // Ensure unique coordinators before submission
-      await createEvent({ ...form, coordinators: coordinatorArray });
+      await createEvent({
+        ...form,
+        coordinators: Array.from(
+          new Map(
+            form.coordinators.map((c) => [c.coordinator_number, c])
+          ).values()
+        ),
+      });
       setForm({} as FormState);
       setCoordinators([0, 1]);
       setErrorText("");
@@ -117,13 +144,31 @@ export default function CreateForm() {
         target.disabled = false;
         target.innerText = "Submit";
       }, 1000);
-      setErrorText("An error occurred while creating the event");
+      setErrorText("An error occurred while creating the event.");
     }
   };
 
+  const dynamicEventFormConfig = {
+    ...baseEventFormConfig,
+    fields: baseEventFormConfig.fields.map((field) =>
+      field.name === "eventCategory"
+        ? {
+            ...field,
+            options: loading
+              ? ["Loading..."]
+              : categories.map((category) => category.eventCategory),
+            placeholder: loading
+              ? "Loading categories..."
+              : "Select the category",
+          }
+        : field
+    ),
+  };
+  
+
   return (
     <div className="create-form">
-      <BaseForm {...createEventFormConfig} submit={handleFormCreate} />
+      <BaseForm {...dynamicEventFormConfig} submit={handleFormCreate} />
       {coordinators.map((_, index) => (
         <BaseForm
           key={index}
