@@ -34,13 +34,14 @@ export default function ViewSponsorClient({
         });
         dataArray.push({ label: "name", value: sponsor.name });
         dataArray.push({ label: "id", value: sponsor.id as string });
+        dataArray.push({ label: "targetUrl", value: sponsor.targetUrl });
         return (
           <div key={i} className="m-4">
             <BaseCard
               data={dataArray}
               title={sponsor.name}
               image={sponsor.imageUrl as string}
-              toEdit={`update/sponsors/${sponsor.category}/${sponsor.id}`}
+              toEdit={`sponsors/${sponsor.category}/${sponsor.id}`}
               onDelete={() => handleDelete(sponsor)}
             />
           </div>

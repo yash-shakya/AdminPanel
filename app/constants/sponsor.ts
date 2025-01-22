@@ -25,6 +25,7 @@ export const createSponsorFormConfig = {
       name: "image",
       label: "Sponsor image",
       type: "file" as const,
+      required: false,
     },
   ],
   submitText: "Add Sponsor",

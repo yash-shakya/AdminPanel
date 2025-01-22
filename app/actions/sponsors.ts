@@ -6,6 +6,7 @@ import {
   setDoc,
   doc,
   updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 import { IMGBB } from "../helpers/imgbb";
@@ -109,26 +110,96 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
 
 export async function updateSponsor(
   id: string,
+  currentCategory: string, // The sponsor's current category
   updatedData: Partial<Sponsor>
 ): Promise<boolean> {
   try {
-    const sponsorDocRef = doc(db, "sponsors", id);
-    if (updatedData.image) {
-      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
-      delete updatedData.image;
-      if (imgbb) updatedData.imageUrl = imgbb.url as string;
+    const oldCategoryDocRef = doc(db, "sponsors", currentCategory);
+
+    // Fetch the current category document
+    const oldCategoryDocSnap = await getDoc(oldCategoryDocRef);
+    if (!oldCategoryDocSnap.exists()) {
+      throw new Error(`Current category ${currentCategory} does not exist.`);
     }
-    await updateDoc(sponsorDocRef, {
-      ...updatedData,
-      updatedAt: Date.now(),
-    });
-    console.log("Sponsor updated successfully!");
+
+    const sponsorsInOldCategory = oldCategoryDocSnap.data();
+
+    if (!sponsorsInOldCategory || !sponsorsInOldCategory[id]) {
+      throw new Error(
+        `Sponsor with ID ${id} not found in category ${currentCategory}.`
+      );
+    }
+
+    // Store the existing sponsor data before modifying/deleting it
+    const sponsorData = {
+      ...sponsorsInOldCategory[id], // Existing data from the old category
+      ...updatedData, // Merge with the updated data
+    };
+
+    // Handle image upload if needed
+    if (updatedData.image) {
+      const imgbb = await createImgbbUrl(updatedData.image);
+      delete updatedData.image;
+      if (imgbb) {
+        sponsorData.imageUrl = imgbb.url as string;
+      }
+    }
+
+    // Check if the category is changing
+    const newCategory = updatedData.category || currentCategory;
+
+    if (newCategory !== currentCategory) {
+      // Remove the sponsor from the old category
+      delete sponsorsInOldCategory[id];
+
+      // Add the sponsor to the new category
+      const newCategoryDocRef = doc(db, "sponsors", newCategory);
+      const newCategoryDocSnap = await getDoc(newCategoryDocRef);
+      let sponsorsInNewCategory = newCategoryDocSnap.exists()
+        ? newCategoryDocSnap.data()
+        : {};
+
+      sponsorsInNewCategory[id] = {
+        ...sponsorData, // Use the fully prepared sponsor data
+      };
+
+      // If the old category becomes empty, delete it
+      if (Object.keys(sponsorsInOldCategory).length === 0) {
+        await deleteDoc(oldCategoryDocRef);
+        console.log(`Category ${currentCategory} deleted as it became empty.`);
+      } else {
+        // Otherwise, update the category document
+        await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
+      }
+
+      // Update or create the new category document
+      if (newCategoryDocSnap.exists()) {
+        await updateDoc(newCategoryDocRef, sponsorsInNewCategory);
+      } else {
+        await setDoc(newCategoryDocRef, sponsorsInNewCategory);
+      }
+
+      console.log(
+        `Sponsor moved from category ${currentCategory} to ${newCategory} and updated successfully!`
+      );
+    } else {
+      // Update the sponsor in the same category
+      sponsorsInOldCategory[id] = {
+        ...sponsorData, // Use the fully prepared sponsor data
+        updatedAt: Date.now(),
+      };
+
+      await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
+      console.log(`Sponsor with ID ${id} updated in category ${currentCategory}.`);
+    }
+
     return true;
   } catch (error) {
-    console.error("Error updating Sponsor:", error);
+    console.error("Error updating sponsor:", error);
     return false;
   }
 }
+
 
 export async function deleteSponsor(
   sponsorCategory: string,
@@ -160,10 +231,10 @@ export async function deleteSponsor(
 
     // Remove the sponsor with the given sponsorId
     delete sponsors[sponsorId];
-    
+
     if (Object.keys(sponsors).length === 0) {
       // If no sponsors remain, delete the entire document
-      await setDoc(categoryDocRef, {}, { merge: false });
+      await deleteDoc(categoryDocRef);
     } else {
       // Otherwise, update the document with the modified sponsors
       await setDoc(categoryDocRef, sponsors, { merge: false });
@@ -175,5 +246,31 @@ export async function deleteSponsor(
   } catch (error) {
     console.error("Error deleting sponsor:", error);
     throw new Error(`Unable to delete sponsor: ${sponsorId}`);
+  }
+}
+
+export async function getSponsorById(id: string, category: string) {
+  try {
+    // Reference the category document
+    const categoryDocRef = doc(db, "sponsors", category);
+
+    // Fetch the category document
+    const categoryDocSnap = await getDoc(categoryDocRef);
+
+    if (categoryDocSnap.exists()) {
+      const sponsors = categoryDocSnap.data();
+
+      // Check if the sponsor with the given ID exists
+      if (sponsors && sponsors[id]) {
+        return sponsors[id];
+      } else {
+        throw new Error(`Sponsor with ID ${id} not found in category ${category}`);
+      }
+    } else {
+      throw new Error(`Category document ${category} not found`);
+    }
+  } catch (error) {
+    console.error("Error fetching sponsor:", error);
+    throw new Error("Failed to fetch sponsor");
   }
 }

@@ -87,7 +87,6 @@ export async function updateLecture(
       const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
       if (imgbb) updatedData.imageUrl = imgbb.url as string;
-      if (imgbb) updatedData.imageUrl = imgbb.url as string;
     }
     await updateDoc(lectureDocRef, {
       ...updatedData
