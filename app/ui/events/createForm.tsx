@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { createEvent, getAllEvents } from "@/app/actions/events";
+import { useState } from "react";
+import { createEvent } from "@/app/actions/events";
 import { BaseForm } from "../base_form";
 import { createEventFormConfig, addCoordinatorFormConfig } from "@/app/constants/events";
 
@@ -23,26 +23,6 @@ interface FormState {
 }
 
 export default function CreateForm() {
-
-      useEffect(() => {
-        const fetchEvents = async () => {
-          try {
-            const fetchedEvents = await getAllEvents(); // Adjusted to handle the nested structure
-            console.log(fetchedEvents);
-            
-          } catch (err) {
-          
-            console.error(err);
-          } finally {
-          console.log("Success!!")
-          }
-        };
-    
-        fetchEvents();
-      }, []);
-    
-
-
   const [coordinators, setCoordinators] = useState([0, 1]); // Initial two coordinators
   const [form, setForm] = useState<FormState>({} as FormState);
   const [errorText, setErrorText] = useState<string>("");

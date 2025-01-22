@@ -51,7 +51,7 @@ export default function ViewEventClient({
                 data={dataArray}
                 title={event.eventName}
                 image={event.poster || null}
-                toEdit={`/events/${category}/${event.eventName}`} // Edit URL
+                toEdit={`events/${category}/${event.eventName}`} // Edit URL
                 onDelete={() => handleDelete(event.eventName, category)} // Trigger delete
               />
             </div>

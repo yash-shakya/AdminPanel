@@ -347,20 +347,52 @@ export async function deleteEvent(eventName: string, eventCategory: string): Pro
 }
 
 
-export async function updateEventByName(eventCategory: string, eventName: string, updatedData: any): Promise<void> {
+export async function updateEventByName(
+  eventCategory: string,
+  eventName: string,
+  updatedData: any
+): Promise<void> {
   try {
-      // Reference the document for the category
-      const categoryRef = doc(db, "eventDescription", eventCategory);
+    const categoryRef = doc(db, "eventDescription", eventCategory);
 
-      // Update only the specific event within the JSON object
-      await updateDoc(categoryRef, {
-          [`${eventName}`]: updatedData, // Use Firestore dot notation to update nested fields
-      });
+    // Fetch the existing event data
+    const categorySnap = await getDoc(categoryRef);
+    if (!categorySnap.exists()) {
+      throw new Error(`Category '${eventCategory}' does not exist.`);
+    }
 
-      console.log(`Successfully updated event '${eventName}' in category '${eventCategory}'.`);
+    const events = categorySnap.data();
+    const existingEvent = events[eventName];
+    if (!existingEvent) {
+      throw new Error(`Event '${eventName}' does not exist in category '${eventCategory}'.`);
+    }
+
+    // Handle image upload if a new image is provided
+    let poster = existingEvent.poster; // Default to existing poster
+    if (updatedData.image) {
+      const imageUrl = await createImgbbUrl(updatedData.image); // Upload new image
+      poster = imageUrl?.url; // Update poster with new URL
+    }
+
+    // Prepare updated event data
+    const updatedEventData = {
+      ...existingEvent, // Keep existing data
+      ...updatedData, // Overwrite with updated fields
+      poster, // Update poster URL
+    };
+
+    // Remove 'image' field from updatedData (if it exists)
+    delete updatedEventData.image;
+
+    // Update Firestore document with the updated event data
+    await updateDoc(categoryRef, {
+      [eventName]: updatedEventData,
+    });
+
+    console.log(`Successfully updated event '${eventName}' in category '${eventCategory}'.`);
   } catch (error) {
-      console.error(`Failed to update event '${eventName}' in category '${eventCategory}':`, error);
-      throw new Error("Failed to update event");
+    console.error(`Failed to update event '${eventName}' in category '${eventCategory}':`, error);
+    throw new Error("Failed to update event");
   }
 }
 
