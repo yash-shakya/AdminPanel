@@ -171,7 +171,7 @@ export async function updateSponsor(
         // Otherwise, update the category document
         await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
       }
-
+      delete sponsorsInNewCategory[id].image;
       // Update or create the new category document
       if (newCategoryDocSnap.exists()) {
         await updateDoc(newCategoryDocRef, sponsorsInNewCategory);
