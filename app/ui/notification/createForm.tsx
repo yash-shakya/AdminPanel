@@ -1,23 +1,23 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { BaseForm } from "../base_form";
 import { createNotification } from "@/app/actions/notification";
 import { createNotificationConfig } from "@/app/constants/notification";
-import createImgbbUrl from "@/app/helpers/imgbb";
 
 interface FormState {
   android_channel_id: string;
   body: string;
-  imageFile?: File;  // Changed from image to imageFile
+  imageFile?: File;
   link: string;
   title: string;
-  time: string | number; // Updated to handle string time format
+  time: string | number;
 }
 
 export default function CreateForm() {
   const [forms, setForms] = useState<FormState[]>([{} as FormState]);
   const [errorText, setErrorText] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [progress, setProgress] = useState<string[]>([]);
 
   const handleData = (index: number, data: FormState) => {
     const updatedForms = [...forms];
@@ -27,6 +27,7 @@ export default function CreateForm() {
 
   const addNewForm = () => {
     setForms([...forms, {} as FormState]);
+    setProgress([...progress, ""]);
   };
 
   const removeNewForm = () => {
@@ -36,6 +37,26 @@ export default function CreateForm() {
       return;
     }
     setForms(forms.slice(0, -1));
+    setProgress(progress.slice(0, -1));
+  };
+
+  const validateImageFile = (file?: File): boolean => {
+    if (!file) return false;
+    
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+    if (!allowedTypes.includes(file.type)) {
+      throw new Error(`Invalid file type. Allowed types: JPG, PNG, GIF. Received: ${file.type}`);
+    }
+
+    return true;
+  };
+
+  const updateProgress = (index: number, message: string) => {
+    setProgress(prev => {
+      const newProgress = [...prev];
+      newProgress[index] = message;
+      return newProgress;
+    });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,59 +65,57 @@ export default function CreateForm() {
 
     setIsSubmitting(true);
     setErrorText("");
+    setProgress(new Array(forms.length).fill(""));
 
     try {
-      // Updated validation to check for imageFile instead of image
-      const invalidForm = forms.find(form => 
-        !form.android_channel_id?.trim() || 
-        !form.body?.trim() || 
-        !form.imageFile || // Changed from image to imageFile
-        !form.link?.trim() || 
-        !form.title?.trim() || 
-        !form.time
-      );
+      // Validate all forms first
+      forms.forEach((form, index) => {
+        if (!form.android_channel_id?.trim()) throw new Error(`Form ${index + 1}: Channel ID is required`);
+        if (!form.body?.trim()) throw new Error(`Form ${index + 1}: Body is required`);
+        if (!form.link?.trim()) throw new Error(`Form ${index + 1}: Link is required`);
+        if (!form.title?.trim()) throw new Error(`Form ${index + 1}: Title is required`);
+        if (!form.time) throw new Error(`Form ${index + 1}: Time is required`);
+        if (!form.imageFile) throw new Error(`Form ${index + 1}: Image file is required`);
+        if (!validateImageFile(form.imageFile)) {
+          throw new Error(`Form ${index + 1}: Invalid image file`);
+        }
+      });
 
-      if (invalidForm) {
-        throw new Error("Please fill all required fields in all forms.");
-      }
-
-      // Process each form sequentially
-      for (const form of forms) {
+      // Process forms sequentially
+      for (let i = 0; i < forms.length; i++) {
+        const form = forms[i];
         try {
-          // Pass the File object to createImgbbUrl
-          const imageResult = await createImgbbUrl(form.imageFile!);
+          updateProgress(i, "Creating notification...");
           
-          if (!imageResult?.url) {
-            throw new Error("Image upload failed");
-          }
-
-          const timestamp = typeof form.time === 'string' 
+          const timestamp = typeof form.time === "string" 
             ? new Date(form.time).getTime() 
             : form.time;
 
           await createNotification({
             android_channel_id: form.android_channel_id,
             body: form.body,
-            image: imageResult.url,
+            imageFile: form.imageFile!, // We know it exists due to validation
             link: form.link,
             title: form.title.trim(),
             time: timestamp,
           });
+
+          updateProgress(i, "✓ Completed successfully");
         } catch (error) {
-          throw new Error(`Failed to process form: ${error instanceof Error ? error.message : 'Unknown error'}`);
+          updateProgress(i, `✗ Failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+          throw error;
         }
       }
 
       setForms([{} as FormState]);
-      alert("Notifications Created Successfully");
+      alert("All notifications created successfully");
     } catch (error) {
-      console.error("Error creating notification:", error);
+      console.error("Error creating notifications:", error);
       setErrorText(error instanceof Error ? error.message : "An unexpected error occurred");
     } finally {
       setIsSubmitting(false);
     }
   };
-
   return (
     <div className="create-form">
       {forms.map((form, index) => (
@@ -105,6 +124,15 @@ export default function CreateForm() {
             {...createNotificationConfig}
             submit={(data: FormState) => handleData(index, data)}
           />
+          {progress[index] && (
+            <div className={`mt-2 p-2 rounded ${
+              progress[index].startsWith("✓") ? "bg-green-100 text-green-800" :
+              progress[index].startsWith("✗") ? "bg-red-100 text-red-800" :
+              "bg-blue-100 text-blue-800"
+            }`}>
+              {progress[index]}
+            </div>
+          )}
         </div>
       ))}
       <div className="flex items-center mt-4 gap-5">
