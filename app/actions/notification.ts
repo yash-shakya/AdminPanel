@@ -14,11 +14,14 @@ import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 export type Notification = {
   android_channel_id: string;
   body: string;
-  image?: string;
-  imageFile: File | null;
+  image: string;  // Changed from optional string to required string
   link: string;
   title: string;
-  time: number; // Epoch time in milliseconds
+  time: number;
+};
+
+export type NotificationInput = Omit<Notification, 'image'> & {
+  imageFile: File;
 };
 
 export type NotificationsDTO = {
@@ -53,27 +56,31 @@ export async function getNotificationById(id: string): Promise<Notification> {
   }
 }
 export async function createNotification(
-  notification: Notification
+  notificationInput: NotificationInput
 ): Promise<string> {
   try {
-    if (!notification.imageFile) {
-      throw new Error("Failed to create notification");
+    console.log("Creating notification with:", notificationInput);
+    const randomId = Math.floor(Math.random() * 1_000_000_000).toString();
+    const imageResult = await createImgbbUrl(notificationInput.imageFile);
+    if (!imageResult?.url) {
+      throw new Error("Image upload failed");
     }
-    console.log("HI", notification);
-    const randomId = Math.floor(Math.random() * 1_000_000_000);
-    const imgbb: IMGBB | null = await createImgbbUrl(notification.imageFile);
-    const time = notification.time;
-    delete notification.image;
-    const notificationDocRef = doc(db, "notifications", randomId.toString());
-    const notificationData = {
-      notification: { ...notification, image: imgbb?.url },
-      time: time.toString(),
+    const notificationData: Notification = {
+      android_channel_id: notificationInput.android_channel_id,
+      body: notificationInput.body,
+      image: imageResult.url,
+      link: notificationInput.link,
+      title: notificationInput.title,
+      time: notificationInput.time,
     };
+    
+    const notificationDocRef = doc(db, "notifications", randomId);
     await setDoc(notificationDocRef, notificationData);
-    console.log("Notification created successfully");
-    return randomId.toString();
+
+    console.log("Notification created successfully:", randomId);
+    return randomId;
   } catch (error) {
-    console.error("Error creating notification: ", error);
+    console.error("Error creating notification:", error);
     throw new Error("Failed to create notification");
   }
 }
@@ -83,7 +90,7 @@ export async function updateNotification(
   updatedData: Partial<Notification>
 ): Promise<boolean> {
   try {
-    const sponsorDocRef = doc(db, "sponsors", id);
+    const sponsorDocRef = doc(db, "notifications", id);
     if (updatedData.image) {
       const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
@@ -93,7 +100,7 @@ export async function updateNotification(
       ...updatedData,
       updatedAt: Date.now(),
     });
-    console.log("Sponsor updated successfully!");
+    console.log("Notification updated successfully!");
     return true;
   } catch (error) {
     console.error("Error updating Sponsor:", error);

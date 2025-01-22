@@ -1,12 +1,7 @@
-"use client";
-
 import { useState } from "react";
-import { BaseForm } from "../base_form";
 import { createEvent } from "@/app/actions/events";
-import {
-  createEventFormConfig,
-  addCoordinatorFormConfig,
-} from "@/app/constants/events";
+import { BaseForm } from "../base_form";
+import { createEventFormConfig, addCoordinatorFormConfig } from "@/app/constants/events";
 
 type Coordinator = {
   coordinator_name: string;
@@ -28,7 +23,7 @@ interface FormState {
 }
 
 export default function CreateForm() {
-  const [coordinators, setCoordinators] = useState([0, 1]); // Indexes of contacts
+  const [coordinators, setCoordinators] = useState([0, 1]); // Initial two coordinators
   const [form, setForm] = useState<FormState>({} as FormState);
   const [errorText, setErrorText] = useState<string>("");
 
@@ -45,7 +40,7 @@ export default function CreateForm() {
     setCoordinators(coordinators.slice(0, coordinators.length - 1));
   };
 
-  const handleFormCreate = (data: Event) => {
+  const handleFormCreate = (data: FormState) => {
     setForm((prev) => ({
       ...prev,
       ...data,
@@ -54,13 +49,10 @@ export default function CreateForm() {
 
   const handleAddCoordinators = (data: Coordinator) => {
     setForm((prev) => {
-      const coordinatorMap = new Map(
-        (prev.coordinators || []).map((c) => [c.coordinator_number, c])
-      );
-      coordinatorMap.set(data.coordinator_number, data); // Add or update coordinator
+      const updatedCoordinators = [...(prev.coordinators || []), data];
       return {
         ...prev,
-        coordinators: Array.from(coordinatorMap.values()), // Convert Map back to array
+        coordinators: updatedCoordinators, // Correctly update coordinators
       };
     });
   };
@@ -73,12 +65,16 @@ export default function CreateForm() {
     target.disabled = true;
     target.innerText = "Submitting...";
 
-    if (!form.eventName || !form.startTime || !form.endTime) {
+    // Access coordinators directly from the form state
+    const { coordinators, eventName, startTime, endTime } = form;
+
+    // Validation checks for empty fields and required coordinators
+    if (!eventName || !startTime || !endTime) {
       error_message = "Please fill in all the event details";
-    } else if (!form.coordinators || form.coordinators.length < 2) {
+    } else if (coordinators.length < 2) {
       error_message = "At least two coordinators are required";
     } else {
-      for (const coordinator of form.coordinators) {
+      for (const coordinator of coordinators) {
         if (!coordinator.coordinator_name || !coordinator.coordinator_number) {
           error_message = "Please fill in all coordinator details properly";
           break;
@@ -94,21 +90,21 @@ export default function CreateForm() {
     }
 
     try {
-      const coordinatorArray = Array.from(
-        new Map(
-          form.coordinators.map((c) => [c.coordinator_number, c])
-        ).values()
-      ); // Ensure unique coordinators before submission
-      await createEvent({ ...form, coordinators: coordinatorArray });
+      // Ensure coordinators are unique and handle submission
+      const uniqueCoordinators = Array.from(
+        new Map(coordinators.map((c) => [c.coordinator_number, c])).values()
+      );
+
+      await createEvent({ ...form, coordinators: uniqueCoordinators });
       setForm({} as FormState);
-      setCoordinators([0, 1]);
+      setCoordinators([0, 1]); // Reset coordinators to initial state
       setErrorText("");
       target.innerText = "Submitted";
       setTimeout(() => {
         target.disabled = false;
         target.innerText = "Submit";
       }, 1000);
-      window.location.reload();
+      window.location.reload(); // Or redirect as needed
     } catch (error) {
       console.error("Error creating event: ", error);
       target.innerText = "Error...";
@@ -125,11 +121,7 @@ export default function CreateForm() {
     <div className="create-form">
       <BaseForm {...createEventFormConfig} submit={handleFormCreate} />
       {coordinators.map((_, index) => (
-        <BaseForm
-          key={index}
-          {...addCoordinatorFormConfig}
-          submit={handleAddCoordinators}
-        />
+        <BaseForm key={index} {...addCoordinatorFormConfig} submit={handleAddCoordinators} />
       ))}
       <div className="flex items-center gap-5">
         <button

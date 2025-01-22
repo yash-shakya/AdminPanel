@@ -11,6 +11,8 @@ export default function ViewTeamsClient({ teamList }: { teamList: any[] }) {
 		console.log(`Team ${teamId} deleted`);
 	};
 
+	const forURL = (id: string) => id.replace(" ", "-");
+
 	return (
 		<div className="flex flex-wrap justify-center items-center">
 			{teamList.map((team, index) => (
@@ -26,7 +28,7 @@ export default function ViewTeamsClient({ teamList }: { teamList: any[] }) {
 									"Not Available",
 							},
 						]}
-						toEdit={`update/techspardha_teams/${team.id}`}
+						toEdit={`techspardha-teams/${forURL(team.id)}`}
 						onDelete={() => handleDelete(team.id)}
 					/>
 				</div>

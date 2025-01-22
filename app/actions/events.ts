@@ -1,4 +1,11 @@
-import { doc, updateDoc } from "firebase/firestore";
+import { collection,
+  setDoc,
+getDocs,
+getDoc,
+doc,
+updateDoc,
+deleteDoc,
+deleteField } from "firebase/firestore";
 import { db } from "@/app/db";
 import createImgbbUrl from "@/app/helpers/imgbb";
 
@@ -16,51 +23,64 @@ export type Event = {
   venue: string;
 };
 
+type EventMap = {
+  [category: string]: {
+    [eventName: string]: Event;
+  };
+};
+
 type eventData = Event & {
   image: File;
 };
 
-type Coordinator = {
+export type Coordinator = {
   coordinator_name: string;
   coordinator_number: string;
 };
 
 export async function createEvent(eventData: eventData): Promise<string> {
   try {
-    // Destructure the eventData
     const { image, eventCategory, ...event } = eventData;
+
+    // Ensure there is an image file
     if (!image) {
-      throw new Error("No image given");
+      throw new Error("No image provided");
     }
-    // Upload the image and get the URL
+
+    // Upload image to an external service (e.g., Imgbb) and get the URL
     const imageUrl = await createImgbbUrl(image);
 
-    // Add the generated poster URL to the event
+    // Add the image URL to the event data
     const poster = imageUrl?.url;
 
-    // Extract EventTimes properties for the `events` collection
+    // Prepare the event times
     const { eventName, startTime, endTime } = event;
-
-    // Reference to the `events` collection
-    const eventsDocRef = doc(db, "events", eventCategory);
     const startTimeNumber = new Date(startTime).getTime();
     const endTimeNumber = new Date(endTime).getTime();
-    // Add or update EventTimes in the `events` collection
-    await updateDoc(eventsDocRef, {
-      [`events.${eventName}`]: { eventName, startTime, endTime },
+
+    // Reference to the 'events' collection in Firestore
+    const eventsDocRef = doc(db, "events", eventCategory);
+
+    // Add or update event details in the 'events' collection
+    await setDoc(eventsDocRef, {
+      [`events.${eventName}`]: {
+        eventName,
+        startTime: startTimeNumber,
+        endTime: endTimeNumber,
+      },
       startTime: startTimeNumber,
       endTime: endTimeNumber,
     });
 
-    // Reference to the `eventDescription` collection
+    // Reference to the 'eventDescription' collection
     const eventDescriptionDocRef = doc(db, "eventDescription", eventCategory);
 
-    // Add event data to the `eventDescription` collection
-    await updateDoc(eventDescriptionDocRef, {
+    // Add event data to the 'eventDescription' collection
+    await setDoc(eventDescriptionDocRef, {
       [eventName]: {
         ...event,
         poster,
-        eventName, // Include `eventName` as required in `eventDescription`
+        eventName, // Include the event name
       },
     });
 
@@ -71,7 +91,45 @@ export async function createEvent(eventData: eventData): Promise<string> {
     throw error;
   }
 }
+// export async function getAllEvents() {
+//   try {
+//     const eventsCollectionRef = collection(db, "events");
+//     const querySnapshot = await getDocs(eventsCollectionRef);
 
+//     // Map over all documents in the collection
+//     const events = querySnapshot.docs.map((doc) => ({
+//       id: doc.id, // Document ID
+//       ...doc.data(), // All document data
+//     }));
+
+//     return events;
+//   } catch (error) {
+//     console.error("Error fetching events:", error);
+//     throw new Error("Failed to fetch events");
+//   }
+// }
+
+export async function getAllEvents(): Promise<EventMap> {
+  
+  const eventMap: EventMap = {};
+
+  // Fetch all categories (top-level documents)
+  const categoriesSnapshot = await getDocs(collection(db, "eventDescription"));
+
+  categoriesSnapshot.forEach((categoryDoc) => {
+    const categoryName = categoryDoc.id; // e.g., "Astronomy", "Informals"
+    const events = categoryDoc.data(); // Nested structure like { Hackshtra: {...}, Event2: {...} }
+
+    eventMap[categoryName] = {};
+
+    // Process each event in the category
+    Object.entries(events).forEach(([eventName, eventData]) => {
+      eventMap[categoryName][eventName] = eventData as Event;
+    });
+  });
+
+  return eventMap;
+}
 // export async function getAllEvents(): Promise<Event[]> {
 // 	try {
 // 		const eventsCollection = collection(db, "events");
@@ -250,3 +308,109 @@ export async function createEvent(eventData: eventData): Promise<string> {
 //     throw error;
 //   }
 // }
+
+
+
+export async function deleteEventCategory(id: string) {
+  try {
+    const categoryRef = doc(db, "events", id);
+    await deleteDoc(categoryRef);
+    console.log(`Event category '${id}' deleted successfully`);
+  } catch (error) {
+    console.error("Error deleting event category:", error);
+    throw new Error("Failed to delete event category");
+  }
+}
+
+
+
+export async function deleteEvent(eventName: string, eventCategory: string): Promise<void> {
+  try {
+    // Construct the document path for the event
+    const eventRef = doc(db, "eventDescription", eventCategory);
+    
+    // Check if the document exists
+    const docSnap = await getDoc(eventRef);
+    if (!docSnap.exists()) {
+        console.error(`Event '${eventName}' not found in category '${eventCategory}'.`);
+        throw new Error("Event does not exist.");
+    }
+
+    // Attempt to delete the event document
+    await deleteDoc(eventRef);
+
+    console.log(`Successfully deleted event '${eventName}' in category '${eventCategory}'.`);
+} catch (error) {
+    console.error(`Failed to delete event '${eventName}' in category '${eventCategory}':`, error);
+    throw new Error("Failed to delete event");
+}
+}
+
+
+export async function updateEventByName(
+  eventCategory: string,
+  eventName: string,
+  updatedData: any
+): Promise<void> {
+  try {
+    const categoryRef = doc(db, "eventDescription", eventCategory);
+
+    // Fetch the existing event data
+    const categorySnap = await getDoc(categoryRef);
+    if (!categorySnap.exists()) {
+      throw new Error(`Category '${eventCategory}' does not exist.`);
+    }
+
+    const events = categorySnap.data();
+    const existingEvent = events[eventName];
+    if (!existingEvent) {
+      throw new Error(`Event '${eventName}' does not exist in category '${eventCategory}'.`);
+    }
+
+    // Handle image upload if a new image is provided
+    let poster = existingEvent.poster; // Default to existing poster
+    if (updatedData.image) {
+      const imageUrl = await createImgbbUrl(updatedData.image); // Upload new image
+      poster = imageUrl?.url; // Update poster with new URL
+    }
+
+    // Prepare updated event data
+    const updatedEventData = {
+      ...existingEvent, // Keep existing data
+      ...updatedData, // Overwrite with updated fields
+      poster, // Update poster URL
+    };
+
+    // Remove 'image' field from updatedData (if it exists)
+    delete updatedEventData.image;
+
+    // Update Firestore document with the updated event data
+    await updateDoc(categoryRef, {
+      [eventName]: updatedEventData,
+    });
+
+    console.log(`Successfully updated event '${eventName}' in category '${eventCategory}'.`);
+  } catch (error) {
+    console.error(`Failed to update event '${eventName}' in category '${eventCategory}':`, error);
+    throw new Error("Failed to update event");
+  }
+}
+
+export async function getEventByName(eventCategory: string, eventName: string): Promise<any | null> {
+  try {
+      // Reference the document for the category
+      const categoryRef = doc(db, "eventDescription", eventCategory);
+      const categorySnap = await getDoc(categoryRef);
+
+      if (categorySnap.exists()) {
+          const events = categorySnap.data(); // JSON object containing all events in the category
+          return events[eventName] || null; // Return the specific event or null if not found
+      } else {
+          console.error(`Category '${eventCategory}' does not exist.`);
+          return null;
+      }
+  } catch (error) {
+      console.error("Error fetching event:", error);
+      throw new Error("Failed to fetch event");
+  }
+}
