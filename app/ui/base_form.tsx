@@ -8,6 +8,7 @@ export interface BaseFormProps {
 	fields: Field[];
 	submit: any; // function to call when form is submitted (optional)
 	submitText: string;
+	defaultValues?: Record<string, any>;
 }
 
 interface Field {
