@@ -36,7 +36,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
 
     setInitialValues(values);
     setForm(values);
-  }, [fields]); // Add defaultValues as a dependency
+  }, [fields]); 
 
   const [success, setSuccess] = useState<string>("");
   const [error, setError] = useState<string>("");
