@@ -42,7 +42,7 @@ export async function createLecture(
       ...lecture,
       imageUrl: imgbb?.url,
     });
-    console.log("Lecture created with ID:", docRef.id);
+
     return docRef.id;
   } catch (error) {
     console.error("Error creating lecture:", error);
@@ -92,7 +92,6 @@ export async function updateLecture(
     await updateDoc(lectureDocRef, {
       ...updatedData,
     });
-    console.log("Lecture updated successfully!");
     return true;
   } catch (error) {
     console.error("Error updating lecture:", error);
@@ -105,7 +104,6 @@ export async function deleteLecture(id: string) {
     const docRef = doc(db, "lectures", id);
 
     await deleteDoc(docRef);
-    console.log("GL deleted: ", id);
   } catch (error) {
     console.error("Error deleting lecture: ", id);
     throw new Error("Failed to delete GL");

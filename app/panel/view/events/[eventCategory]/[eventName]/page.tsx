@@ -3,18 +3,23 @@
 import { useEffect, useState } from "react";
 import UpdateEventForm from "@/app/ui/events/UpdateEventForm";
 
-export default function EventPage({ params }: { params: { eventCategory: string; eventName: string } }) {
+export default function EventPage({ params }: { params: Promise<{ eventCategory: string; eventName: string }> }) {
   const [resolvedParams, setResolvedParams] = useState<{ eventCategory: string; eventName: string } | null>(null);
 
   useEffect(() => {
     (async () => {
-      const unwrappedParams = await Promise.resolve(params);
-      setResolvedParams(unwrappedParams);
+      const unwrappedParams = await params;
+      const decodedEventCategory = decodeURIComponent(unwrappedParams.eventCategory);
+      const decodedEventName = decodeURIComponent(unwrappedParams.eventName);
+      setResolvedParams({
+        eventCategory: decodedEventCategory,
+        eventName: decodedEventName,
+      });
     })();
   }, [params]);
 
   if (!resolvedParams) {
-    return <p>Loading...</p>; // Handle loading state while params are being resolved
+    return <p>Loading...</p>; 
   }
 
   const { eventCategory, eventName } = resolvedParams;

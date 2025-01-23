@@ -4,11 +4,20 @@ import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { getEventByName, updateEventByName } from "@/app/actions/events";
 import { BaseForm } from "../base_form";
-import { createEventFormConfig } from "@/app/constants/events"; 
+import { getAllEventCategory } from "@/app/actions/eventCategory";
+import { createEventFormConfig } from "@/app/constants/events";
+import Image from "next/image";
+
 type Coordinator = {
   coordinator_name: string;
   coordinator_number: string;
 };
+
+interface EventCategory {
+  id: string;
+  eventCategory: string;
+  image: string;
+}
 
 export default function UpdateEventForm({
   eventCategory,
@@ -17,37 +26,67 @@ export default function UpdateEventForm({
   eventCategory: string;
   eventName: string;
 }) {
-  const [formData, setFormData] = useState<any>(null); // Store form data
-  const [coordinators, setCoordinators] = useState<Coordinator[]>([]); // Store coordinators
+  const [formData, setFormData] = useState<any>(null);
+  const [coordinators, setCoordinators] = useState<Coordinator[]>([]);
   const [imageURL, setImageURL] = useState<string | null>(null);
-
+  const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorText, setErrorText] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
-    async function fetchEventData() {
+    async function fetchData() {
       try {
-        const eventData = await getEventByName(eventCategory, eventName); // Fetch event data
-        //console.log(eventData.coordinators);
+        const [eventData, categoriesData] = await Promise.all([
+          getEventByName(eventCategory, eventName),
+          getAllEventCategory()
+        ]);
+
         if (eventData) {
-          setFormData(eventData);
-          setCoordinators(eventData.coordinators || [{ coordinator_name: "", coordinator_number: "" }, { coordinator_name: "", coordinator_number: "" }]); // Ensure at least two coordinators
- // Pre-populate coordinators
- setImageURL(eventData.imageURL || null);
+          const processedEventData = {
+            ...eventData,
+            rules: Array.isArray(eventData.rules) 
+              ? eventData.rules 
+              : (eventData.rules || '').split('|').filter((rule: string)=> rule.trim()),
+            flagship: eventData.flagship === 'true' || eventData.flagship === true
+          };
+
+          setFormData(processedEventData);
+          setCategories(categoriesData);
+          setCoordinators(eventData.coordinators || [
+            { coordinator_name: "", coordinator_number: "" },
+            { coordinator_name: "", coordinator_number: "" }
+          ]);
+          setImageURL(eventData.imageURL || null);
         } else {
           setErrorText("Event not found.");
         }
       } catch (error) {
-        console.error("Error fetching event data:", error);
-        setErrorText("Error loading event data.");
+        console.error("Error fetching data:", error);
+        setErrorText("Error loading event data or categories.");
       } finally {
         setLoading(false);
       }
     }
-
-    fetchEventData();
+    fetchData();
   }, [eventCategory, eventName]);
+
+  const dynamicEventFormConfig = {
+    ...createEventFormConfig,
+    fields: createEventFormConfig.fields.map((field) =>
+      field.name === "eventCategory"
+        ? {
+            ...field,
+            options: loading
+              ? ["Loading..."]
+              : categories.map((category) => category.eventCategory),
+            placeholder: loading
+              ? "Loading categories..."
+              : "Select the category",
+          }
+        : field
+    ),
+  };
 
   const handleCoordinatorChange = (index: number, field: string, value: string) => {
     const updatedCoordinators = [...coordinators];
@@ -56,7 +95,7 @@ export default function UpdateEventForm({
   };
 
   const addCoordinator = () => {
-    if (coordinators.length < 5) { // Limit to a maximum of 5 coordinators
+    if (coordinators.length < 5) {
       setCoordinators([...coordinators, { coordinator_name: "", coordinator_number: "" }]);
     }
   };
@@ -90,10 +129,20 @@ export default function UpdateEventForm({
       }
     }
 
+    // Ensure rules are processed as an array
+    const processedRules = Array.isArray(formData.rules) 
+      ? formData.rules 
+      : (formData.rules || '').split('|').filter((rule: string) => rule.trim());
+
     try {
-      await updateEventByName(eventCategory, eventName, { ...formData, coordinators });
+      await updateEventByName(eventCategory, eventName, { 
+        ...formData, 
+        coordinators,
+        rules: processedRules,
+        flagship: formData.flagship ? 'true' : 'false'
+      });
       alert("Event updated successfully!");
-      router.push("/panel/view/events"); // Redirect after successful update
+      router.push("/panel/view/events");
     } catch (error) {
       console.error("Error updating event:", error);
       setErrorText("Failed to update event.");
@@ -106,13 +155,37 @@ export default function UpdateEventForm({
   return (
     <div>
       <BaseForm
-        {...createEventFormConfig}
-        defaultValues={formData} // Populate form with data
-        submit={(data: any) => setFormData({ ...formData, ...data })}
+        {...dynamicEventFormConfig}
+        defaultValues={formData}
+        submit={(data: any) => {
+          // Convert rules to array if they're a string
+          const processedData = {
+            ...data,
+            rules: Array.isArray(data.rules) 
+              ? data.rules 
+              : (data.rules || '').split('|').filter((rule: string) => rule.trim()),
+            flagship: data.flagship === 'true' || data.flagship === true
+          };
+          setFormData({ ...formData, ...processedData });
+        }}
       />
 
+      {/* Image display section */}
+      {imageURL && (
+        <div className="mt-4">
+          <h4 className="font-bold mb-2">Current Event Poster</h4>
+          <Image 
+            src={imageURL} 
+            alt="Event Poster" 
+            width={200} 
+            height={200} 
+            className="object-cover rounded"
+          />
+        </div>
+      )}
+
       <h3 className="mt-4 font-bold">Coordinators</h3>
-      
+
       {coordinators.map((coordinator, index) => (
         <div key={index} className="flex flex-col mb-2">
           <input
@@ -129,7 +202,6 @@ export default function UpdateEventForm({
             onChange={(e) => handleCoordinatorChange(index, "coordinator_number", e.target.value)}
             className="border text-black p-2 rounded mt-1"
           />
-        
         </div>
       ))}
 

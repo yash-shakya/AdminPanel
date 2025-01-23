@@ -2,6 +2,7 @@
 import BaseCard from "../base_card";
 import { Event } from "@/app/actions/events";
 import { deleteEvent } from "@/app/actions/events";
+import { useRouter } from "next/navigation";
 export type EventMap = {
   [category: string]: {
     [eventName: string]: Event;
@@ -22,12 +23,13 @@ export default function ViewEventClient({
   events: EventMap;
   
 }) {
-
+  const router = useRouter();
   
   const handleDelete = async (name: string, category: string) => {
     try {
-      await deleteEvent(name, category); // Perform the delete operation
+      await deleteEvent(name, category);
       console.log(`${name} from ${category} deleted`)
+      router.refresh();
     } catch (err) {
       console.error("Failed to delete event:", err);
       alert("Error deleting the event. Please try again.");
