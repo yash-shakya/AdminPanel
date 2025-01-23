@@ -17,6 +17,7 @@ interface Field {
   required?: boolean;
   value?: string;
   description?: string;
+  defaultValue?: any;
 }
 
 export const BaseForm: React.FC<BaseFormProps> = ({

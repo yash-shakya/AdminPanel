@@ -29,6 +29,7 @@ export default function UpdateEventForm({
   const [formData, setFormData] = useState<any>(null);
   const [coordinators, setCoordinators] = useState<Coordinator[]>([]);
   const [imageURL, setImageURL] = useState<string | null>(null);
+  const [imageFile, setImageFile] = useState<File | null>(null);
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [errorText, setErrorText] = useState<string>("");
@@ -45,10 +46,16 @@ export default function UpdateEventForm({
         if (eventData) {
           const processedEventData = {
             ...eventData,
-            rules: Array.isArray(eventData.rules) 
-              ? eventData.rules 
-              : (eventData.rules || '').split('|').filter((rule: string)=> rule.trim()),
-            flagship: eventData.flagship === 'true' || eventData.flagship === true
+            rules: Array.isArray(eventData.rules)
+              ? eventData.rules
+              : (eventData.rules || '').split('|').filter((rule: string) => rule.trim()),
+            flagship: eventData.flagship === 'true' || eventData.flagship === true,
+            startTime: eventData.startTime instanceof Date
+              ? eventData.startTime
+              : new Date(eventData.startTime),
+            endTime: eventData.endTime instanceof Date
+              ? eventData.endTime
+              : new Date(eventData.endTime)
           };
 
           setFormData(processedEventData);
@@ -57,7 +64,8 @@ export default function UpdateEventForm({
             { coordinator_name: "", coordinator_number: "" },
             { coordinator_name: "", coordinator_number: "" }
           ]);
-          setImageURL(eventData.imageURL || null);
+
+          setImageURL(eventData.poster || eventData.imageURL || null);
         } else {
           setErrorText("Event not found.");
         }
@@ -76,16 +84,24 @@ export default function UpdateEventForm({
     fields: createEventFormConfig.fields.map((field) =>
       field.name === "eventCategory"
         ? {
-            ...field,
-            options: loading
-              ? ["Loading..."]
-              : categories.map((category) => category.eventCategory),
-            placeholder: loading
-              ? "Loading categories..."
-              : "Select the category",
-          }
+          ...field,
+          options: loading
+            ? ["Loading..."]
+            : categories.map((category) => category.eventCategory),
+          placeholder: loading
+            ? "Loading categories..."
+            : "Select the category",
+        }
         : field
-    ),
+    ).filter(field => field.name !== "image"), // Remove image field from form
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      setImageURL(URL.createObjectURL(file));
+    }
   };
 
   const handleCoordinatorChange = (index: number, field: string, value: string) => {
@@ -129,18 +145,27 @@ export default function UpdateEventForm({
       }
     }
 
-    // Ensure rules are processed as an array
-    const processedRules = Array.isArray(formData.rules) 
-      ? formData.rules 
+    const processedRules = Array.isArray(formData.rules)
+      ? formData.rules
       : (formData.rules || '').split('|').filter((rule: string) => rule.trim());
 
     try {
-      await updateEventByName(eventCategory, eventName, { 
-        ...formData, 
+      const formDataForSubmit = new FormData();
+      formDataForSubmit.append('eventCategory', eventCategory);
+      formDataForSubmit.append('eventName', eventName);
+
+      if (imageFile) {
+        formDataForSubmit.append('image', imageFile);
+      }
+
+      await updateEventByName(eventCategory, eventName, {
+        ...formData,
         coordinators,
         rules: processedRules,
-        flagship: formData.flagship ? 'true' : 'false'
+        flagship: formData.flagship ? 'true' : 'false',
+        ...(imageFile ? { image: imageFile } : {})
       });
+
       alert("Event updated successfully!");
       router.push("/panel/view/events");
     } catch (error) {
@@ -156,33 +181,58 @@ export default function UpdateEventForm({
     <div>
       <BaseForm
         {...dynamicEventFormConfig}
-        defaultValues={formData}
+        defaultValues={{
+          ...formData,
+          startTime: formData?.startTime instanceof Date
+            ? formData.startTime.toISOString().slice(0, 16)
+            : formData?.startTime,
+          endTime: formData?.endTime instanceof Date
+            ? formData.endTime.toISOString().slice(0, 16)
+            : formData?.endTime
+        }}
         submit={(data: any) => {
-          // Convert rules to array if they're a string
           const processedData = {
             ...data,
-            rules: Array.isArray(data.rules) 
-              ? data.rules 
+            rules: Array.isArray(data.rules)
+              ? data.rules
               : (data.rules || '').split('|').filter((rule: string) => rule.trim()),
-            flagship: data.flagship === 'true' || data.flagship === true
+            flagship: data.flagship === 'true' || data.flagship === true,
+            startTime: new Date(data.startTime).getTime(),
+            endTime: new Date(data.endTime).getTime()
           };
           setFormData({ ...formData, ...processedData });
         }}
       />
 
-      {/* Image display section */}
-      {imageURL && (
-        <div className="mt-4">
-          <h4 className="font-bold mb-2">Current Event Poster</h4>
-          <Image 
-            src={imageURL} 
-            alt="Event Poster" 
-            width={200} 
-            height={200} 
-            className="object-cover rounded"
+      <div className="mt-4">
+        <h4 className="font-bold mb-2">Current Event Poster</h4>
+        {imageURL && (
+          <Image
+            src={imageURL}
+            alt="Event Poster"
+            width={200}
+            height={200}
+            className="object-cover rounded mb-2"
+            style={{ width: 'auto', height: 'auto' }}
           />
+        )}
+
+        <div className="flex items-center gap-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={handleImageChange}
+            className="hidden"
+            id="image-upload"
+          />
+          <label
+            htmlFor="image-upload"
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
+          >
+            {imageURL ? 'Change Image' : 'Upload Image'}
+          </label>
         </div>
-      )}
+      </div>
 
       <h3 className="mt-4 font-bold">Coordinators</h3>
 

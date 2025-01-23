@@ -90,37 +90,30 @@ export async function getAllEvents(): Promise<EventMap> {
   return eventMap;
 }
 
-export async function deleteEventCategory(id: string) {
-  try {
-    const categoryRef = doc(db, "events", id);
-    await deleteDoc(categoryRef);
-  } catch (error) {
-    console.error("Error deleting event category:", error);
-    throw new Error("Failed to delete event category");
-  }
-}
-
-
 
 export async function deleteEvent(eventName: string, eventCategory: string): Promise<void> {
   try {
-    // Construct the document path for the event
-    const eventRef = doc(db, "eventDescription", eventCategory);
-    
-    // Check if the document exists
-    const docSnap = await getDoc(eventRef);
-    if (!docSnap.exists()) {
-        console.error(`Event '${eventName}' not found in category '${eventCategory}'.`);
-        throw new Error("Event does not exist.");
+    const eventsRef = collection(db, "events");
+    const q = query(
+      eventsRef,
+      where("eventCategory", "==", decodeURIComponent(eventCategory)),
+      where("eventName", "==", decodeURIComponent(eventName))
+    );
+    const querySnapshot = await getDocs(q);
+    if (querySnapshot.empty) {
+      console.error(`Event '${eventName}' not found in category '${eventCategory}'.`);
+      throw new Error("Event does not exist.");
     }
 
-    // Attempt to delete the event document
+    const eventDoc = querySnapshot.docs[0];
+    const eventRef = eventDoc.ref;
     await deleteDoc(eventRef);
-} catch (error) {
+  } catch (error) {
     console.error(`Failed to delete event '${eventName}' in category '${eventCategory}':`, error);
     throw new Error("Failed to delete event");
+  }
 }
-}
+
 
 
 export async function updateEventByName(
@@ -132,8 +125,8 @@ export async function updateEventByName(
     const eventsRef = collection(db, "events");
     const q = query(
       eventsRef,
-      where("eventCategory", "==", eventCategory),
-      where("eventName", "==", eventName)
+      where("eventCategory", "==", decodeURIComponent(eventCategory)),
+      where("eventName", "==", decodeURIComponent(eventName))
     );
 
     const querySnapshot = await getDocs(q);
@@ -170,8 +163,8 @@ export async function getEventByName(eventCategory: string, eventName: string): 
     const eventsRef = collection(db, "events");
     const q = query(
       eventsRef,
-      where("eventCategory", "==", eventCategory),
-      where("eventName", "==", eventName)
+      where("eventCategory", "==", decodeURIComponent(eventCategory)),
+      where("eventName", "==", decodeURIComponent(eventName))
     );
 
     const querySnapshot = await getDocs(q);
