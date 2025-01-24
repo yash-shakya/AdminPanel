@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { getAllEvents, deleteEvent, Event} from "@/app/actions/events";
+import { getAllEvents, deleteEvent, Event } from "@/app/actions/events";
 import ViewEventClientPage from "./ViewEventClient";
 
 export type EventMap = {
@@ -30,7 +30,6 @@ export default function ViewEvents() {
 
     fetchEvents();
   }, []);
-
 
   if (loading) {
     return (

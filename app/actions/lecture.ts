@@ -26,7 +26,7 @@ export type Lecture = {
 };
 
 export async function createLecture(
-  lecture: Lecture
+  lecture: Lecture,
 ): Promise<string | { err_desc: string }> {
   try {
     const lecturesCollection = collection(db, "lectures");
@@ -80,7 +80,7 @@ export async function getAllLecture(): Promise<Lecture[]> {
 
 export async function updateLecture(
   id: string,
-  updatedData: Partial<Lecture>
+  updatedData: Partial<Lecture>,
 ): Promise<boolean> {
   try {
     const lectureDocRef = doc(db, "lectures", id);

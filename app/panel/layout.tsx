@@ -3,14 +3,14 @@ import { PanelNav } from "../constants/panel_nav";
 import PanelNavBar from "../ui/panel_nav";
 
 export default function PanelLayout({
-	children,
+  children,
 }: Readonly<{
-	children: React.ReactNode;
+  children: React.ReactNode;
 }>) {
-    return (
-        <>
-            <PanelNavBar navItems={PanelNav} />
-            {children}
-        </>
-    );
+  return (
+    <>
+      <PanelNavBar navItems={PanelNav} />
+      {children}
+    </>
+  );
 }

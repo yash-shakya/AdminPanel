@@ -71,7 +71,10 @@ export default function CreateForm() {
           });
           updateProgress(i, "✓ Successfully submitted.");
         } catch (error) {
-          updateProgress(i, `✗ Failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+          updateProgress(
+            i,
+            `✗ Failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
           throw error;
         }
       }
@@ -80,7 +83,11 @@ export default function CreateForm() {
       alert("All categories created successfully.");
     } catch (error) {
       console.error("Error creating event categories:", error);
-      setErrorText(error instanceof Error ? error.message : "An unexpected error occurred.");
+      setErrorText(
+        error instanceof Error
+          ? error.message
+          : "An unexpected error occurred.",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -100,8 +107,8 @@ export default function CreateForm() {
                 progress[index].startsWith("✓")
                   ? "bg-green-100 text-green-800"
                   : progress[index].startsWith("✗")
-                  ? "bg-red-100 text-red-800"
-                  : "bg-blue-100 text-blue-800"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-blue-100 text-blue-800"
               }`}
             >
               {progress[index]}

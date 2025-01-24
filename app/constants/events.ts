@@ -66,7 +66,7 @@ export const createEventFormConfig = {
       options: ["No", "Yes"],
       placeholder: "Is this a flagship event?",
     },
-    
+
     {
       name: "rules",
       label: "Rules (Rule 1 | Rule 2 | Rule 3)",

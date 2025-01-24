@@ -11,7 +11,19 @@ export interface BaseFormProps {
 interface Field {
   name: string;
   label: string;
-  type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox" | "boolean";
+  type:
+    | "select"
+    | "file"
+    | "text"
+    | "textarea"
+    | "password"
+    | "email"
+    | "date"
+    | "time"
+    | "datetime-local"
+    | "number"
+    | "checkbox"
+    | "boolean";
   options?: string[];
   placeholder?: string;
   required?: boolean;
@@ -31,14 +43,17 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   const [form, setForm] = useState<Record<string, any>>({});
 
   useEffect(() => {
-    const values = fields.reduce((acc, field) => {
-      acc[field.name] = defaultValues[field.name] || field.value || ""; // Use defaultValues if available
-      return acc;
-    }, {} as Record<string, any>);
+    const values = fields.reduce(
+      (acc, field) => {
+        acc[field.name] = defaultValues[field.name] || field.value || ""; // Use defaultValues if available
+        return acc;
+      },
+      {} as Record<string, any>,
+    );
 
     setInitialValues(values);
     setForm(values);
-  }, [fields]); 
+  }, [fields]);
 
   const [success, setSuccess] = useState<string>("");
   const [error, setError] = useState<string>("");
@@ -46,7 +61,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
-    >
+    >,
   ) => {
     const { name, value, type, files } = e.target as HTMLInputElement;
 
@@ -61,7 +76,7 @@ export const BaseForm: React.FC<BaseFormProps> = ({
     e.preventDefault();
     const element = e.target as HTMLFormElement;
     const target = element.querySelector(
-      "button[type=submit]"
+      "button[type=submit]",
     ) as HTMLButtonElement;
 
     target.disabled = true;

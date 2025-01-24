@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
-import { FiTrash2, FiEdit } from 'react-icons/fi';
+import React, { useState } from "react";
+import { FiTrash2, FiEdit } from "react-icons/fi";
 
 export interface Column {
   key: string;
   header: string;
-  type?: 'text' | 'badge' | 'image' | 'actions';
+  type?: "text" | "badge" | "image" | "actions";
   badgeConfig?: {
     colors: {
       [key: string]: string;
@@ -59,28 +59,31 @@ const BaseTable: React.FC<BaseTableProps> = ({
     const value = item[column.key];
 
     switch (column.type) {
-      case 'badge':
+      case "badge":
         return (
-          <span className={`px-2 py-1 rounded-full text-xs ${column.badgeConfig?.colors[value] || 'bg-gray-500'}`}>
+          <span
+            className={`px-2 py-1 rounded-full text-xs ${column.badgeConfig?.colors[value] || "bg-gray-500"}`}
+          >
             {value}
           </span>
         );
 
-      case 'image':
+      case "image":
         return (
           <img
             src={value}
             alt={`${column.key}`}
-            className={`${column.imageConfig?.width || 'w-10'} ${column.imageConfig?.height || 'h-10'} 
-              ${column.imageConfig?.rounded ? 'rounded-full' : ''}`}
+            className={`${column.imageConfig?.width || "w-10"} ${column.imageConfig?.height || "h-10"} 
+              ${column.imageConfig?.rounded ? "rounded-full" : ""}`}
             onError={(e) => {
               const target = e.target as HTMLImageElement;
-              target.src = column.imageConfig?.fallbackSrc || '/placeholder-avatar.png';
+              target.src =
+                column.imageConfig?.fallbackSrc || "/placeholder-avatar.png";
             }}
           />
         );
 
-      case 'actions':
+      case "actions":
         return (
           <div className="flex space-x-2">
             {onEdit && (
@@ -103,7 +106,7 @@ const BaseTable: React.FC<BaseTableProps> = ({
         );
 
       default:
-        return value || '-';
+        return value || "-";
     }
   };
 
@@ -116,18 +119,16 @@ const BaseTable: React.FC<BaseTableProps> = ({
   }
 
   if (error) {
-    return (
-      <div className="w-full text-center py-8 text-red-500">
-        {error}
-      </div>
-    );
+    return <div className="w-full text-center py-8 text-red-500">{error}</div>;
   }
 
   return (
     <>
       <div className="overflow-x-auto shadow-md rounded-lg bg-gray-900">
         {title && (
-          <h2 className="px-6 py-4 text-lg font-semibold text-white">{title}</h2>
+          <h2 className="px-6 py-4 text-lg font-semibold text-white">
+            {title}
+          </h2>
         )}
         <table className="w-full text-sm text-left text-white">
           <thead className="text-xs uppercase bg-gray-800">
@@ -144,11 +145,14 @@ const BaseTable: React.FC<BaseTableProps> = ({
               <tr
                 key={item[identifierKey]}
                 className={`border-b ${
-                  index % 2 === 0 ? 'bg-gray-900' : 'bg-gray-800'
+                  index % 2 === 0 ? "bg-gray-900" : "bg-gray-800"
                 } border-gray-700`}
               >
                 {columns.map((column) => (
-                  <td key={`${item[identifierKey]}-${column.key}`} className="px-6 py-4">
+                  <td
+                    key={`${item[identifierKey]}-${column.key}`}
+                    className="px-6 py-4"
+                  >
                     {renderCell(item, column)}
                   </td>
                 ))}
@@ -161,9 +165,12 @@ const BaseTable: React.FC<BaseTableProps> = ({
       {isDeleteModalOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
           <div className="bg-gray-800 p-6 rounded-lg shadow-xl max-w-md w-full mx-4">
-            <h3 className="text-lg font-semibold text-white mb-4">Confirm Delete</h3>
+            <h3 className="text-lg font-semibold text-white mb-4">
+              Confirm Delete
+            </h3>
             <p className="text-gray-300 mb-6">
-              Are you sure you want to delete this item? This action cannot be undone.
+              Are you sure you want to delete this item? This action cannot be
+              undone.
             </p>
             <div className="flex justify-end space-x-3">
               <button

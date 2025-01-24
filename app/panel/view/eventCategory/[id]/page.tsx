@@ -2,10 +2,24 @@
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { BaseForm } from "@/app/ui/base_form";
-import { getEventCategoryById, updateEventCategory } from "@/app/actions/eventCategory";
+import {
+  getEventCategoryById,
+  updateEventCategory,
+} from "@/app/actions/eventCategory";
 import { EventCategory } from "@/app/actions/eventCategory";
 
-type FieldType = "text" | "email" | "number" | "select" | "textarea" | "time" | "file" | "password" | "date" | "datetime-local" | "checkbox";
+type FieldType =
+  | "text"
+  | "email"
+  | "number"
+  | "select"
+  | "textarea"
+  | "time"
+  | "file"
+  | "password"
+  | "date"
+  | "datetime-local"
+  | "checkbox";
 
 const EditEventCategoryPage = () => {
   const router = useRouter();
@@ -48,14 +62,14 @@ const EditEventCategoryPage = () => {
       label: "Event Category",
       type: "text" as FieldType,
       value: category.eventCategory,
-      required: true
+      required: true,
     },
     {
       name: "image",
       label: "Image",
       type: "file" as FieldType,
       value: category.image,
-      required: true
+      required: true,
     },
     {
       name: "index",
@@ -64,8 +78,7 @@ const EditEventCategoryPage = () => {
       value: String(category.index),
       required: true,
       readOnly: true,
-
-    }
+    },
   ];
 
   return (
@@ -76,7 +89,7 @@ const EditEventCategoryPage = () => {
       </div>
       <BaseForm
         title="Edit Event Category Details"
-        fields={fields.filter(f => f.name !== 'index')}
+        fields={fields.filter((f) => f.name !== "index")}
         submit={handleSubmit}
         submitText="Update"
       />

@@ -1,11 +1,14 @@
 import { useState, useEffect } from "react";
 import BaseCard from "../base_card";
-import { getAllEventCategory, deleteEventCategory } from "@/app/actions/eventCategory";
+import {
+  getAllEventCategory,
+  deleteEventCategory,
+} from "@/app/actions/eventCategory";
 
 interface EventCategory {
   id: string;
   eventCategory: string;
-  image: string; 
+  image: string;
 }
 
 export default function EventCategoryTable() {
@@ -32,7 +35,9 @@ export default function EventCategoryTable() {
   const handleDelete = async (id: string) => {
     try {
       await deleteEventCategory(id);
-      setEventCategories(eventCategories.filter((category) => category.id !== id));
+      setEventCategories(
+        eventCategories.filter((category) => category.id !== id),
+      );
     } catch (err) {
       console.error("Failed to delete event category:", err);
     }
@@ -57,14 +62,12 @@ export default function EventCategoryTable() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
       {eventCategories.map((category) => {
-         
         return (
           <BaseCard
             key={category.id}
             image={category.image}
             title={category.eventCategory}
-            data={[]  
-            }
+            data={[]}
             toEdit={`/panel/view/eventCategory/${category.id}`}
             onDelete={() => handleDelete(category.id)}
           />
@@ -72,4 +75,4 @@ export default function EventCategoryTable() {
       })}
     </div>
   );
-}  
+}

@@ -64,7 +64,7 @@ export async function getImgbbUrl(image: Image): Promise<IMGBBResponse> {
 }
 
 export default async function createImgbbUrl(
-  image: Image
+  image: Image,
 ): Promise<IMGBB | null> {
   const response = await getImgbbUrl(image);
   return response.imageURL;

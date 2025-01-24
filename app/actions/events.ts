@@ -1,13 +1,15 @@
-import { collection,
+import {
+  collection,
   setDoc,
-getDocs,
-getDoc,
-doc,
-updateDoc,
-deleteDoc,
-deleteField, 
-query,
-where} from "firebase/firestore";
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
+  deleteField,
+  query,
+  where,
+} from "firebase/firestore";
 import { db } from "@/app/db";
 import createImgbbUrl from "@/app/helpers/imgbb";
 
@@ -40,7 +42,6 @@ export type Coordinator = {
   coordinator_number: string;
 };
 
-
 export async function createEvent(eventData: eventData): Promise<string> {
   try {
     const { image, ...event } = eventData;
@@ -63,7 +64,7 @@ export async function createEvent(eventData: eventData): Promise<string> {
     };
 
     await setDoc(eventsDocRef, fullEventData);
-    
+
     return uniqueDocId;
   } catch (error) {
     console.error("Error creating event:", error);
@@ -90,18 +91,22 @@ export async function getAllEvents(): Promise<EventMap> {
   return eventMap;
 }
 
-
-export async function deleteEvent(eventName: string, eventCategory: string): Promise<void> {
+export async function deleteEvent(
+  eventName: string,
+  eventCategory: string,
+): Promise<void> {
   try {
     const eventsRef = collection(db, "events");
     const q = query(
       eventsRef,
       where("eventCategory", "==", decodeURIComponent(eventCategory)),
-      where("eventName", "==", decodeURIComponent(eventName))
+      where("eventName", "==", decodeURIComponent(eventName)),
     );
     const querySnapshot = await getDocs(q);
     if (querySnapshot.empty) {
-      console.error(`Event '${eventName}' not found in category '${eventCategory}'.`);
+      console.error(
+        `Event '${eventName}' not found in category '${eventCategory}'.`,
+      );
       throw new Error("Event does not exist.");
     }
 
@@ -109,30 +114,33 @@ export async function deleteEvent(eventName: string, eventCategory: string): Pro
     const eventRef = eventDoc.ref;
     await deleteDoc(eventRef);
   } catch (error) {
-    console.error(`Failed to delete event '${eventName}' in category '${eventCategory}':`, error);
+    console.error(
+      `Failed to delete event '${eventName}' in category '${eventCategory}':`,
+      error,
+    );
     throw new Error("Failed to delete event");
   }
 }
 
-
-
 export async function updateEventByName(
   eventCategory: string,
   eventName: string,
-  updatedData: any
+  updatedData: any,
 ): Promise<void> {
   try {
     const eventsRef = collection(db, "events");
     const q = query(
       eventsRef,
       where("eventCategory", "==", decodeURIComponent(eventCategory)),
-      where("eventName", "==", decodeURIComponent(eventName))
+      where("eventName", "==", decodeURIComponent(eventName)),
     );
 
     const querySnapshot = await getDocs(q);
 
     if (querySnapshot.empty) {
-      throw new Error(`Event '${eventName}' in category '${eventCategory}' does not exist.`);
+      throw new Error(
+        `Event '${eventName}' in category '${eventCategory}' does not exist.`,
+      );
     }
 
     const eventDoc = querySnapshot.docs[0];
@@ -153,25 +161,33 @@ export async function updateEventByName(
 
     await updateDoc(eventRef, updatedEventData);
   } catch (error) {
-    console.error(`Failed to update event '${eventName}' in category '${eventCategory}':`, error);
+    console.error(
+      `Failed to update event '${eventName}' in category '${eventCategory}':`,
+      error,
+    );
     throw new Error("Failed to update event");
   }
 }
 
-export async function getEventByName(eventCategory: string, eventName: string): Promise<any | null> {
+export async function getEventByName(
+  eventCategory: string,
+  eventName: string,
+): Promise<any | null> {
   try {
     const eventsRef = collection(db, "events");
     const q = query(
       eventsRef,
       where("eventCategory", "==", decodeURIComponent(eventCategory)),
-      where("eventName", "==", decodeURIComponent(eventName))
+      where("eventName", "==", decodeURIComponent(eventName)),
     );
 
     const querySnapshot = await getDocs(q);
     if (!querySnapshot.empty) {
       return querySnapshot.docs[0].data();
     } else {
-      console.error(`Event '${eventName}' in category '${eventCategory}' does not exist.`);
+      console.error(
+        `Event '${eventName}' in category '${eventCategory}' does not exist.`,
+      );
       return null;
     }
   } catch (error) {
