@@ -1,28 +1,23 @@
-"use client";
-
-import { useEffect, useState } from "react";
 import UpdateEventForm from "@/app/ui/events/UpdateEventForm";
 
-export default function EventPage({ params }: { params: { eventCategory: string; eventName: string } }) {
-  const [resolvedParams, setResolvedParams] = useState<{ eventCategory: string; eventName: string } | null>(null);
+type EventParams = Promise<{ eventCategory: string; eventName: string }>;
 
-  useEffect(() => {
-    (async () => {
-      const unwrappedParams = await Promise.resolve(params);
-      setResolvedParams(unwrappedParams);
-    })();
-  }, [params]);
-
-  if (!resolvedParams) {
-    return <p>Loading...</p>; // Handle loading state while params are being resolved
-  }
-
-  const { eventCategory, eventName } = resolvedParams;
+export default async function EventPage({ params }: { params: EventParams }) {
+  const { eventCategory, eventName } = await params;
+  const formattedEventName = eventName.replace("-", " ");
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold">Update Event</h1>
-      <UpdateEventForm eventCategory={eventCategory} eventName={eventName} />
+    <div className="bg-gray-900 p-4 shadow-md rounded-md overflow-clip">
+      <h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200">
+        Update Event
+      </h1>
+      <h3 className="text-2xl py-2 font-bold font-mono">
+        Update Your Event
+      </h3>
+      <UpdateEventForm
+        eventCategory={eventCategory}
+        eventName={formattedEventName}
+      />
     </div>
   );
 }

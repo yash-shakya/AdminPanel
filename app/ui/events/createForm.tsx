@@ -15,7 +15,7 @@ type Coordinator = {
 };
 
 interface FormState {
-  coordinators: Coordinator[];
+  coordinators: Coordinator[]; 
   description: string;
   document: string;
   endTime: number;
@@ -31,12 +31,24 @@ interface FormState {
 interface EventCategory {
   id: string;
   eventCategory: string;
-  image: string; 
+  image: string;
 }
 
 export default function CreateForm() {
-  const [coordinators, setCoordinators] = useState([0, 1]);
-  const [form, setForm] = useState<FormState>({} as FormState);
+  const [coordinators, setCoordinators] = useState([0, 1]); 
+  const [form, setForm] = useState<FormState>({
+    coordinators: [],
+    description: "",
+    document: "",
+    endTime: 0,
+    eventCategory: "",
+    eventName: "",
+    flagship: false,
+    rules: [],
+    startTime: 0,
+    venue: "",
+    image: {} as File,
+  }); 
   const [errorText, setErrorText] = useState<string>("");
   const [categories, setCategories] = useState<EventCategory[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
@@ -44,7 +56,7 @@ export default function CreateForm() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const categories = await getAllEventCategory(); // Fetch event categories from Firebase
+        const categories = await getAllEventCategory(); 
         setCategories(categories);
       } catch (error) {
         console.error("Error fetching categories:", error);
@@ -57,10 +69,12 @@ export default function CreateForm() {
     fetchCategories();
   }, []);
 
+ 
   const addCoordinators = () => {
     setCoordinators([...coordinators, coordinators.length]);
   };
 
+  
   const removeCoordinators = () => {
     if (coordinators.length === 2) {
       setErrorText("At least two coordinators are required.");
@@ -70,6 +84,7 @@ export default function CreateForm() {
     setCoordinators(coordinators.slice(0, coordinators.length - 1));
   };
 
+  
   const handleFormCreate = (data: Partial<FormState>) => {
     setForm((prev) => ({
       ...prev,
@@ -77,19 +92,15 @@ export default function CreateForm() {
     }));
   };
 
+  
   const handleAddCoordinators = (data: Coordinator) => {
-    setForm((prev) => {
-      const coordinatorMap = new Map(
-        (prev.coordinators || []).map((c) => [c.coordinator_number, c])
-      );
-      coordinatorMap.set(data.coordinator_number, data);
-      return {
-        ...prev,
-        coordinators: Array.from(coordinatorMap.values()),
-      };
-    });
+    setForm((prev) => ({
+      ...prev,
+      coordinators: [...(prev.coordinators || []), data], 
+    }));
   };
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     let error_message = "";
@@ -98,6 +109,7 @@ export default function CreateForm() {
     target.disabled = true;
     target.innerText = "Submitting...";
 
+    
     if (!form.eventName || !form.startTime || !form.endTime) {
       error_message = "Please fill in all the event details.";
     } else if (!form.coordinators || form.coordinators.length < 2) {
@@ -127,7 +139,19 @@ export default function CreateForm() {
           ).values()
         ),
       });
-      setForm({} as FormState);
+      setForm({
+        coordinators: [], 
+        description: "",
+        document: "",
+        endTime: 0,
+        eventCategory: "",
+        eventName: "",
+        flagship: false,
+        rules: [],
+        startTime: 0,
+        venue: "",
+        image: {} as File,
+      }); 
       setCoordinators([0, 1]);
       setErrorText("");
       target.innerText = "Submitted";
@@ -148,6 +172,7 @@ export default function CreateForm() {
     }
   };
 
+ 
   const dynamicEventFormConfig = {
     ...baseEventFormConfig,
     fields: baseEventFormConfig.fields.map((field) =>
@@ -164,7 +189,6 @@ export default function CreateForm() {
         : field
     ),
   };
-  
 
   return (
     <div className="create-form">

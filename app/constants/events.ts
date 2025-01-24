@@ -62,12 +62,16 @@ export const createEventFormConfig = {
     {
       name: "flagship",
       label: "Flagship event?",
-      type: "text" as const, // should be true or false
+      type: "select" as const,
+      options: ["No", "Yes"],
+      placeholder: "Is this a flagship event?",
     },
+    
     {
       name: "rules",
-      label: "Rules",
+      label: "Rules (Rule 1 | Rule 2 | Rule 3)",
       type: "textarea" as const,
+      description: "Separate rules with '|'",
     },
   ],
   submitText: "Save Event",

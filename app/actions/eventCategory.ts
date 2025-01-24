@@ -33,7 +33,7 @@ export async function createEventCategory(data: EventCategoryInput): Promise<voi
       index: randomIndex,
     };
 
-    console.log("Saving event category:", categoryData);
+   
     const docRef = collection(db, "eventCategories");
     await addDoc(docRef, categoryData);
   } catch (error) {
@@ -57,7 +57,7 @@ export async function getAllEventCategory(): Promise<EventCategory[]> {
       });
     });
 
-    console.log("Event categories fetched successfully:", categories);
+    
     return categories;
   } catch (error) {
     console.error("Error fetching event categories:", error);

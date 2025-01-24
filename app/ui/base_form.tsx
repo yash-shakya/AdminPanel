@@ -11,11 +11,13 @@ export interface BaseFormProps {
 interface Field {
   name: string;
   label: string;
-  type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox";
+  type: "select" | "file" | "text" | "textarea" | "password" | "email" | "date" | "time" | "datetime-local" | "number" | "checkbox" | "boolean";
   options?: string[];
   placeholder?: string;
   required?: boolean;
   value?: string;
+  description?: string;
+  defaultValue?: any;
 }
 
 export const BaseForm: React.FC<BaseFormProps> = ({
