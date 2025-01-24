@@ -45,6 +45,7 @@ export default function ViewAppDevTeam() {
 
     return (
         <div className="app-dev-team">
+            You cannot edit | only delete and add
             <div className="app-dev-team-list flex flex-wrap gap-7 p-4">
                 {teamList.map((member, index) => (
                     <BaseCard
