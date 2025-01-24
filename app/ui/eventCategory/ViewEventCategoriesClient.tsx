@@ -12,10 +12,10 @@
 
 // export default function ViewEventCategoryClientPage({
 //   categories,
- 
+
 // }: {
 //   categories: string[];
- 
+
 // }) {
 //   const handleDelete = async (categoryId: string) => {
 //     if (!window.confirm(`Are you sure you want to delete category '${categoryId}'?`)) return;
@@ -34,7 +34,7 @@
 //           <BaseCard
 //             data={[{ label: "Category Name", value: category }]}
 //             title={category}
-            
+
 //             toEdit={`/update/event-categories/${category}`}
 //             onDelete={() => handleDelete(category)}
 //           />

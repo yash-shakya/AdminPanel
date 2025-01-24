@@ -14,13 +14,13 @@ import createImgbbUrl, { IMGBB } from "@/app/helpers/imgbb";
 export type Notification = {
   android_channel_id: string;
   body: string;
-  image: string;  // Changed from optional string to required string
+  image: string; // Changed from optional string to required string
   link: string;
   title: string;
   time: number;
 };
 
-export type NotificationInput = Omit<Notification, 'image'> & {
+export type NotificationInput = Omit<Notification, "image"> & {
   imageFile: File;
 };
 
@@ -56,7 +56,7 @@ export async function getNotificationById(id: string): Promise<Notification> {
   }
 }
 export async function createNotification(
-  notificationInput: NotificationInput
+  notificationInput: NotificationInput,
 ): Promise<string> {
   try {
     console.log("Creating notification with:", notificationInput);
@@ -73,7 +73,7 @@ export async function createNotification(
       title: notificationInput.title,
       time: notificationInput.time,
     };
-    
+
     const notificationDocRef = doc(db, "notifications", randomId);
     await setDoc(notificationDocRef, notificationData);
 
@@ -87,7 +87,7 @@ export async function createNotification(
 
 export async function updateNotification(
   id: string,
-  updatedData: Partial<Notification>
+  updatedData: Partial<Notification>,
 ): Promise<boolean> {
   try {
     const sponsorDocRef = doc(db, "notifications", id);

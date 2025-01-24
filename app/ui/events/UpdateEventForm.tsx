@@ -40,7 +40,7 @@ export default function UpdateEventForm({
       try {
         const [eventData, categoriesData] = await Promise.all([
           getEventByName(eventCategory, eventName),
-          getAllEventCategory()
+          getAllEventCategory(),
         ]);
 
         if (eventData) {
@@ -48,22 +48,29 @@ export default function UpdateEventForm({
             ...eventData,
             rules: Array.isArray(eventData.rules)
               ? eventData.rules
-              : (eventData.rules || '').split('|').filter((rule: string) => rule.trim()),
-            flagship: eventData.flagship === 'true' || eventData.flagship === true,
-            startTime: eventData.startTime instanceof Date
-              ? eventData.startTime
-              : new Date(eventData.startTime),
-            endTime: eventData.endTime instanceof Date
-              ? eventData.endTime
-              : new Date(eventData.endTime)
+              : (eventData.rules || "")
+                  .split("|")
+                  .filter((rule: string) => rule.trim()),
+            flagship:
+              eventData.flagship === "true" || eventData.flagship === true,
+            startTime:
+              eventData.startTime instanceof Date
+                ? eventData.startTime
+                : new Date(eventData.startTime),
+            endTime:
+              eventData.endTime instanceof Date
+                ? eventData.endTime
+                : new Date(eventData.endTime),
           };
 
           setFormData(processedEventData);
           setCategories(categoriesData);
-          setCoordinators(eventData.coordinators || [
-            { coordinator_name: "", coordinator_number: "" },
-            { coordinator_name: "", coordinator_number: "" }
-          ]);
+          setCoordinators(
+            eventData.coordinators || [
+              { coordinator_name: "", coordinator_number: "" },
+              { coordinator_name: "", coordinator_number: "" },
+            ],
+          );
 
           setImageURL(eventData.poster || eventData.imageURL || null);
         } else {
@@ -81,19 +88,21 @@ export default function UpdateEventForm({
 
   const dynamicEventFormConfig = {
     ...createEventFormConfig,
-    fields: createEventFormConfig.fields.map((field) =>
-      field.name === "eventCategory"
-        ? {
-          ...field,
-          options: loading
-            ? ["Loading..."]
-            : categories.map((category) => category.eventCategory),
-          placeholder: loading
-            ? "Loading categories..."
-            : "Select the category",
-        }
-        : field
-    ).filter(field => field.name !== "image"), // Remove image field from form
+    fields: createEventFormConfig.fields
+      .map((field) =>
+        field.name === "eventCategory"
+          ? {
+              ...field,
+              options: loading
+                ? ["Loading..."]
+                : categories.map((category) => category.eventCategory),
+              placeholder: loading
+                ? "Loading categories..."
+                : "Select the category",
+            }
+          : field,
+      )
+      .filter((field) => field.name !== "image"), // Remove image field from form
   };
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -104,15 +113,25 @@ export default function UpdateEventForm({
     }
   };
 
-  const handleCoordinatorChange = (index: number, field: string, value: string) => {
+  const handleCoordinatorChange = (
+    index: number,
+    field: string,
+    value: string,
+  ) => {
     const updatedCoordinators = [...coordinators];
-    updatedCoordinators[index] = { ...updatedCoordinators[index], [field]: value };
+    updatedCoordinators[index] = {
+      ...updatedCoordinators[index],
+      [field]: value,
+    };
     setCoordinators(updatedCoordinators);
   };
 
   const addCoordinator = () => {
     if (coordinators.length < 5) {
-      setCoordinators([...coordinators, { coordinator_name: "", coordinator_number: "" }]);
+      setCoordinators([
+        ...coordinators,
+        { coordinator_name: "", coordinator_number: "" },
+      ]);
     }
   };
 
@@ -128,7 +147,12 @@ export default function UpdateEventForm({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!formData || !formData.eventName || !formData.startTime || !formData.endTime) {
+    if (
+      !formData ||
+      !formData.eventName ||
+      !formData.startTime ||
+      !formData.endTime
+    ) {
       setErrorText("Please fill in all required fields.");
       return;
     }
@@ -147,23 +171,23 @@ export default function UpdateEventForm({
 
     const processedRules = Array.isArray(formData.rules)
       ? formData.rules
-      : (formData.rules || '').split('|').filter((rule: string) => rule.trim());
+      : (formData.rules || "").split("|").filter((rule: string) => rule.trim());
 
     try {
       const formDataForSubmit = new FormData();
-      formDataForSubmit.append('eventCategory', eventCategory);
-      formDataForSubmit.append('eventName', eventName);
+      formDataForSubmit.append("eventCategory", eventCategory);
+      formDataForSubmit.append("eventName", eventName);
 
       if (imageFile) {
-        formDataForSubmit.append('image', imageFile);
+        formDataForSubmit.append("image", imageFile);
       }
 
       await updateEventByName(eventCategory, eventName, {
         ...formData,
         coordinators,
         rules: processedRules,
-        flagship: formData.flagship ? 'true' : 'false',
-        ...(imageFile ? { image: imageFile } : {})
+        flagship: formData.flagship ? "true" : "false",
+        ...(imageFile ? { image: imageFile } : {}),
       });
 
       alert("Event updated successfully!");
@@ -183,22 +207,26 @@ export default function UpdateEventForm({
         {...dynamicEventFormConfig}
         defaultValues={{
           ...formData,
-          startTime: formData?.startTime instanceof Date
-            ? formData.startTime.toISOString().slice(0, 16)
-            : formData?.startTime,
-          endTime: formData?.endTime instanceof Date
-            ? formData.endTime.toISOString().slice(0, 16)
-            : formData?.endTime
+          startTime:
+            formData?.startTime instanceof Date
+              ? formData.startTime.toISOString().slice(0, 16)
+              : formData?.startTime,
+          endTime:
+            formData?.endTime instanceof Date
+              ? formData.endTime.toISOString().slice(0, 16)
+              : formData?.endTime,
         }}
         submit={(data: any) => {
           const processedData = {
             ...data,
             rules: Array.isArray(data.rules)
               ? data.rules
-              : (data.rules || '').split('|').filter((rule: string) => rule.trim()),
-            flagship: data.flagship === 'true' || data.flagship === true,
+              : (data.rules || "")
+                  .split("|")
+                  .filter((rule: string) => rule.trim()),
+            flagship: data.flagship === "true" || data.flagship === true,
             startTime: new Date(data.startTime).getTime(),
-            endTime: new Date(data.endTime).getTime()
+            endTime: new Date(data.endTime).getTime(),
           };
           setFormData({ ...formData, ...processedData });
         }}
@@ -213,7 +241,7 @@ export default function UpdateEventForm({
             width={200}
             height={200}
             className="object-cover rounded mb-2"
-            style={{ width: 'auto', height: 'auto' }}
+            style={{ width: "auto", height: "auto" }}
           />
         )}
 
@@ -229,7 +257,7 @@ export default function UpdateEventForm({
             htmlFor="image-upload"
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
           >
-            {imageURL ? 'Change Image' : 'Upload Image'}
+            {imageURL ? "Change Image" : "Upload Image"}
           </label>
         </div>
       </div>
@@ -242,14 +270,22 @@ export default function UpdateEventForm({
             type="text"
             placeholder="Coordinator Name"
             value={coordinator.coordinator_name}
-            onChange={(e) => handleCoordinatorChange(index, "coordinator_name", e.target.value)}
+            onChange={(e) =>
+              handleCoordinatorChange(index, "coordinator_name", e.target.value)
+            }
             className="border text-black p-2 rounded"
           />
           <input
             type="text"
             placeholder="Coordinator Number"
             value={coordinator.coordinator_number}
-            onChange={(e) => handleCoordinatorChange(index, "coordinator_number", e.target.value)}
+            onChange={(e) =>
+              handleCoordinatorChange(
+                index,
+                "coordinator_number",
+                e.target.value,
+              )
+            }
             className="border text-black p-2 rounded mt-1"
           />
         </div>

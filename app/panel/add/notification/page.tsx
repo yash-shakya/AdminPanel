@@ -7,7 +7,10 @@ export default async function Notifications() {
         <h1 className="border-b pb-2 text-3xl font-black font-mono border-blue-200">
           Notifications
         </h1>
-        <h3 className="text-2xl py-2 font-bold font-mono"> Add Notifications </h3>
+        <h3 className="text-2xl py-2 font-bold font-mono">
+          {" "}
+          Add Notifications{" "}
+        </h3>
         <CreateForm />
       </div>
     </>

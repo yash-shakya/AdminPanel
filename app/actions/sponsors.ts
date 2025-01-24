@@ -25,7 +25,7 @@ type Sponsor = {
 };
 
 export async function createSponsor(
-  sponsor: Sponsor
+  sponsor: Sponsor,
 ): Promise<string | { err_desc: string }> {
   try {
     if (!sponsor.image) {
@@ -63,7 +63,7 @@ export async function createSponsor(
     }
 
     console.log(
-      `Sponsor created with ID: ${newSponsorId} in category: ${sponsorCategory}`
+      `Sponsor created with ID: ${newSponsorId} in category: ${sponsorCategory}`,
     );
     return newSponsorId;
   } catch (error) {
@@ -111,7 +111,7 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
 export async function updateSponsor(
   id: string,
   currentCategory: string, // The sponsor's current category
-  updatedData: Partial<Sponsor>
+  updatedData: Partial<Sponsor>,
 ): Promise<boolean> {
   try {
     const oldCategoryDocRef = doc(db, "sponsors", currentCategory);
@@ -126,7 +126,7 @@ export async function updateSponsor(
 
     if (!sponsorsInOldCategory || !sponsorsInOldCategory[id]) {
       throw new Error(
-        `Sponsor with ID ${id} not found in category ${currentCategory}.`
+        `Sponsor with ID ${id} not found in category ${currentCategory}.`,
       );
     }
 
@@ -180,7 +180,7 @@ export async function updateSponsor(
       }
 
       console.log(
-        `Sponsor moved from category ${currentCategory} to ${newCategory} and updated successfully!`
+        `Sponsor moved from category ${currentCategory} to ${newCategory} and updated successfully!`,
       );
     } else {
       // Update the sponsor in the same category
@@ -190,7 +190,9 @@ export async function updateSponsor(
       };
 
       await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
-      console.log(`Sponsor with ID ${id} updated in category ${currentCategory}.`);
+      console.log(
+        `Sponsor with ID ${id} updated in category ${currentCategory}.`,
+      );
     }
 
     return true;
@@ -200,10 +202,9 @@ export async function updateSponsor(
   }
 }
 
-
 export async function deleteSponsor(
   sponsorCategory: string,
-  sponsorId: string
+  sponsorId: string,
 ): Promise<string> {
   try {
     if (!sponsorId) {
@@ -225,7 +226,7 @@ export async function deleteSponsor(
     // Check if the sponsorId exists in the category
     if (!sponsors[sponsorId]) {
       throw new Error(
-        `Sponsor with ID "${sponsorId}" does not exist in category "${sponsorCategory}".`
+        `Sponsor with ID "${sponsorId}" does not exist in category "${sponsorCategory}".`,
       );
     }
 
@@ -240,7 +241,7 @@ export async function deleteSponsor(
       await setDoc(categoryDocRef, sponsors, { merge: false });
     }
     console.log(
-      `Sponsor with ID "${sponsorId}" successfully deleted from category "${sponsorCategory}".`
+      `Sponsor with ID "${sponsorId}" successfully deleted from category "${sponsorCategory}".`,
     );
     return `Sponsor "${sponsorId}" deleted successfully.`;
   } catch (error) {
@@ -264,7 +265,9 @@ export async function getSponsorById(id: string, category: string) {
       if (sponsors && sponsors[id]) {
         return sponsors[id];
       } else {
-        throw new Error(`Sponsor with ID ${id} not found in category ${category}`);
+        throw new Error(
+          `Sponsor with ID ${id} not found in category ${category}`,
+        );
       }
     } else {
       throw new Error(`Category document ${category} not found`);

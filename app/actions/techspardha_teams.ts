@@ -11,7 +11,7 @@
 //     name: string,
 //     post: string {Convenor/co-convenor}
 // }
-// 
+//
 
 // EXAMPLE
 // {
@@ -40,13 +40,13 @@
 // }
 
 import {
-	collection,
-    setDoc,
-	getDocs,
-	getDoc,
-	doc,
-	updateDoc,
-	deleteDoc,
+  collection,
+  setDoc,
+  getDocs,
+  getDoc,
+  doc,
+  updateDoc,
+  deleteDoc,
 } from "firebase/firestore";
 import { db } from "@/app/db";
 
@@ -55,25 +55,24 @@ import { IMGBB } from "@/app/helpers/imgbb";
 // TYPES
 
 export type TechspardhaTeam = {
-	contacts: Contacts[];
-	logo: string | null;
+  contacts: Contacts[];
+  logo: string | null;
 };
 
 type Contacts = {
-	imageURL: string;
-	name: string;
-	post: Post | string;
+  imageURL: string;
+  name: string;
+  post: Post | string;
 };
 
 export enum Post {
-	Convenor = "Convenor",
-	CoConvenor = "Co-Convenor",
+  Convenor = "Convenor",
+  CoConvenor = "Co-Convenor",
 }
 
 export type TechspardhaTeamsDTO = {
-    [key: string]: TechspardhaTeam;
-}
-
+  [key: string]: TechspardhaTeam;
+};
 
 // ACTIONS
 
@@ -81,7 +80,7 @@ export type TechspardhaTeamsDTO = {
 /**
  * Fetches all Techspardha teams from the Firestore database.
  *
- * @returns {Promise<TechspardhaTeamsDTO>} A promise that resolves to an object containing all Techspardha teams, 
+ * @returns {Promise<TechspardhaTeamsDTO>} A promise that resolves to an object containing all Techspardha teams,
  * where each key is the team ID and the value is the team data.
  *
  * @throws {Error} Throws an error if there is an issue fetching the teams from the database.
@@ -97,22 +96,22 @@ export type TechspardhaTeamsDTO = {
  *   });
  * ```
  */
-export async function getAllTechspardhaTeams() : Promise<TechspardhaTeamsDTO> {
-    try {
-        // Get a reference to the "contacts" collection in Firestore
-        const querySnapshot = await getDocs(collection(db, "contacts"));
-        // Create an object to store the team data
-        const data: TechspardhaTeamsDTO = {};
-        // Iterate over each document in the collection and add it to the data object
-        querySnapshot.forEach((doc) => {
-            data[doc.id] = doc.data() as TechspardhaTeam;
-        });
-        // Return the data object containing all the teams -> array of TechspardhaTeam objects
-        return data;
-    } catch (error) {
-        console.error("Error fetching techspardha teams: ", error);
-        throw new Error("Failed to fetch techspardha teams");
-    }
+export async function getAllTechspardhaTeams(): Promise<TechspardhaTeamsDTO> {
+  try {
+    // Get a reference to the "contacts" collection in Firestore
+    const querySnapshot = await getDocs(collection(db, "contacts"));
+    // Create an object to store the team data
+    const data: TechspardhaTeamsDTO = {};
+    // Iterate over each document in the collection and add it to the data object
+    querySnapshot.forEach((doc) => {
+      data[doc.id] = doc.data() as TechspardhaTeam;
+    });
+    // Return the data object containing all the teams -> array of TechspardhaTeam objects
+    return data;
+  } catch (error) {
+    console.error("Error fetching techspardha teams: ", error);
+    throw new Error("Failed to fetch techspardha teams");
+  }
 }
 
 // get Team by ID // -> id or key is the team name
@@ -135,27 +134,29 @@ export async function getAllTechspardhaTeams() : Promise<TechspardhaTeamsDTO> {
  *   });
  * ```
  */
-export async function getTechspardhaTeamById(id: string) : Promise<TechspardhaTeam> {
-    try {
-        // Get a reference to the document in the "contacts" collection with the specified id
-        const docRef = doc(db, "contacts", id);
-        
-        // Fetch the document snapshot from Firestore
-        const docSnap = await getDoc(docRef);
-        
-        // Check if the document exists
-        if(docSnap.exists()){
-            // If the document exists, return its data as a TechspardhaTeam object
-            return docSnap.data() as TechspardhaTeam;
-        } else {
-            // If the document does not exist, throw an error indicating the team was not found
-            throw new Error("Techspardha team not found");
-        }
-    } catch (error) {
-        // Log an error message if there was an issue fetching the team and throw an error
-        console.error("Error fetching techspardha team: ", error);
-        throw new Error("Failed to fetch techspardha team");
+export async function getTechspardhaTeamById(
+  id: string,
+): Promise<TechspardhaTeam> {
+  try {
+    // Get a reference to the document in the "contacts" collection with the specified id
+    const docRef = doc(db, "contacts", id);
+
+    // Fetch the document snapshot from Firestore
+    const docSnap = await getDoc(docRef);
+
+    // Check if the document exists
+    if (docSnap.exists()) {
+      // If the document exists, return its data as a TechspardhaTeam object
+      return docSnap.data() as TechspardhaTeam;
+    } else {
+      // If the document does not exist, throw an error indicating the team was not found
+      throw new Error("Techspardha team not found");
     }
+  } catch (error) {
+    // Log an error message if there was an issue fetching the team and throw an error
+    console.error("Error fetching techspardha team: ", error);
+    throw new Error("Failed to fetch techspardha team");
+  }
 }
 
 // create Team // -> id or key is the team name
@@ -182,24 +183,27 @@ export async function getTechspardhaTeamById(id: string) : Promise<TechspardhaTe
  *   });
  * ```
  */
-export async function createTechspardhaTeam(team: string, data: TechspardhaTeam): Promise<void> {
-    try {
-        // Get a reference to the "contacts" collection in Firestore
-        const collectionRef = collection(db, "contacts");
+export async function createTechspardhaTeam(
+  team: string,
+  data: TechspardhaTeam,
+): Promise<void> {
+  try {
+    // Get a reference to the "contacts" collection in Firestore
+    const collectionRef = collection(db, "contacts");
 
-        // Create a document reference with the provided team name as the ID
-        const docRef = doc(collectionRef, team);
+    // Create a document reference with the provided team name as the ID
+    const docRef = doc(collectionRef, team);
 
-        // Set the document data with the provided data
-        await setDoc(docRef, data);
+    // Set the document data with the provided data
+    await setDoc(docRef, data);
 
-        // Log a message indicating the team was successfully created
-        console.log("Techspardha team created: ", team);
-    } catch (error) {
-        // Log an error message if there was an issue creating the team and throw an error
-        console.error("Error creating techspardha team: ", error);
-        throw new Error("Failed to create techspardha team");
-    }
+    // Log a message indicating the team was successfully created
+    console.log("Techspardha team created: ", team);
+  } catch (error) {
+    // Log an error message if there was an issue creating the team and throw an error
+    console.error("Error creating techspardha team: ", error);
+    throw new Error("Failed to create techspardha team");
+  }
 }
 
 // update Team // -> id or key is the team name ( A whole Team will be updated not a single contact or logo)
@@ -226,21 +230,24 @@ export async function createTechspardhaTeam(team: string, data: TechspardhaTeam)
  *   });
  * ```
  */
-export async function updateTechspardhaTeam(team: string, data: TechspardhaTeam) : Promise<void> {
-    try {
-        // Get a reference to the document in the "contacts" collection with the specified id
-        const docRef = doc(db, "contacts", team);
-        
-        // Update the document with the new data
-        await updateDoc(docRef, data);
-        
-        // Log a message indicating the team was successfully updated
-        console.log("Techspardha team updated: ", team);
-    } catch (error) {
-        // Log an error message if there was an issue updating the team and throw an error
-        console.error("Error updating techspardha team: ", error);
-        throw new Error("Failed to update techspardha team");
-    }
+export async function updateTechspardhaTeam(
+  team: string,
+  data: TechspardhaTeam,
+): Promise<void> {
+  try {
+    // Get a reference to the document in the "contacts" collection with the specified id
+    const docRef = doc(db, "contacts", team);
+
+    // Update the document with the new data
+    await updateDoc(docRef, data);
+
+    // Log a message indicating the team was successfully updated
+    console.log("Techspardha team updated: ", team);
+  } catch (error) {
+    // Log an error message if there was an issue updating the team and throw an error
+    console.error("Error updating techspardha team: ", error);
+    throw new Error("Failed to update techspardha team");
+  }
 }
 
 // delete Team // -> id or key is the team name
@@ -263,19 +270,19 @@ export async function updateTechspardhaTeam(team: string, data: TechspardhaTeam)
  *   });
  * ```
  */
-export async function deleteTechspardhaTeam(team: string) : Promise<void> {
-    try {
-        // Get a reference to the document in the "contacts" collection with the specified id
-        const docRef = doc(db, "contacts", team);
-        
-        // Delete the document from Firestore
-        await deleteDoc(docRef);
-        
-        // Log a message indicating the team was successfully deleted
-        console.log("Techspardha team deleted: ", team);
-    } catch (error) {
-        // Log an error message if there was an issue deleting the team and throw an error
-        console.error("Error deleting techspardha team: ", error);
-        throw new Error("Failed to delete techspardha team");
-    }
+export async function deleteTechspardhaTeam(team: string): Promise<void> {
+  try {
+    // Get a reference to the document in the "contacts" collection with the specified id
+    const docRef = doc(db, "contacts", team);
+
+    // Delete the document from Firestore
+    await deleteDoc(docRef);
+
+    // Log a message indicating the team was successfully deleted
+    console.log("Techspardha team deleted: ", team);
+  } catch (error) {
+    // Log an error message if there was an issue deleting the team and throw an error
+    console.error("Error deleting techspardha team: ", error);
+    throw new Error("Failed to delete techspardha team");
+  }
 }

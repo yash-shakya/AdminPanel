@@ -42,17 +42,19 @@ export default function CreateForm() {
 
   const validateImageFile = (file?: File): boolean => {
     if (!file) return false;
-    
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
+
+    const allowedTypes = ["image/jpeg", "image/png", "image/gif"];
     if (!allowedTypes.includes(file.type)) {
-      throw new Error(`Invalid file type. Allowed types: JPG, PNG, GIF. Received: ${file.type}`);
+      throw new Error(
+        `Invalid file type. Allowed types: JPG, PNG, GIF. Received: ${file.type}`,
+      );
     }
 
     return true;
   };
 
   const updateProgress = (index: number, message: string) => {
-    setProgress(prev => {
+    setProgress((prev) => {
       const newProgress = [...prev];
       newProgress[index] = message;
       return newProgress;
@@ -70,12 +72,17 @@ export default function CreateForm() {
     try {
       // Validate all forms first
       forms.forEach((form, index) => {
-        if (!form.android_channel_id?.trim()) throw new Error(`Form ${index + 1}: Channel ID is required`);
-        if (!form.body?.trim()) throw new Error(`Form ${index + 1}: Body is required`);
-        if (!form.link?.trim()) throw new Error(`Form ${index + 1}: Link is required`);
-        if (!form.title?.trim()) throw new Error(`Form ${index + 1}: Title is required`);
+        if (!form.android_channel_id?.trim())
+          throw new Error(`Form ${index + 1}: Channel ID is required`);
+        if (!form.body?.trim())
+          throw new Error(`Form ${index + 1}: Body is required`);
+        if (!form.link?.trim())
+          throw new Error(`Form ${index + 1}: Link is required`);
+        if (!form.title?.trim())
+          throw new Error(`Form ${index + 1}: Title is required`);
         if (!form.time) throw new Error(`Form ${index + 1}: Time is required`);
-        if (!form.imageFile) throw new Error(`Form ${index + 1}: Image file is required`);
+        if (!form.imageFile)
+          throw new Error(`Form ${index + 1}: Image file is required`);
         if (!validateImageFile(form.imageFile)) {
           throw new Error(`Form ${index + 1}: Invalid image file`);
         }
@@ -86,10 +93,11 @@ export default function CreateForm() {
         const form = forms[i];
         try {
           updateProgress(i, "Creating notification...");
-          
-          const timestamp = typeof form.time === "string" 
-            ? new Date(form.time).getTime() 
-            : form.time;
+
+          const timestamp =
+            typeof form.time === "string"
+              ? new Date(form.time).getTime()
+              : form.time;
 
           await createNotification({
             android_channel_id: form.android_channel_id,
@@ -102,7 +110,10 @@ export default function CreateForm() {
 
           updateProgress(i, "✓ Completed successfully");
         } catch (error) {
-          updateProgress(i, `✗ Failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+          updateProgress(
+            i,
+            `✗ Failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+          );
           throw error;
         }
       }
@@ -111,7 +122,9 @@ export default function CreateForm() {
       alert("All notifications created successfully");
     } catch (error) {
       console.error("Error creating notifications:", error);
-      setErrorText(error instanceof Error ? error.message : "An unexpected error occurred");
+      setErrorText(
+        error instanceof Error ? error.message : "An unexpected error occurred",
+      );
     } finally {
       setIsSubmitting(false);
     }
@@ -125,11 +138,15 @@ export default function CreateForm() {
             submit={(data: FormState) => handleData(index, data)}
           />
           {progress[index] && (
-            <div className={`mt-2 p-2 rounded ${
-              progress[index].startsWith("✓") ? "bg-green-100 text-green-800" :
-              progress[index].startsWith("✗") ? "bg-red-100 text-red-800" :
-              "bg-blue-100 text-blue-800"
-            }`}>
+            <div
+              className={`mt-2 p-2 rounded ${
+                progress[index].startsWith("✓")
+                  ? "bg-green-100 text-green-800"
+                  : progress[index].startsWith("✗")
+                    ? "bg-red-100 text-red-800"
+                    : "bg-blue-100 text-blue-800"
+              }`}
+            >
               {progress[index]}
             </div>
           )}

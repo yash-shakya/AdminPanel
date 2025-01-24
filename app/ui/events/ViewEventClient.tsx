@@ -14,21 +14,13 @@ export type Coordinator = {
   contact: string;
 };
 
-
-
-export default function ViewEventClient({
-  events,
- 
-}: {
-  events: EventMap;
-  
-}) {
+export default function ViewEventClient({ events }: { events: EventMap }) {
   const router = useRouter();
-  
+
   const handleDelete = async (name: string, category: string) => {
     try {
       await deleteEvent(name, category);
-      console.log(`${name} from ${category} deleted`)
+      console.log(`${name} from ${category} deleted`);
       router.refresh();
     } catch (err) {
       console.error("Failed to delete event:", err);
@@ -39,13 +31,12 @@ export default function ViewEventClient({
     <div className="flex flex-wrap justify-center items-center">
       {Object.entries(events).map(([category, categoryEvents]) =>
         Object.entries(categoryEvents).map(([eventName, event]) => {
-          const dataArray: { label: string; value: string; isUrl?: boolean }[] = [
-            { label: "Name", value: event.eventName },
-            { label: "Category", value: event.eventCategory },
-            { label: "Poster", value: event.poster as string, isUrl: true }
-          ];
-
-         
+          const dataArray: { label: string; value: string; isUrl?: boolean }[] =
+            [
+              { label: "Name", value: event.eventName },
+              { label: "Category", value: event.eventCategory },
+              { label: "Poster", value: event.poster as string, isUrl: true },
+            ];
 
           return (
             <div key={`${category}-${eventName}`} className="m-4">
@@ -58,7 +49,7 @@ export default function ViewEventClient({
               />
             </div>
           );
-        })
+        }),
       )}
     </div>
   );
