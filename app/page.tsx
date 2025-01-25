@@ -72,11 +72,11 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex items-center justify-center min-h-screen bg-gray-100 p-4">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-8 space-y-6">
+    <div className="flex items-center justify-center min-h-screen bg-background p-4">
+      <div className="w-full max-w-md bg-background rounded-xl shadow-md p-8 space-y-6 bg-white">
         {user ? (
-          <div className="text-center">
-            <div className="flex justify-center mb-4">
+          <div className="text-center bg-white">
+            <div className="flex justify-center mb-4 bg-white">
               <Image 
                 src={user.photoURL || '/placeholder.svg'}
                 alt="Profile"
@@ -85,22 +85,22 @@ export default function LoginPage() {
                 className="rounded-full"
               />
             </div>
-            <h2 className="text-xl font-semibold mb-2">{user.displayName}</h2>
+            <h2 className="text-xl font-semibold mb-2 text-blue-900 ">{user.displayName}</h2>
             <p className="text-gray-600 mb-4">{user.email}</p>
             <button 
               onClick={handleSignOut}
-              className="w-full bg-red-500 text-white py-2 rounded-lg hover:bg-red-600 transition"
+              className="w-full bg-red-500 text-black py-2 rounded-lg hover:bg-red-600 transition"
             >
               Sign Out
             </button>
           </div>
         ) : (
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Welcome</h1>
+            <h1 className="text-2xl font-bold mb-4 text-black">Welcome</h1>
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
-              className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition"
+              className="w-full flex items-center justify-center gap-2 bg-white border border-gray-300 py-2 rounded-lg hover:bg-gray-50 transition text-black"
             >
               {isLoading ? (
                 <span>Signing in...</span>
