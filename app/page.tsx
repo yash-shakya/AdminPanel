@@ -5,9 +5,10 @@ import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChang
 import { useRouter } from 'next/navigation'
 import firebase_app from './firebase.config'
 import Image from 'next/image'
+import { getUserByEmail } from '@/app/actions/users'
 
 const auth = getAuth(firebase_app)
-const ALLOWED_DOMAIN = '@nitkkr.ac.in'
+const SUPERADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,18 +20,29 @@ export default function LoginPage() {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       if (currentUser) {
         const email = currentUser.email || ''
-        if (email.endsWith(ALLOWED_DOMAIN)) {
-          const token = await currentUser.getIdToken()
-          document.cookie = `firebaseAuthToken=${token}; path=/; SameSite=Strict; Secure`
+        try {
+          const userData = await getUserByEmail(email)
           
-          setUser(currentUser)
-          router.push('/')
-        } else {
-          setError(`Only ${ALLOWED_DOMAIN} emails are allowed`)
+          if (userData && userData.admin) {
+            const token = await currentUser.getIdToken()
+            document.cookie = `firebaseAuthToken=${token}; path=/; SameSite=Strict; Secure`
+            if (email === SUPERADMIN_EMAIL) {
+              document.cookie = `isSuperAdmin=true; path=/; SameSite=Strict; Secure`
+            }
+            
+            setUser(currentUser)
+            router.push('/')
+          } else {
+            setError('You do not have admin access')
+            signOut(auth)
+          }
+        } catch (error) {
+          setError('Error checking user permissions')
           signOut(auth)
         }
       } else {
         document.cookie = 'firebaseAuthToken=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
+        document.cookie = 'isSuperAdmin=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;'
         setUser(null)
       }
     })
@@ -45,8 +57,9 @@ export default function LoginPage() {
       const result = await signInWithPopup(auth, provider)
       const email = result.user.email || ''
       
-      if (!email.endsWith(ALLOWED_DOMAIN)) {
-        throw new Error(`Only ${ALLOWED_DOMAIN} emails are allowed`)
+      const userData = await getUserByEmail(email)
+      if (!userData || !userData.admin) {
+        throw new Error('You do not have admin access')
       }
     } catch (error) {
       if (error instanceof Error) {
@@ -54,10 +67,12 @@ export default function LoginPage() {
       } else {
         setError('An unknown error occurred')
       }
+      signOut(auth)
     } finally {
       setIsLoading(false)
     }
   }
+
 
   const handleSignOut = async () => {
     try {
@@ -77,7 +92,7 @@ export default function LoginPage() {
         {user ? (
           <div className="text-center bg-white">
             <div className="flex justify-center mb-4 bg-white">
-              <Image 
+              <Image
                 src={user.photoURL || '/placeholder.svg'}
                 alt="Profile"
                 width={80}
@@ -87,7 +102,7 @@ export default function LoginPage() {
             </div>
             <h2 className="text-xl font-semibold mb-2 text-blue-900 ">{user.displayName}</h2>
             <p className="text-gray-600 mb-4">{user.email}</p>
-            <button 
+            <button
               onClick={handleSignOut}
               className="w-full bg-red-500 text-black py-2 rounded-lg hover:bg-red-600 transition"
             >
@@ -96,7 +111,7 @@ export default function LoginPage() {
           </div>
         ) : (
           <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4 text-black">Welcome</h1>
+            <h1 className="text-2xl font-bold mb-4 text-black">Admin Login</h1>
             <button
               onClick={handleGoogleSignIn}
               disabled={isLoading}
