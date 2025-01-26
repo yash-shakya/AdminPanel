@@ -86,7 +86,7 @@ export async function getAllUsers(): Promise<UsersDTO> {
  *   });
  * ```
  */
-export async function getUserByEmail(email: string): Promise<User> {
+export async function getUserByEmail(email: string): Promise<User |null> {
   try {
     const docRef = doc(db, "users", email);
     const docSnap = await getDoc(docRef);
@@ -94,11 +94,11 @@ export async function getUserByEmail(email: string): Promise<User> {
     if (docSnap.exists()) {
       return docSnap.data() as User;
     } else {
-      throw new Error("User not found");
+      return null;
     }
   } catch (error) {
     console.error("Error fetching user:", error);
-    throw new Error("Failed to fetch user");
+    return null;
   }
 }
 
