@@ -1,6 +1,4 @@
 import CreateAdminForm from "@/app/ui/admin_users/createForm";
-import CreateForm from "@/app/ui/techspardha_teams/createForm";
-
 export default async function TechspardhaTeams() {
   return (
     <>

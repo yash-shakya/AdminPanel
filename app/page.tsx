@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import firebase_app from './firebase.config'
 import Image from 'next/image'
 import { getUserByEmail } from '@/app/actions/users'
+import { Toaster, toast } from 'react-hot-toast'
 
 const auth = getAuth(firebase_app)
 const SUPERADMIN_EMAIL = process.env.NEXT_PUBLIC_SUPERADMIN_EMAIL
@@ -14,7 +15,6 @@ export default function LoginPage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string>('')
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -22,22 +22,20 @@ export default function LoginPage() {
         const email = currentUser.email || ''
         try {
           const userData = await getUserByEmail(email)
-          
           if (userData && userData.admin) {
             const token = await currentUser.getIdToken()
             document.cookie = `firebaseAuthToken=${token}; path=/; SameSite=Strict; Secure`
             if (email === SUPERADMIN_EMAIL) {
               document.cookie = `isSuperAdmin=true; path=/; SameSite=Strict; Secure`
             }
-            
             setUser(currentUser)
             router.push('/')
           } else {
-            setError('You do not have admin access')
+            toast.error('You do not have admin access')
             signOut(auth)
           }
         } catch (error) {
-          setError('Error checking user permissions')
+          toast.error('Error checking user permissions')
           signOut(auth)
         }
       } else {
@@ -53,19 +51,19 @@ export default function LoginPage() {
     const provider = new GoogleAuthProvider()
     try {
       setIsLoading(true)
-      setError('')
       const result = await signInWithPopup(auth, provider)
       const email = result.user.email || ''
-      
       const userData = await getUserByEmail(email)
+
       if (!userData || !userData.admin) {
-        throw new Error('You do not have admin access')
+        toast.error("You do not have admin access")
+        signOut(auth)
       }
     } catch (error) {
       if (error instanceof Error) {
-        setError(error.message)
+        toast.error(error.message)
       } else {
-        setError('An unknown error occurred')
+        toast.error('An unknown error occurred')
       }
       signOut(auth)
     } finally {
@@ -73,21 +71,21 @@ export default function LoginPage() {
     }
   }
 
-
   const handleSignOut = async () => {
     try {
       await signOut(auth)
     } catch (error) {
       if (error instanceof Error) {
-        setError(error.message)
+        toast.error(error.message)
       } else {
-        setError('An unknown error occurred')
+        toast.error('An unknown error occurred')
       }
     }
   }
 
   return (
     <div className="flex items-center justify-center min-h-screen bg-background p-4">
+      <Toaster />
       <div className="w-full max-w-md bg-background rounded-xl shadow-md p-8 space-y-6 bg-white">
         {user ? (
           <div className="text-center bg-white">
@@ -131,9 +129,6 @@ export default function LoginPage() {
                 </>
               )}
             </button>
-            {error && (
-              <p className="text-red-500 mt-2">{error}</p>
-            )}
           </div>
         )}
       </div>
