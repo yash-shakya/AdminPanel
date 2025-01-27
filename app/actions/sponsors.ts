@@ -1,15 +1,4 @@
-import {
-  collection,
-  addDoc,
-  getDocs,
-  getDoc,
-  setDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { db } from "@/app/db";
-import { IMGBB } from "../helpers/imgbb";
+import { database, ref, set, push, get, remove, update } from "@/app/db";
 import createImgbbUrl from "../helpers/imgbb";
 
 type SponsorsSchema = Record<string, Record<string, Sponsor>>;
@@ -38,29 +27,23 @@ export async function createSponsor(
     sponsor.imageUrl = imgbb?.url as string;
 
     const sponsorCategory = sponsor.category;
-    const categoryDocRef = doc(db, "sponsors", sponsorCategory);
-
-    // Fetch the category document
-    const categoryDoc = await getDoc(categoryDocRef);
-    let sponsorsInCategory = categoryDoc.exists() ? categoryDoc.data() : {};
+    const categoryRef = ref(database, `sponsors/${sponsorCategory}`);
 
     // Generate a new sponsor ID
-    const newSponsorId = `id_${Date.now()}`;
+    const newSponsorRef = push(categoryRef);
+    const newSponsorId = newSponsorRef.key;
 
-    // Add the new sponsor under the category
-    sponsorsInCategory[newSponsorId] = {
+    if (!newSponsorId) {
+      throw new Error("Failed to generate sponsor ID");
+    }
+
+    // Add the new sponsor
+    await set(newSponsorRef, {
       alt: sponsor.alt,
       imageUrl: sponsor.imageUrl,
       name: sponsor.name,
       targetUrl: sponsor.targetUrl,
-    };
-
-    // Update or create the category document
-    if (categoryDoc.exists()) {
-      await updateDoc(categoryDocRef, sponsorsInCategory);
-    } else {
-      await setDoc(categoryDocRef, sponsorsInCategory);
-    }
+    });
 
     console.log(
       `Sponsor created with ID: ${newSponsorId} in category: ${sponsorCategory}`,
@@ -74,31 +57,30 @@ export async function createSponsor(
 
 export async function getAllSponsors(): Promise<Sponsor[]> {
   try {
-    // Reference to the "sponsors" collection
-    const sponsorsCollectionRef = collection(db, "sponsors");
+    const sponsorsRef = ref(database, "sponsors");
+    const snapshot = await get(sponsorsRef);
 
-    // Fetch all documents in the "sponsors" collection
-    const sponsorDocsSnapshot = await getDocs(sponsorsCollectionRef);
+    if (!snapshot.exists()) {
+      return [];
+    }
 
-    // Initialize an array to hold all sponsors
+    const sponsorsData = snapshot.val();
     const allSponsors: Sponsor[] = [];
 
-    // Process each document in the "sponsors" collection
-    sponsorDocsSnapshot.forEach((docSnapshot) => {
-      const sponsorCategory = docSnapshot.id; // Document ID is the category
-      const sponsors = docSnapshot.data(); // All sponsors under this category
-
-      // Add each sponsor to the array with its category
-      for (const sponsorId in sponsors) {
-        if (sponsors.hasOwnProperty(sponsorId)) {
-          allSponsors.push({
-            ...sponsors[sponsorId],
-            category: sponsorCategory,
-            id: sponsorId,
-          });
+    for (const sponsorCategory in sponsorsData) {
+      if (sponsorsData.hasOwnProperty(sponsorCategory)) {
+        const sponsorsInCategory = sponsorsData[sponsorCategory];
+        for (const sponsorId in sponsorsInCategory) {
+          if (sponsorsInCategory.hasOwnProperty(sponsorId)) {
+            allSponsors.push({
+              ...sponsorsInCategory[sponsorId],
+              category: sponsorCategory,
+              id: sponsorId,
+            });
+          }
         }
       }
-    });
+    }
 
     console.log("Fetched all sponsors successfully.");
     return allSponsors;
@@ -110,33 +92,24 @@ export async function getAllSponsors(): Promise<Sponsor[]> {
 
 export async function updateSponsor(
   id: string,
-  currentCategory: string, // The sponsor's current category
+  currentCategory: string,
   updatedData: Partial<Sponsor>,
 ): Promise<boolean> {
   try {
-    const oldCategoryDocRef = doc(db, "sponsors", currentCategory);
+    const currentSponsorRef = ref(database, `sponsors/${currentCategory}/${id}`);
+    const snapshot = await get(currentSponsorRef);
 
-    // Fetch the current category document
-    const oldCategoryDocSnap = await getDoc(oldCategoryDocRef);
-    if (!oldCategoryDocSnap.exists()) {
-      throw new Error(`Current category ${currentCategory} does not exist.`);
-    }
-
-    const sponsorsInOldCategory = oldCategoryDocSnap.data();
-
-    if (!sponsorsInOldCategory || !sponsorsInOldCategory[id]) {
+    if (!snapshot.exists()) {
       throw new Error(
         `Sponsor with ID ${id} not found in category ${currentCategory}.`,
       );
     }
 
-    // Store the existing sponsor data before modifying/deleting it
     const sponsorData = {
-      ...sponsorsInOldCategory[id], // Existing data from the old category
-      ...updatedData, // Merge with the updated data
+      ...snapshot.val(),
+      ...updatedData,
     };
 
-    // Handle image upload if needed
     if (updatedData.image) {
       const imgbb = await createImgbbUrl(updatedData.image);
       delete updatedData.image;
@@ -145,51 +118,21 @@ export async function updateSponsor(
       }
     }
 
-    // Check if the category is changing
     const newCategory = updatedData.category || currentCategory;
 
     if (newCategory !== currentCategory) {
-      // Remove the sponsor from the old category
-      delete sponsorsInOldCategory[id];
+      // Remove from the current category
+      await remove(currentSponsorRef);
 
-      // Add the sponsor to the new category
-      const newCategoryDocRef = doc(db, "sponsors", newCategory);
-      const newCategoryDocSnap = await getDoc(newCategoryDocRef);
-      let sponsorsInNewCategory = newCategoryDocSnap.exists()
-        ? newCategoryDocSnap.data()
-        : {};
-
-      sponsorsInNewCategory[id] = {
-        ...sponsorData, // Use the fully prepared sponsor data
-      };
-
-      // If the old category becomes empty, delete it
-      if (Object.keys(sponsorsInOldCategory).length === 0) {
-        await deleteDoc(oldCategoryDocRef);
-        console.log(`Category ${currentCategory} deleted as it became empty.`);
-      } else {
-        // Otherwise, update the category document
-        await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
-      }
-      delete sponsorsInNewCategory[id].image;
-      // Update or create the new category document
-      if (newCategoryDocSnap.exists()) {
-        await updateDoc(newCategoryDocRef, sponsorsInNewCategory);
-      } else {
-        await setDoc(newCategoryDocRef, sponsorsInNewCategory);
-      }
-
+      // Add to the new category
+      const newSponsorRef = ref(database, `sponsors/${newCategory}/${id}`);
+      await set(newSponsorRef, sponsorData);
       console.log(
         `Sponsor moved from category ${currentCategory} to ${newCategory} and updated successfully!`,
       );
     } else {
-      // Update the sponsor in the same category
-      sponsorsInOldCategory[id] = {
-        ...sponsorData, // Use the fully prepared sponsor data
-        updatedAt: Date.now(),
-      };
-
-      await updateDoc(oldCategoryDocRef, sponsorsInOldCategory);
+      // Update in the same category
+      await update(currentSponsorRef, sponsorData);
       console.log(
         `Sponsor with ID ${id} updated in category ${currentCategory}.`,
       );
@@ -207,39 +150,24 @@ export async function deleteSponsor(
   sponsorId: string,
 ): Promise<string> {
   try {
-    if (!sponsorId) {
-      throw new Error("No sponsor id found");
-    }
-    // Reference to the specific sponsor category document
-    const categoryDocRef = doc(db, "sponsors", sponsorCategory);
+    const sponsorRef = ref(database, `sponsors/${sponsorCategory}/${sponsorId}`);
+    const snapshot = await get(sponsorRef);
 
-    // Fetch the document
-    const categoryDoc = await getDoc(categoryDocRef);
-
-    if (!categoryDoc.exists()) {
-      throw new Error(`Sponsor category "${sponsorCategory}" does not exist.`);
-    }
-
-    // Get all sponsors under the category
-    const sponsors = categoryDoc.data();
-
-    // Check if the sponsorId exists in the category
-    if (!sponsors[sponsorId]) {
+    if (!snapshot.exists()) {
       throw new Error(
         `Sponsor with ID "${sponsorId}" does not exist in category "${sponsorCategory}".`,
       );
     }
 
-    // Remove the sponsor with the given sponsorId
-    delete sponsors[sponsorId];
+    await remove(sponsorRef);
 
-    if (Object.keys(sponsors).length === 0) {
-      // If no sponsors remain, delete the entire document
-      await deleteDoc(categoryDocRef);
-    } else {
-      // Otherwise, update the document with the modified sponsors
-      await setDoc(categoryDocRef, sponsors, { merge: false });
+    const categoryRef = ref(database, `sponsors/${sponsorCategory}`);
+    const categorySnapshot = await get(categoryRef);
+
+    if (!categorySnapshot.exists()) {
+      console.log(`Category ${sponsorCategory} has no remaining sponsors.`);
     }
+
     console.log(
       `Sponsor with ID "${sponsorId}" successfully deleted from category "${sponsorCategory}".`,
     );
@@ -252,26 +180,14 @@ export async function deleteSponsor(
 
 export async function getSponsorById(id: string, category: string) {
   try {
-    // Reference the category document
-    const categoryDocRef = doc(db, "sponsors", category);
+    const sponsorRef = ref(database, `sponsors/${category}/${id}`);
+    const snapshot = await get(sponsorRef);
 
-    // Fetch the category document
-    const categoryDocSnap = await getDoc(categoryDocRef);
-
-    if (categoryDocSnap.exists()) {
-      const sponsors = categoryDocSnap.data();
-
-      // Check if the sponsor with the given ID exists
-      if (sponsors && sponsors[id]) {
-        return sponsors[id];
-      } else {
-        throw new Error(
-          `Sponsor with ID ${id} not found in category ${category}`,
-        );
-      }
-    } else {
-      throw new Error(`Category document ${category} not found`);
+    if (!snapshot.exists()) {
+      throw new Error(`Sponsor with ID ${id} not found in category ${category}`);
     }
+
+    return snapshot.val();
   } catch (error) {
     console.error("Error fetching sponsor:", error);
     throw new Error("Failed to fetch sponsor");
