@@ -1,14 +1,4 @@
-import {
-  collection,
-  addDoc,
-  setDoc,
-  getDocs,
-  getDoc,
-  doc,
-  updateDoc,
-  deleteDoc,
-} from "firebase/firestore";
-import { db } from "../db";
+import { database, ref, get, set, update, remove, child } from "@/app/db";
 import createImgbbUrl, { IMGBB } from "../helpers/imgbb";
 
 export type DevTeamMember = {
@@ -28,15 +18,11 @@ type YEAR =
   | "Final Year"
   | "Super Senior";
 
-// TODO: update function may have to be chnaged. Currently not in use
-
 /**
  * Adds a new member to the development team.
  *
  * @param {DevTeamMember} member - The development team member to add.
  * @returns {Promise<string | { err_desc: string }>} The ID of the added team member or an error description.
- *
- * @throws Will throw an error if adding the team member fails.
  */
 export async function addDevTeamMember(
   member: DevTeamMember,
@@ -46,25 +32,21 @@ export async function addDevTeamMember(
       return { err_desc: "No image given" };
     }
 
-    const devDocRef = doc(db, "devs", "aboutDevs");
-
-    // Fetch the existing document
-    const devDoc = await getDoc(devDocRef);
+    const devsRef = ref(database, "devs/aboutDevs");
+    const snapshot = await get(devsRef);
     let members: DevTeamMember[] = [];
 
-    if (devDoc.exists()) {
-      const data = devDoc.data();
+    if (snapshot.exists()) {
+      const data = snapshot.val();
       if (data?.members && Array.isArray(data.members)) {
-        members = data.members; // Use the existing array if valid
+        members = data.members;
       } else {
         console.warn("Document data does not contain a valid members array.");
       }
     }
 
-    // Add the new member to the array
     members.push(member);
-    // Update the document with the wrapped array
-    await setDoc(devDocRef, { members });
+    await set(devsRef, { members });
 
     console.log("Dev team member added successfully");
     return "Member added successfully";
@@ -75,21 +57,24 @@ export async function addDevTeamMember(
 }
 
 /**
- * Fetches the list of development team members from the "devTeam" collection in the database.
+ * Fetches the list of development team members.
  *
  * @returns {Promise<Array<{ id: string, [key: string]: any }> | { err_desc: string }>}
- * A promise that resolves to an array of objects representing the dev team members,
- * each containing an `id` and other data fields, or an error description object if the fetch fails.
- *
- * @throws Will log an error message to the console if there is an issue fetching the dev team members.
  */
 export async function getDevTeamMembers(): Promise<
-  Array<{ id: string; [key: string]: any }> | { err_desc: string }
+  Array<{ id: string;[key: string]: any }> | { err_desc: string }
 > {
   try {
-    const devTeamRef = collection(db, "devs");
-    const snapshot = await getDocs(devTeamRef);
-    return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+    const devsRef = ref(database, "devs/aboutDevs");
+    const snapshot = await get(devsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      return data?.members || [];
+    } else {
+      console.warn("No data found");
+      return [];
+    }
   } catch (error) {
     console.error("Error getting dev team members:", error);
     return {
@@ -99,22 +84,24 @@ export async function getDevTeamMembers(): Promise<
 }
 
 /**
- * Retrieves a development team member's data by their ID.
+ * Retrieves a development team member's data by their index.
  *
- * @param {number} index - The ID of the development team member.
+ * @param {number} index - The index of the development team member.
  * @returns {Promise<{ [key: string]: any } | { err_desc: string }>}
- * A promise that resolves to an object containing the team member's data, or an error description if the retrieval fails.
- * @throws Will log an error message to the console if the retrieval fails.
  */
 export async function getDevTeamMemberById(
   index: number,
 ): Promise<{ [key: string]: any } | { err_desc: string }> {
   try {
-    const devTeamRef = doc(db, "devs", "aboutDevs");
-    const snapshot = await getDoc(devTeamRef);
-    // snapshot will be an object with the ID and members array
-    // index is the index of the member in the array
-    return snapshot.data()?.members[index];
+    const devsRef = ref(database, "devs/aboutDevs");
+    const snapshot = await get(devsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      return data?.members?.[index] || { err_desc: "Member not found" };
+    } else {
+      return { err_desc: "Data not found" };
+    }
   } catch (error) {
     console.error("Error getting dev team member by ID:", error);
     return {
@@ -126,27 +113,39 @@ export async function getDevTeamMemberById(
 /**
  * Updates a development team member's information in the database.
  *
- * @param {string} id - The unique identifier of the development team member.
- * @param {Partial<DevTeamMember>} updatedData - An object containing the updated data for the team member.
- * If the `image` property is provided, it will be uploaded and the `imageUrl` will be updated accordingly.
- *
- * @returns {Promise<boolean>} - A promise that resolves to `true` if the update was successful, or `false` if an error occurred.
- *
- * @throws {Error} - Throws an error if the update operation fails.
+ * @param {number} index - The index of the development team member.
+ * @param {Partial<DevTeamMember>} updatedData - The updated data for the team member.
+ * @returns {Promise<boolean>}
  */
 export async function updateDevTeamMember(
-  id: string,
+  index: number,
   updatedData: Partial<DevTeamMember>,
 ): Promise<boolean> {
   try {
-    const devTeamRef = doc(db, "devs", id);
-    if (updatedData.image) {
-      const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
-      delete updatedData.image;
-      if (imgbb) updatedData.imageUrl = imgbb.url as string;
+    const devsRef = ref(database, "devs/aboutDevs");
+    const snapshot = await get(devsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const members = data?.members;
+
+      if (!Array.isArray(members)) {
+        console.error("No members found in the document");
+        return false;
+      }
+
+      if (updatedData.image) {
+        const imgbb: IMGBB | null = await createImgbbUrl(updatedData.image);
+        delete updatedData.image;
+        if (imgbb) updatedData.imageUrl = imgbb.url as string;
+      }
+
+      members[index] = { ...members[index], ...updatedData };
+      await set(devsRef, { members });
+      return true;
+    } else {
+      return false;
     }
-    await updateDoc(devTeamRef, updatedData);
-    return true;
   } catch (error) {
     console.error("Error updating dev team member:", error);
     return false;
@@ -154,25 +153,31 @@ export async function updateDevTeamMember(
 }
 
 /**
- * Deletes a member from the dev team based on the provided ID.
+ * Deletes a member from the dev team based on the provided index.
  *
- * @param {number} index - The ID of the dev team member to delete.
- * @returns {Promise<boolean>} - A promise that resolves to `true` if the deletion was successful, or `false` if an error occurred.
- *
- * @throws Will log an error message to the console if the deletion fails.
+ * @param {number} index - The index of the dev team member to delete.
+ * @returns {Promise<boolean>}
  */
 export async function deleteDevTeamMember(index: number): Promise<boolean> {
   try {
-    const devTeamRef = doc(db, "devs", "aboutDevs");
-    const snapshot = await getDoc(devTeamRef);
-    const members = snapshot.data()?.members;
-    if (!Array.isArray(members)) {
-      console.error("No members found in the document");
+    const devsRef = ref(database, "devs/aboutDevs");
+    const snapshot = await get(devsRef);
+
+    if (snapshot.exists()) {
+      const data = snapshot.val();
+      const members = data?.members;
+
+      if (!Array.isArray(members)) {
+        console.error("No members found in the document");
+        return false;
+      }
+
+      members.splice(index, 1);
+      await set(devsRef, { members });
+      return true;
+    } else {
       return false;
     }
-    members.splice(index, 1);
-    await setDoc(devTeamRef, { members });
-    return true;
   } catch (error) {
     console.error("Error deleting dev team member:", error);
     return false;
