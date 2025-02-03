@@ -3,8 +3,10 @@ import createImgbbUrl from "../helpers/imgbb";
 
 export type EventCategoryData = {
   eventCategory: string;
-  image: string;
+  icon: string;
+  imgUrl: string;
   index: number;
+  image?: string; // for updatedData
 };
 
 export type EventCategory = EventCategoryData & {
@@ -29,7 +31,8 @@ export async function createEventCategory(
     const randomIndex = Math.floor(1000 + Math.random() * 9000);
     const categoryData: EventCategoryData = {
       eventCategory: data.eventCategory,
-      image: imageResult.url,
+      imgUrl: imageResult?.url,
+      icon: imageResult?.thumb as string,
       index: randomIndex,
     };
 
@@ -46,20 +49,19 @@ export async function getAllEventCategory(): Promise<EventCategory[]> {
   const categories: EventCategory[] = [];
 
   try {
-    const categoriesRef = ref(database, "eventCategories");
+    const categoriesRef = ref(database, "events");
     const snapshot = await get(categoriesRef);
 
-    if (snapshot.exists()) {
-      const data = snapshot.val();
-      for (const [id, value] of Object.entries(data)) {
-        categories.push({
-          id,
-          ...(value as EventCategoryData),
-        });
-      }
+    if (!snapshot.exists()) {
+      throw new Error("Internal server error");
     }
+    const val = snapshot.val() as EventCategory[];
 
-    return categories;
+    const resp = Object.entries(val).map(([category,categoryData]) => {
+      return {...categoryData,eventCategory: category,id: category};
+    })
+
+    return resp;
   } catch (error) {
     console.error("Error fetching event categories:", error);
     throw new Error("Failed to fetch event categories");
@@ -79,13 +81,14 @@ export async function deleteEventCategory(id: string): Promise<void> {
 
 export async function getEventCategoryById(id: string): Promise<EventCategory> {
   try {
-    const categoryRef = ref(database, `eventCategories/${id}`);
+    const categoryRef = ref(database, `events/${id}`);
     const snapshot = await get(categoryRef);
-
+    console.log("hoihsaf;oihasdf",snapshot.val());
     if (snapshot.exists()) {
+      const val = snapshot.val();
       return {
         id,
-        ...(snapshot.val() as EventCategoryData),
+        ...(val as EventCategoryData),
       };
     } else {
       throw new Error("Event category not found");

@@ -5,7 +5,10 @@ import ViewEventClientPage from "./ViewEventClient";
 
 export type EventMap = {
   [category: string]: {
-    [eventName: string]: Event;
+    events: {[eventName: string]: Event};
+    icon: string;
+    imgUrl: string;
+    index: number;
   };
 };
 

@@ -33,7 +33,7 @@ export default function UpdateSponsorForm({
       try {
         const sponsor = await getSponsorById(id, category);
         setForm({
-          category: category,
+          category: decodeURIComponent(category),
           name: sponsor.name || "",
           alt: sponsor.alt || "",
           targetUrl: sponsor.targetUrl || "",

@@ -24,7 +24,7 @@ type FieldType =
 const EditNotificationPage = () => {
   const router = useRouter();
   const { id } = useParams();
-  const [notification, setNotification] = useState<Notification | null>(null);
+  const [notification, setNotification] = useState<{notification: Notification, time: string} | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -61,46 +61,46 @@ const EditNotificationPage = () => {
       name: "title",
       label: "Title",
       type: "text" as FieldType,
-      value: notification.title,
+      value: notification.notification.title,
       required: true,
     },
     {
       name: "body",
       label: "Body",
       type: "textarea" as FieldType,
-      value: notification.body,
+      value: notification.notification.body,
       required: true,
     },
     {
       name: "android_channel_id",
       label: "Club/Society",
       type: "text" as FieldType,
-      value: notification.android_channel_id,
+      value: notification.notification.android_channel_id,
       required: true,
     },
     {
       name: "link",
       label: "Link",
       type: "text" as FieldType,
-      value: notification.link,
+      value: notification.notification.link,
       required: true,
     },
     {
       name: "image",
       label: "Image",
       type: "file" as FieldType,
-      value: notification.image,
+      value: notification.notification.image,
       required: true,
     },
     {
       name: "time",
       label: "Time",
       type: "datetime-local" as FieldType,
-      value: new Date(notification.time).toISOString().slice(0, 16),
+      value: new Date(Number(notification.time)).toISOString().slice(0, 16),
       required: true,
     },
   ];
-
+  
   return (
     <div>
       <h1>Edit Notification</h1>

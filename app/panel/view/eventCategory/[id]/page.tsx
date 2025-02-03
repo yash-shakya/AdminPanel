@@ -61,14 +61,14 @@ const EditEventCategoryPage = () => {
       name: "eventCategory",
       label: "Event Category",
       type: "text" as FieldType,
-      value: category.eventCategory,
+      value: category.id,
       required: true,
     },
     {
       name: "image",
       label: "Image",
       type: "file" as FieldType,
-      value: category.image,
+      value: category.imgUrl,
       required: true,
     },
     {

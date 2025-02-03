@@ -68,31 +68,31 @@ export default function NotificationTable({
         const cardData = [
           {
             label: "Channel",
-            value: notification.android_channel_id,
+            value: notification.notification.android_channel_id,
           },
           {
             label: "Message",
             value:
-              notification.body.length > 50
-                ? `${notification.body.substring(0, 50)}...`
-                : notification.body,
+              notification.notification.body.length > 50
+                ? `${notification.notification.body.substring(0, 50)}...`
+                : notification.notification.body,
           },
           {
             label: "Link",
-            value: notification.link,
+            value: notification.notification.link,
             isURL: true,
           },
           {
             label: "Time",
-            value: new Date(notification.time).toLocaleString(),
+            value: new Date(Number(notification.time)).toLocaleString('en-IN',{timeZone: 'Asia/Kolkata'}),
           },
         ];
 
         return (
           <BaseCard
             key={id}
-            image={notification.image}
-            title={notification.title}
+            image={notification.notification.image}
+            title={notification.notification.title}
             data={cardData}
             toEdit={`/panel/view/notification/${id}`}
             onDelete={() => handleDelete(id)}
