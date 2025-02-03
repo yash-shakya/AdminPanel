@@ -17,7 +17,10 @@ export type Event = {
 
 type EventMap = {
   [category: string]: {
-    [eventName: string]: Event;
+    events: {[eventName: string]: Event};
+    icon: string;
+    imgUrl: string;
+    index: number;
   };
 };
 
@@ -66,19 +69,10 @@ export async function getAllEvents(): Promise<EventMap> {
     const snapshot = await get(eventsRef);
 
     if (snapshot.exists()) {
-      const events = snapshot.val();
-      for (const eventId in events) {
-        const eventData = events[eventId] as Event;
-        const { eventCategory, eventName } = eventData;
-
-        if (!eventMap[eventCategory]) {
-          eventMap[eventCategory] = {};
-        }
-        eventMap[eventCategory][eventName] = eventData;
-      }
+      return snapshot.val();
     }
 
-    return eventMap;
+    return {};
   } catch (error) {
     console.error("Error fetching all events:", error);
     throw new Error("Failed to fetch all events");
@@ -134,49 +128,36 @@ export async function updateEventByName(
   updatedData: any,
 ): Promise<void> {
   try {
-    const eventsRef = ref(database, "events");
-    const eventQuery = query(
-      eventsRef,
-      orderByChild("eventCategory"),
-      equalTo(eventCategory),
-    );
+    const eventsRef = ref(database, `events/${eventCategory}/events/${eventName}`);
+    const eventDescriptionRef = ref(database,`eventDescription/${eventCategory}/${eventName}`);
 
-    const snapshot = await get(eventQuery);
-
-    if (!snapshot.exists()) {
+    const eventsSnapshot = await get(eventsRef);
+    
+    if (!eventsSnapshot.exists()) {
       throw new Error(
         `Event '${eventName}' in category '${eventCategory}' does not exist.`,
       );
     }
-
+    
+    const eventDescriptionSnapshot = await get(eventDescriptionRef);
     let eventKey: string | null = null;
     let poster: string | undefined;
-
-    snapshot.forEach((childSnapshot) => {
-      const event = childSnapshot.val() as Event;
-      if (event.eventName === eventName) {
-        eventKey = childSnapshot.key;
-        poster = event.poster;
-      }
-    });
-
-    if (!eventKey) {
-      throw new Error("Event not found.");
-    }
-
+    console.log("youuo",updatedData);
     if (updatedData.image) {
       const imageUrl = await createImgbbUrl(updatedData.image);
       poster = imageUrl?.url as string;
+      updatedData.poster = poster;
     }
 
-    const updatedEventData = {
-      ...updatedData,
-      poster,
-    };
+    console.log("=====",updatedData);
+    const {endTime,startTime} = updatedData;
+    delete updatedData.image;
 
-    delete updatedEventData.image;
-
-    await update(ref(database, `events/${eventKey}`), updatedEventData);
+    await update(eventDescriptionRef, updatedData);
+    const updatedEventData2 = {
+      endTime, startTime, eventName
+    }
+    await update(eventsRef,updatedEventData2);
   } catch (error) {
     console.error(
       `Failed to update event '${eventName}' in category '${eventCategory}':`,
@@ -191,32 +172,17 @@ export async function getEventByName(
   eventName: string,
 ): Promise<Event | null> {
   try {
-    const eventsRef = ref(database, "events");
-    const eventQuery = query(
-      eventsRef,
-      orderByChild("eventCategory"),
-      equalTo(eventCategory),
-    );
-
-    const snapshot = await get(eventQuery);
+    const eventRef = ref(database, `eventDescription/${eventCategory}/${eventName}`);
+    const snapshot = await get(eventRef);
 
     if (!snapshot.exists()) {
       console.error(
-        `Event '${eventName}' in category '${eventCategory}' does not exist.`,
+        `Event '${eventName}' in category '${eventCategory}' does not exist.`
       );
       return null;
     }
 
-    let foundEvent: Event | null = null;
-
-    snapshot.forEach((childSnapshot) => {
-      const event = childSnapshot.val() as Event;
-      if (event.eventName === eventName) {
-        foundEvent = event;
-      }
-    });
-
-    return foundEvent;
+    return snapshot.val() as Event;
   } catch (error) {
     console.error("Error fetching event:", error);
     throw new Error("Failed to fetch event");

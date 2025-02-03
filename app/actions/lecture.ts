@@ -110,6 +110,7 @@ export async function getLectureById(id: string): Promise<Lecture | null> {
     const snapshot = await get(lectureRef);
 
     if (snapshot.exists()) {
+      console.log(snapshot.val());
       return snapshot.val() as Lecture;
     } else {
       throw new Error("Lecture not found");

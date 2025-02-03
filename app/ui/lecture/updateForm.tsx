@@ -31,14 +31,14 @@ export default function UpdateLectureForm({ id }: UpdateLectureFormProps) {
       try {
         const lecture = await getLectureById(id);
         setForm({
-          date: lecture.date || "",
-          desc: lecture.desc || "",
-          facebook: lecture.facebook || "",
-          insta: lecture.insta || "",
-          linkedin: lecture.linkedin || "",
-          link: lecture.link || "",
-          name: lecture.name || "",
-          time: lecture.time || "",
+          date: lecture?.date || "",
+          desc: lecture?.desc || "",
+          facebook: lecture?.facebook || "",
+          insta: lecture?.insta || "",
+          linkedin: lecture?.linkedin || "",
+          link: lecture?.link || "",
+          name: lecture?.name || "",
+          time: lecture?.time || "",
           image: null, // Assuming file upload handling is separate
         });
       } catch (error) {

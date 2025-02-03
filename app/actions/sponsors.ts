@@ -96,6 +96,7 @@ export async function updateSponsor(
   updatedData: Partial<Sponsor>,
 ): Promise<boolean> {
   try {
+    currentCategory = decodeURIComponent(currentCategory);
     const currentSponsorRef = ref(database, `sponsors/${currentCategory}/${id}`);
     const snapshot = await get(currentSponsorRef);
 
@@ -180,11 +181,12 @@ export async function deleteSponsor(
 
 export async function getSponsorById(id: string, category: string) {
   try {
-    const sponsorRef = ref(database, `sponsors/${category}/${id}`);
+    const decodedCategory = decodeURIComponent(category);
+    const sponsorRef = ref(database, `sponsors/${decodedCategory}/${id}`);
     const snapshot = await get(sponsorRef);
 
     if (!snapshot.exists()) {
-      throw new Error(`Sponsor with ID ${id} not found in category ${category}`);
+      throw new Error(`Sponsor with ID ${id} not found in category ${decodedCategory}`);
     }
 
     return snapshot.val();

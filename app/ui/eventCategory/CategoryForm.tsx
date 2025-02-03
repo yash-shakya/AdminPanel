@@ -5,11 +5,18 @@ import {
   deleteEventCategory,
 } from "@/app/actions/eventCategory";
 
-interface EventCategory {
-  id: string;
+export type EventCategoryData = {
   eventCategory: string;
-  image: string;
-}
+  icon: string;
+  imgUrl: string;
+  index: number;
+  image?: string; // for updatedData
+};
+
+export type EventCategory = EventCategoryData & {
+  id: string;
+};
+
 
 export default function EventCategoryTable() {
   const [eventCategories, setEventCategories] = useState<EventCategory[]>([]);
@@ -31,7 +38,7 @@ export default function EventCategoryTable() {
       setIsLoading(false);
     }
   };
-
+  console.log(eventCategories);
   const handleDelete = async (id: string) => {
     try {
       await deleteEventCategory(id);
@@ -65,7 +72,7 @@ export default function EventCategoryTable() {
         return (
           <BaseCard
             key={category.id}
-            image={category.image}
+            image={category.imgUrl || ""}
             title={category.eventCategory}
             data={[]}
             toEdit={`/panel/view/eventCategory/${category.id}`}

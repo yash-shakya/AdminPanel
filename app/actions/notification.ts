@@ -15,7 +15,7 @@ export type NotificationInput = Omit<Notification, "image"> & {
 };
 
 export type NotificationsDTO = {
-  [key: string]: Notification;
+  [key: string]: {notification: Notification, time: string};
 };
 
 // Fetch all notifications
@@ -35,12 +35,12 @@ export async function getAllNotifications(): Promise<NotificationsDTO> {
 }
 
 // Fetch a single notification by ID
-export async function getNotificationById(id: string): Promise<Notification> {
+export async function getNotificationById(id: string): Promise<{notification: Notification, time: string}> {
   try {
     const dbRef = ref(database, `notifications/${id}`);
     const snapshot = await get(dbRef);
     if (snapshot.exists()) {
-      return snapshot.val() as Notification;
+      return snapshot.val() as {notification: Notification, time: string};
     } else {
       throw new Error("Notification not found");
     }

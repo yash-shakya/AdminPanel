@@ -5,7 +5,10 @@ import { deleteEvent } from "@/app/actions/events";
 import { useRouter } from "next/navigation";
 export type EventMap = {
   [category: string]: {
-    [eventName: string]: Event;
+    events:{ [eventName: string]: {endTime: number, startTime: number, eventName: string}};
+    icon: string;
+    imgUrl: string;
+    index: number;
   };
 };
 
@@ -27,15 +30,16 @@ export default function ViewEventClient({ events }: { events: EventMap }) {
       alert("Error deleting the event. Please try again.");
     }
   };
+  console.log("HOLa",events);
   return (
     <div className="flex flex-wrap justify-center items-center">
       {Object.entries(events).map(([category, categoryEvents]) =>
-        Object.entries(categoryEvents).map(([eventName, event]) => {
+        Object.entries(categoryEvents.events).map(([eventName, event]) => {
           const dataArray: { label: string; value: string; isUrl?: boolean }[] =
             [
               { label: "Name", value: event.eventName },
-              { label: "Category", value: event.eventCategory },
-              { label: "Poster", value: event.poster as string, isUrl: true },
+              { label: "EndTime", value: new Date(event.startTime).toLocaleDateString() },
+              { label: "StartTime", value: new Date(event.endTime).toLocaleDateString() },
             ];
 
           return (
@@ -43,7 +47,7 @@ export default function ViewEventClient({ events }: { events: EventMap }) {
               <BaseCard
                 data={dataArray}
                 title={event.eventName}
-                image={event.poster || null}
+                image={categoryEvents.imgUrl || null}
                 toEdit={`events/${category}/${event.eventName}`} // Edit URL
                 onDelete={() => handleDelete(event.eventName, category)} // Trigger delete
               />
