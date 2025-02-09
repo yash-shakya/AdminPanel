@@ -54,7 +54,7 @@ export default function UpdateTeams({ id }: UpdateTeamsProps) {
     const newContact = {
       imageURL: "",
       name: "",
-      post: Post.Convenor,
+      post: Post.Convener,
     };
     setTeamData({ ...teamData, contacts: [...teamData.contacts, newContact] });
   };

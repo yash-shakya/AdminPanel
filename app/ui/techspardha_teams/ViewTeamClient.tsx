@@ -22,10 +22,10 @@ export default function ViewTeamsClient({ teamList }: { teamList: any[] }) {
             title={team.id}
             data={[
               {
-                label: "Convenor",
+                label: "Convener",
                 value:
                   team.contacts.find(
-                    (contact: any) => contact.post === "Convenor",
+                    (contact: any) => contact.post === "Convener",
                   )?.name || "Not Available",
               },
             ]}

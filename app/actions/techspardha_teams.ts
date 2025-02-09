@@ -54,8 +54,8 @@ type Contacts = {
 };
 
 export enum Post {
-  Convenor = "Convenor",
-  CoConvenor = "Co-Convenor",
+  Convener = "Convener",
+  CoConvener = "Co-Convener",
 }
 
 export type TechspardhaTeamsDTO = {
