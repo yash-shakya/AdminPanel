@@ -14,9 +14,7 @@ export interface Event {
   document: string,
   poster: string,
   cordinators: Coordinator[],
-  rules: [
-    string
-  ]
+  rules: string[];
 }
 
 export interface EventsResponse {
