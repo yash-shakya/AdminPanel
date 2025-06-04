@@ -87,7 +87,7 @@ export async function getEventsDescriptionByCategory(eventCategory: string,event
     try {
         let url = `${process.env.SERVER_URL}/events/description?eventCategory=${encodeURIComponent(eventCategory)}`
         if (eventName && eventName.trim() !== "") {
-            url += `?eventName=${encodeURIComponent(eventName)}`;
+            url += `&eventName=${encodeURIComponent(eventName)}`;
         }
         const response = await axios.get<EventsResponse>(url);
         return response.data.data.events;
