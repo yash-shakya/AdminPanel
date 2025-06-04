@@ -82,7 +82,7 @@ export async function getEventsNames(eventCategory?: string): Promise<Event[]> {
 
 export async function getEventsDescriptionByCategory(eventCategory: string,eventName?:string): Promise<Event[]> {
     if(!eventCategory){
-        throw new Error("Event catergory is required");
+        throw new Error("Event category is required");
     }
     try {
         let url = `${process.env.SERVER_URL}/events/description?eventCategory=${encodeURIComponent(eventCategory)}`
