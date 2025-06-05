@@ -7,7 +7,7 @@ export async function getUserEvents(): Promise<Event[]> {
     const url = `${process.env.SERVER_URL}/user/event`;
 
     const response = await axios.get<UserEventsResponse>(url, {
-      withCredentials: true, // ensure session/cookie is sent
+      withCredentials: true, 
     });
 
     return response.data.data.events;
