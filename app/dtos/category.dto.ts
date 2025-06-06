@@ -12,3 +12,11 @@ export interface CategoriesResponse {
     categories: Category[];
   };
 }
+
+export interface SimpleCategoriesResponse {
+  success: boolean;
+  message: string;
+  data: {
+    categories: string[];
+  };
+}
