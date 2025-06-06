@@ -1,37 +1,13 @@
 import axios from "axios";
-import dotenv from "dotenv";
-dotenv.config();
 
 // ALL REQUESTS TO BE MADE BY ROLE MANAGER
 
-type Coordinator = {
-    coordinator_name: string;
-    coordinator_number: string;
-};
+import { Event ,addEventResponse , UsersResponse} from "../dtos/event.dto";
+import { addSponsordto ,SponsorsResponse } from "../dtos/sponsor.dto";
+import { QueryResponse } from "../dtos/query.dto";
+import { mailResponse } from "../dtos/mail.dto";
 
-type EventData = {
-    eventName: string;
-    category: string;
-    venue: string;
-    description: string;
-    endTime: number;
-    startTime: number;
-    document: string;
-    poster: string;
-    cordinators: Coordinator[];
-    rules: string[];
-};
-
-type Sponsor ={
-    name: string;
-    imageUrl: string;
-    targetUrl: string;
-    SponserSection: string;
-}
-
-export type {EventData, Coordinator , Sponsor};
-
-export async function addEvent(eventData: EventData): Promise<any> {
+export async function addEvent(eventData: Event): Promise<addEventResponse> {
     try{
         const url= `${process.env.SERVER_URL}/events`;
         const response=await axios.post(url, eventData);
@@ -43,10 +19,10 @@ export async function addEvent(eventData: EventData): Promise<any> {
     }
 }
 
-export async function addSponsor(sponsorData: Sponsor): Promise<any> {
+export async function addSponsor(sponsor: addSponsordto): Promise<SponsorsResponse> {
     try{
         const url= `${process.env.SERVER_URL}/sponsors`;
-        const response=await axios.post(url, sponsorData);
+        const response=await axios.post(url, sponsor);
         return response.data;
     }
     catch (error: any) {
@@ -55,7 +31,7 @@ export async function addSponsor(sponsorData: Sponsor): Promise<any> {
     }
 }
 
-export async function getDataOfEvent(eventCategory:string , eventName:string): Promise<any> {
+export async function getDataOfEvent(eventCategory:string , eventName:string): Promise<UsersResponse> {
     if (!eventCategory || !eventName) {
         throw new Error("Event category and name are required");
     }
@@ -69,7 +45,7 @@ export async function getDataOfEvent(eventCategory:string , eventName:string): P
     }
 }
 
-export async function getQuery() : Promise<any> {
+export async function getQuery() : Promise<QueryResponse> {
     try {
         const url = `${process.env.SERVER_URL}/admin/query`;
         const response = await axios.get(url);
@@ -80,7 +56,7 @@ export async function getQuery() : Promise<any> {
     }
 }
 
-export async function mailCategory(eventName:string , eventCategory:string,heading:string,buttontext:string,buttonlink:string,subject:string,thankyou:string,detail:string): Promise<any> {
+export async function mailCategory(eventName:string , eventCategory:string,heading:string,buttontext:string,buttonlink:string,subject:string,thankyou:string,detail:string): Promise<mailResponse> {
     if (!eventCategory || !eventName) {
         throw new Error("Event category and name are required");
     }
