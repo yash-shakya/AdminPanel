@@ -17,6 +17,11 @@ export interface Event {
   rules: string[];
 }
 
+export interface addEventResponse {
+  success: boolean;
+  message: string;
+}
+
 export interface EventsResponse {
   success: boolean;
   message: string;
@@ -41,3 +46,21 @@ export interface TimelineResponse {
   };
 }
 
+export interface User {
+  email: string;
+  name: string;
+  picture: string;
+  onBoard: boolean;
+  college: string;
+  year: string;
+  admin: boolean;
+  role: string;
+}
+
+export interface UsersResponse {
+  success: boolean;
+  message: string;
+  data: {
+    users: User[];
+  };
+}

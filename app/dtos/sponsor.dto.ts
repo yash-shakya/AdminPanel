@@ -1,3 +1,11 @@
+export interface addSponsordto{
+  name: string;
+  imageUrl: string;
+  targetUrl: string;
+  sponsorSection: string;
+}
+
+
 export interface Sponsor {
   imageUrl: string;
   targetUrl: string;
