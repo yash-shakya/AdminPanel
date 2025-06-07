@@ -4,11 +4,11 @@ export interface mailResponse {
 }
 
 export interface MailBody {
-    users: string[]
-    heading?: string,
-    buttontext?: string,
-    buttonlink?: string,
-    subject?: string,
-    thankyou?: string,
-    detail?: string
+    users: string[];
+    heading?: string;
+    buttontext?: string;
+    buttonlink?: string;
+    subject?: string;
+    thankyou?: string;
+    detail?: string;
 }

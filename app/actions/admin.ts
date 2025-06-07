@@ -31,7 +31,7 @@ export async function deleteQuery(query: QueryBody): Promise<SimpleResponse>{
 }
 
 export async function sendMailToMultipleUsers(mail:MailBody): Promise<SimpleResponse>{
-
+    if(!mail) throw new Error("Mail data is required");
     try {
         const url = `${process.env.SERVER_URL}/admin/mail/list`;
         const response=await axios.post(url,mail);
@@ -43,6 +43,7 @@ export async function sendMailToMultipleUsers(mail:MailBody): Promise<SimpleResp
 }
 
 export async function sendNotification(notification:NotificationBody): Promise<SimpleResponse>{
+    if(!notification) throw new Error("Notification data is required");
     try{
         const url=`${process.env.SERVER_URL}/admin/mobilenoti`;
         const response = await axios.post(url,notification);
@@ -65,6 +66,7 @@ export async function updateUser(): Promise<SimpleResponse> {
 }
 
 export async function updateUserByAdmin(user:UserUpdateBody): Promise<SimpleResponse> {
+    if(!user) throw new Error("User data is required");
     try {
         const url=`${process.env.SERVER_URL}/admin/user`;
         const response = await axios.post(url,user);
