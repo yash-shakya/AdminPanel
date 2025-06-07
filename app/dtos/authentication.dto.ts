@@ -1,6 +1,6 @@
 export interface UserAuthResponse {
-  success: true;
-  onBoard: true;
+  success: boolean;
+  onBoard: boolean;
   data: {
     user: {
       email: string;
@@ -16,9 +16,6 @@ export interface UserAuthResponse {
   };
 }
 
-export interface IdToken {
-    idToken:string;
-}
 
 export interface UserProfileUpdateSchema {
     year:string;
