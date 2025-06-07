@@ -13,6 +13,11 @@ export interface UserEventUpdateRequest {
   eventCategory: string;
 }
 
+export interface UserUpdateBody {
+  userEmail: string;
+  role: string;
+}
+
 export interface SimpleResponse {
   success: boolean;
   message: string;
