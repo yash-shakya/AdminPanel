@@ -26,3 +26,34 @@ export interface SimpleResponse {
 export interface AddQueryRequest {
   text: string;
 }
+
+
+export interface LoginRequest {
+  idToken: string;
+}
+
+export interface User {
+  email: string;
+  name: string;
+  picture: string;
+  onBoard: boolean;
+  college: string;
+  year: string;
+  admin: boolean;
+  role: string;
+}
+
+export interface UpdateUserRequest {
+  year:string;
+  college:string;
+  phone:string;
+}
+
+export interface LoginUserResponse {
+  success: boolean;
+  onBoard: boolean;
+  data: {
+    user: User;
+    token: string;
+  };
+}
