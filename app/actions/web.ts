@@ -43,7 +43,8 @@ export async function UpdateUserProfileForWeb(payload:updateUserRequest): Promis
           headers: {
             "Content-Type": "application/json",
             Accept: "application/json"
-      })
+        }
+    })
 
         return response.data
 
