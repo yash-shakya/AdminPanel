@@ -43,7 +43,7 @@ export interface User {
   role: string;
 }
 
-export interface updateUserRequest {
+export interface UpdateUserRequest {
   year:string;
   college:string;
   phone:string;

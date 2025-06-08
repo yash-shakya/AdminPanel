@@ -1,5 +1,5 @@
 import axios from "axios";
-import { LoginRequest, LoginUserResponse, updateUserRequest } from "../dtos/user.dto";
+import { LoginRequest, LoginUserResponse, UpdateUserRequest } from "../dtos/user.dto";
 
 export async function loginWebUsingGoogleWeb(Token:LoginRequest): Promise<LoginUserResponse> {    
     if(!Token || !Token.idToken || Token.idToken.trim().length === 0) {
@@ -27,7 +27,7 @@ export async function loginWebUsingGoogleWeb(Token:LoginRequest): Promise<LoginU
     }
 }
 
-export async function UpdateUserProfileForWeb(payload:updateUserRequest): Promise<LoginUserResponse> {
+export async function UpdateUserProfileForWeb(payload:UpdateUserRequest): Promise<LoginUserResponse> {
     if(!payload) {
         throw new Error("Empty fields! fill fields to update the user");
     }
